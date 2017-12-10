@@ -1,9 +1,12 @@
-# marked
+# marked-ts
 
 > A full-featured markdown parser and compiler, written in JavaScript. Built
 > for speed.
 
-[![NPM version](https://badge.fury.io/js/marked.png)][badge]
+This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
+(Dec 1, 2017).
+
+For now - work in progress (there is no release yet).
 
 ## Install
 
@@ -16,7 +19,7 @@ npm install marked --save
 Minimal usage:
 
 ```js
-var marked = require('marked');
+const marked = require('marked');
 console.log(marked('I am using __markdown__.'));
 // Outputs: <p>I am using <strong>markdown</strong>.</p>
 ```
@@ -24,7 +27,7 @@ console.log(marked('I am using __markdown__.'));
 Example setting options with default values:
 
 ```js
-var marked = require('marked');
+const marked = require('marked');
 marked.setOptions({
   renderer: new marked.Renderer(),
   gfm: true,
@@ -93,9 +96,9 @@ A function to highlight code blocks. The first example below uses async highligh
 [highlight.js][highlight]:
 
 ```js
-var marked = require('marked');
+const marked = require('marked');
 
-var markdownString = '```js\n console.log("hello"); \n```';
+const markdownString = '```js\n console.log("hello"); \n```';
 
 // Async highlighting with pygmentize-bundled
 marked.setOptions({
@@ -155,11 +158,11 @@ The renderer option allows you to render tokens in a custom manner. Here is an
 example of overriding the default heading token rendering by adding an embedded anchor tag like on GitHub:
 
 ```javascript
-var marked = require('marked');
-var renderer = new marked.Renderer();
+const marked = require('marked');
+const renderer = new marked.Renderer();
 
 renderer.heading = function (text, level) {
-  var escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
+  let escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
 
   return '<h' + level + '><a name="' +
                 escapedText +
@@ -272,13 +275,13 @@ Use "smart" typograhic punctuation for things like quotes and dashes.
 You also have direct access to the lexer and parser if you so desire.
 
 ``` js
-var tokens = marked.lexer(text, options);
+const tokens = marked.lexer(text, options);
 console.log(marked.parser(tokens));
 ```
 
 ``` js
-var lexer = new marked.Lexer(options);
-var tokens = lexer.lex(text);
+const lexer = new marked.Lexer(options);
+const tokens = lexer.lex(text);
 console.log(tokens);
 console.log(lexer.rules);
 ```
@@ -337,13 +340,13 @@ For those feeling skeptical: These benchmarks run the entire markdown test suite
 You also have direct access to the lexer and parser if you so desire.
 
 ``` js
-var tokens = marked.lexer(text, options);
+const tokens = marked.lexer(text, options);
 console.log(marked.parser(tokens));
 ```
 
 ``` js
-var lexer = new marked.Lexer(options);
-var tokens = lexer.lex(text);
+const lexer = new marked.Lexer(options);
+const tokens = lexer.lex(text);
 console.log(tokens);
 console.log(lexer.rules);
 ```
@@ -394,6 +397,7 @@ all code is your original work. `</legalese>`
 ## License
 
 Copyright (c) 2011-2014, Christopher Jeffrey. (MIT License)
+Copyright (c) 2018, Костя Третяк. (MIT License)
 
 See LICENSE for more info.
 

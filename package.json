@@ -1,16 +1,16 @@
 {
-  "name": "marked",
+  "name": "marked-ts",
   "description": "A markdown parser built for speed",
-  "author": "Christopher Jeffrey",
-  "version": "0.3.7",
-  "main": "./lib/marked.js",
+  "author": "Костя Третяк",
+  "version": "0.0.0-alpha.0",
+  "main": "./src/marked",
   "bin": "./bin/marked",
   "man": "./man/marked.1",
   "preferGlobal": true,
-  "repository": "git://github.com/chjj/marked.git",
-  "homepage": "https://github.com/chjj/marked",
+  "repository": "git://github.com/KostyaTretyak/marked-ts.git",
+  "homepage": "https://github.com/KostyaTretyak/marked-ts",
   "bugs": {
-    "url": "http://github.com/chjj/marked/issues"
+    "url": "http://github.com/KostyaTretyak/marked-ts/issues"
   },
   "license": "MIT",
   "keywords": [
@@ -24,11 +24,12 @@
     "html"
   ],
   "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-concat": "^2.5.2",
+    "gulp-uglify": "^1.1.0",
     "markdown": "*",
     "showdown": "*",
-    "gulp": "^3.8.11",
-    "gulp-uglify": "^1.1.0",
-    "gulp-concat": "^2.5.2"
+    "typescript": "^2.6.2"
   },
   "scripts": {
     "test": "node test",
