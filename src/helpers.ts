@@ -40,5 +40,3 @@ export function unescape(html: string)
     return '';
   });
 }
-
-export function noop() {}

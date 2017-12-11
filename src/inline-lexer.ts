@@ -9,7 +9,7 @@
  */
 
 import { ExtendRegexp } from './replace-group';
-import { escape, noop } from './helpers';
+import { escape } from './helpers';
 import { InlineGrammar, MarkedOptions, BlockGfm } from './interfaces';
 import { Renderer } from './renderer';
 import { Marked } from './marked';
@@ -19,7 +19,6 @@ export const inline: InlineGrammar =
 {
   escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
   autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
-  url: noop,
   tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
   link: /^!?\[(inside)\]\(href\)/,
   reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
@@ -28,7 +27,6 @@ export const inline: InlineGrammar =
   em: /^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
   code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
   br: /^ {2,}\n(?!\s*$)/,
-  del: noop,
   text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/,
   _inside: /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/,
   _href: /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/,

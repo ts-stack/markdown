@@ -5,7 +5,6 @@
  */
 
 import { Renderer } from './renderer';
-import { noop } from './helpers';
 
 export interface BlockLevelGrammar
 {

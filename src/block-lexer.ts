@@ -9,7 +9,6 @@
  */
 
 import { BlockLevelGrammar, MarkedOptions, ParamsToken, Links } from './interfaces';
-import { noop } from './helpers';
 import { ExtendRegexp } from './replace-group';
 import { Marked } from './marked';
 
