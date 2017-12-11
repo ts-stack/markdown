@@ -8,12 +8,12 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { BlockLevelGrammar, MarkedOptions, ParamsToken, Links } from './interfaces';
+import { BlockGrammar, MarkedOptions, ParamsToken, Links } from './interfaces';
 import { ExtendRegexp } from './replace-group';
 import { Marked } from './marked';
 
 
-export const block: BlockLevelGrammar =
+export const block: BlockGrammar =
 {
   newline: /^\n+/,
   code: /^( {4}[^\n]+\n*)+/,
@@ -27,12 +27,7 @@ export const block: BlockLevelGrammar =
   paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
   text: /^[^\n]+/,
   bullet: /(?:[*+-]|\d+\.)/,
-  item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/,
-  _tag: '',
-
-  normal: <any>undefined,
-  gfm: <any>undefined,
-  tables: <any>undefined
+  item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
 };
 
 block.item = new ExtendRegexp(block.item, 'gm')
@@ -100,16 +95,19 @@ block.tables =
 
 export class BlockLexer
 {
+  /**
+   * Expose Block Rules.
+   */
+  private static rules: BlockGrammar = block;
+  private rules: BlockGrammar = block.normal;
   private options: MarkedOptions;
   private links: Links;
-  private rules: BlockLevelGrammar;
   private tokens: ParamsToken[];
 
   constructor(options: MarkedOptions)
   {
     this.options = {...Marked.defaults, ...options};
     this.links = {};
-    this.rules = block.normal;
     this.tokens = [];
 
     if(this.options.gfm)
@@ -125,14 +123,15 @@ export class BlockLexer
     }
   }
 
-  static rules = block;
-
   static lex(src: string, options: MarkedOptions)
   {
     const lexer = new this(options);
     return lexer.lex(src);
   }
 
+  /**
+   * Preprocessing.
+   */
   lex(src: string)
   {
     src = src
@@ -144,11 +143,13 @@ export class BlockLexer
     return this.token(src, true);
   }
 
+  /**
+   * Lexing.
+   */
   token(src: string, top: boolean, isBlockQuote?: boolean)
   {
-    // Removes all rows where there are only whitespaces.
-
     let
+    // Removes all rows where there are only whitespaces.
     nextPart: string = src.replace(/^\s+$/gm, ''),
     execArr: RegExpExecArray,
     next: boolean,

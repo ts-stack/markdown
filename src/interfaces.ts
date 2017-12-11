@@ -6,7 +6,7 @@
 
 import { Renderer } from './renderer';
 
-export interface BlockLevelGrammar
+export interface BlockGrammar
 {
   newline?: RegExp,
   code?: RegExp,
@@ -46,7 +46,7 @@ export interface Links
   [key: string]: {href: string, title: string}
 }
 
-export interface BlockGfm extends BlockLevelGrammar
+export interface BlockGfm extends BlockGrammar
 {
   
 }
@@ -100,10 +100,21 @@ export interface InlineGrammar
   text?: RegExp,
   _inside?: RegExp,
   _href?: RegExp,
-
+  /**
+   * Normal Inline Grammar
+   */
   normal?: this,
+  /**
+   * GFM Inline Grammar
+   */
   gfm?: InlineGfm,
-  pedantic?: object,
+  /**
+   * Pedantic Inline Grammar.
+   */
+  pedantic?: this,
+  /**
+   * GFM + Line Breaks Inline Grammar.
+   */
   breaks?: object,
 }
 
