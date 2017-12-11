@@ -4,7 +4,7 @@
 > for speed.
 
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
-(Dec 1, 2017).
+(Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
 For now - work in progress (there is no release yet).
 
@@ -397,6 +397,7 @@ all code is your original work. `</legalese>`
 ## License
 
 Copyright (c) 2011-2014, Christopher Jeffrey. (MIT License)
+
 Copyright (c) 2018, Костя Третяк. (MIT License)
 
 See LICENSE for more info.

@@ -9,34 +9,79 @@ import { noop } from './helpers';
 
 export interface BlockLevelGrammar
 {
-  newline: RegExp,
-  code: RegExp,
-  fences: () => void,
-  hr: RegExp,
-  heading: RegExp,
-  nptable: () => void,
-  lheading: RegExp,
-  blockquote: RegExp,
-  list: RegExp,
-  html: RegExp,
-  def: RegExp,
-  table: () => void,
-  paragraph: RegExp,
-  text: RegExp,
-  bullet: RegExp,
-  item: RegExp,
-  _tag: string,
-  gfm: Gfm,
-
-  /**
-   * GFM + Tables Block Grammar
-   */
-  tables: any,
+  newline?: RegExp,
+  code?: RegExp,
+  fences?: RegExp,
+  hr?: RegExp,
+  heading?: RegExp,
+  nptable?: RegExp,
+  lheading?: RegExp,
+  blockquote?: RegExp,
+  list?: RegExp,
+  html?: RegExp,
+  def?: RegExp,
+  table?: RegExp,
+  paragraph?: RegExp,
+  text?: RegExp,
+  bullet?: RegExp,
+  item?: RegExp,
+  _tag?: string,
 
   /**
    * Normal Block Grammar
    */
-  normal: any,
+  normal?: this,
+  /**
+   * GFM Block Grammar
+   */
+  gfm?: BlockGfm,
+  /**
+   * GFM + Tables Block Grammar
+   */
+  tables?: any,
+
+}
+
+export interface Links
+{
+  [key: string]: {href: string, title: string}
+}
+
+export interface BlockGfm extends BlockLevelGrammar
+{
+  
+}
+
+export type TokenType =
+'space'
+| 'code'
+| 'heading'
+| 'table'
+| 'hr'
+| 'blockquote_start'
+| 'blockquote_end'
+| 'list_start'
+| 'list_end'
+| 'loose_item_start'
+| 'loose_item_end'
+| 'list_item_start'
+| 'list_item_end'
+| 'paragraph'
+| 'html'
+| 'text'
+;
+
+export interface ParamsToken
+{
+  type?: TokenType;
+  text?: string;
+  lang?: string;
+  depth?: number;
+  header?: string[];
+  align?: string[];
+  cells?: string[][];
+  ordered?: boolean;
+  pre?: boolean;
 }
 
 export interface InlineGrammar
@@ -57,16 +102,15 @@ export interface InlineGrammar
   _inside?: RegExp,
   _href?: RegExp,
 
-  normal?: object,
+  normal?: this,
+  gfm?: InlineGfm,
   pedantic?: object,
-  gfm?: Gfm,
   breaks?: object,
 }
 
-export interface Gfm extends InlineGrammar
+export interface InlineGfm extends InlineGrammar
 {
-  paragraph?: RegExp,
-  fences?: RegExp
+
 }
 
 export type MarkedCallback = (...args: any[]) => any;

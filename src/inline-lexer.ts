@@ -8,9 +8,9 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { ReplaceGroup } from './replace-group';
+import { ExtendRegexp } from './replace-group';
 import { escape, noop } from './helpers';
-import { InlineGrammar, MarkedOptions, Gfm } from './interfaces';
+import { InlineGrammar, MarkedOptions, BlockGfm } from './interfaces';
 import { Renderer } from './renderer';
 import { Marked } from './marked';
 
@@ -34,17 +34,17 @@ export const inline: InlineGrammar =
   _href: /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/,
 
   normal: <any>{},
-  pedantic: <any>{},
   gfm: <any>{},
+  pedantic: <any>{},
   breaks: <any>{},
 };
 
-inline.link = new ReplaceGroup(inline.link)
+inline.link = new ExtendRegexp(inline.link)
 .setGroup('inside', inline._inside)
 .setGroup('href', inline._href)
 .getRegexp();
 
-inline.reflink = new ReplaceGroup(inline.reflink)
+inline.reflink = new ExtendRegexp(inline.reflink)
 .setGroup('inside', inline._inside)
 .getRegexp();
 
@@ -67,10 +67,10 @@ inline.gfm =
 {
   ...inline.normal,
   ...{
-    escape: new ReplaceGroup(inline.escape).setGroup('])', '~|])').getRegexp(),
+    escape: new ExtendRegexp(inline.escape).setGroup('])', '~|])').getRegexp(),
     url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
     del: /^~~(?=\S)([\s\S]*?\S)~~/,
-    text: new ReplaceGroup(inline.text)
+    text: new ExtendRegexp(inline.text)
     .setGroup(']|', '~]|')
     .setGroup('|', '|https?://|')
     .getRegexp()
@@ -85,8 +85,8 @@ inline.breaks =
 {
   ...inline.gfm,
   ...{
-    br: new ReplaceGroup(inline.br).setGroup('{2,}', '*').getRegexp(),
-    text: new ReplaceGroup(inline.gfm.text).setGroup('{2,}', '*').getRegexp()
+    br: new ExtendRegexp(inline.br).setGroup('{2,}', '*').getRegexp(),
+    text: new ExtendRegexp(inline.gfm.text).setGroup('{2,}', '*').getRegexp()
   }
 };
 

@@ -8,9 +8,9 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { BlockLevelGrammar, MarkedOptions } from './interfaces';
+import { BlockLevelGrammar, MarkedOptions, ParamsToken, Links } from './interfaces';
 import { noop } from './helpers';
-import { ReplaceGroup } from './replace-group';
+import { ExtendRegexp } from './replace-group';
 import { Marked } from './marked';
 
 
@@ -18,37 +18,35 @@ export const block: BlockLevelGrammar =
 {
   newline: /^\n+/,
   code: /^( {4}[^\n]+\n*)+/,
-  fences: noop,
   hr: /^( *[-*_]){3,} *(?:\n+|$)/,
   heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
-  nptable: noop,
   lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
   blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
   list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
   html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
   def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
-  table: noop,
   paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
   text: /^[^\n]+/,
   bullet: /(?:[*+-]|\d+\.)/,
   item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/,
   _tag: '',
-  gfm: <any>undefined,
+
   normal: <any>undefined,
+  gfm: <any>undefined,
   tables: <any>undefined
 };
 
-block.item = new ReplaceGroup(block.item, 'gm')
+block.item = new ExtendRegexp(block.item, 'gm')
 .setGroup(/bull/g, block.bullet)
 .getRegexp();
 
-block.list = new ReplaceGroup(block.list)
+block.list = new ExtendRegexp(block.list)
 .setGroup(/bull/g, block.bullet)
 .setGroup('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
 .setGroup('def', '\\n+(?=' + block.def.source + ')')
 .getRegexp();
 
-block.blockquote = new ReplaceGroup(block.blockquote)
+block.blockquote = new ExtendRegexp(block.blockquote)
 .setGroup('def', block.def)
 .getRegexp();
 
@@ -57,14 +55,14 @@ block._tag = '(?!(?:'
   + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
   + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
 
-block.html = new ReplaceGroup(block.html)
+block.html = new ExtendRegexp(block.html)
 .setGroup('comment', /<!--[\s\S]*?-->/)
 .setGroup('closed', /<(tag)[\s\S]+?<\/\1>/)
 .setGroup('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
 .setGroup(/tag/g, block._tag)
 .getRegexp();
 
-block.paragraph = new ReplaceGroup(block.paragraph)
+block.paragraph = new ExtendRegexp(block.paragraph)
 .setGroup('hr', block.hr)
 .setGroup('heading', block.heading)
 .setGroup('lheading', block.lheading)
@@ -74,10 +72,6 @@ block.paragraph = new ReplaceGroup(block.paragraph)
 .getRegexp();
 
 block.normal = {...block};
-
-/**
- * GFM Block Grammar
- */
 
 block.gfm =
 {
@@ -89,10 +83,11 @@ block.gfm =
   }
 };
 
-block.gfm.paragraph = new ReplaceGroup(block.paragraph)
-.setGroup('(?!', '(?!'
-    + block.gfm.fences.source.replace('\\1', '\\2') + '|'
-    + block.list.source.replace('\\1', '\\3') + '|')
+const group1 = block.gfm.fences.source.replace('\\1', '\\2');
+const group2 = block.list.source.replace('\\1', '\\3');
+
+block.gfm.paragraph = new ExtendRegexp(block.paragraph)
+.setGroup('(?!', `(?!${group1}|${group2}|`)
 .getRegexp();
 
 block.tables =
@@ -104,19 +99,19 @@ block.tables =
   }
 };
 
-export class Lexer
+export class BlockLexer
 {
-  tokens: any[];
-  links: any;
-  options: MarkedOptions;
-  rules: any;
+  private options: MarkedOptions;
+  private links: Links;
+  private rules: BlockLevelGrammar;
+  private tokens: ParamsToken[];
 
-  constructor(options: any)
+  constructor(options: MarkedOptions)
   {
-    this.tokens = [];
+    this.options = {...Marked.defaults, ...options};
     this.links = {};
-    this.options = options || Marked.defaults;
     this.rules = block.normal;
+    this.tokens = [];
 
     if(this.options.gfm)
     {
@@ -133,13 +128,13 @@ export class Lexer
 
   static rules = block;
 
-  static lex(src: any, options: MarkedOptions)
+  static lex(src: string, options: MarkedOptions)
   {
     const lexer = new this(options);
     return lexer.lex(src);
   }
 
-  lex(src: any)
+  lex(src: string)
   {
     src = src
       .replace(/\r\n|\r/g, '\n')
@@ -150,80 +145,85 @@ export class Lexer
     return this.token(src, true);
   }
 
-  token(src: string, top: any, bq?: any)
+  token(src: string, top: boolean, isBlockQuote?: boolean)
   {
-    src = src.replace(/^ +$/gm, '');
+    // Removes all rows where there are only whitespaces.
 
-    let cap, item;
+    let
+    nextPart: string = src.replace(/^\s+$/gm, ''),
+    execArr: RegExpExecArray,
+    next: boolean,
+    loose: boolean,
+    bull: string,
+    blockBullet: string,
+    space: number
+    ;
 
-    while(src)
+    while(nextPart)
     {
       // newline
-      if( cap = this.rules.newline.exec(src) )
+      if( execArr = this.rules.newline.exec(nextPart) )
       {
-        src = src.substring(cap[0].length);
-        if (cap[0].length > 1) {
-          this.tokens.push({
-            type: 'space'
-          });
+        nextPart = nextPart.substring(execArr[0].length);
+
+        if(execArr[0].length > 1)
+        {
+          this.tokens.push({type: 'space'});
         }
       }
 
       // code
-      if( cap = this.rules.code.exec(src) )
+      if( execArr = this.rules.code.exec(nextPart) )
       {
-        src = src.substring(cap[0].length);
-        cap = cap[0].replace(/^ {4}/gm, '');
+        nextPart = nextPart.substring(execArr[0].length);
+        const code = execArr[0].replace(/^ {4}/gm, '');
 
         this.tokens.push({
           type: 'code',
-          text: !this.options.pedantic
-            ? cap.replace(/\n+$/, '')
-            : cap
+          text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
         });
 
         continue;
       }
 
-      // fences (gfm)
-      if( cap = this.rules.fences.exec(src) )
+      // fences code (gfm)
+      if( execArr = this.rules.fences.exec(nextPart) )
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push({
           type: 'code',
-          lang: cap[2],
-          text: cap[3] || ''
+          lang: execArr[2],
+          text: execArr[3] || ''
         });
 
         continue;
       }
 
       // heading
-      if( cap = this.rules.heading.exec(src) )
+      if( execArr = this.rules.heading.exec(nextPart) )
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push({
           type: 'heading',
-          depth: cap[1].length,
-          text: cap[2]
+          depth: execArr[1].length,
+          text: execArr[2]
         });
 
         continue;
       }
 
       // table no leading pipe (gfm)
-      if( top && (cap = this.rules.nptable.exec(src)) )
+      if( top && (execArr = this.rules.nptable.exec(nextPart)) )
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
-        item =
+        let item: ParamsToken =
         {
           type: 'table',
-          header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-          cells: cap[3].replace(/\n$/, '').split('\n')
+          header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */)
         };
 
         for(let i = 0; i < item.align.length; i++)
@@ -246,9 +246,11 @@ export class Lexer
           }
         }
 
-        for(let i = 0; i < item.cells.length; i++)
+        let td: string[] = execArr[3].replace(/\n$/, '').split('\n');
+
+        for(let i = 0; i < td.length; i++)
         {
-          item.cells[i] = item.cells[i].split(/ *\| */);
+          item.cells[i] = td[i].split(/ *\| */);
         }
 
         this.tokens.push(item);
@@ -257,81 +259,71 @@ export class Lexer
       }
 
       // lheading
-      if(cap = this.rules.lheading.exec(src))
+      if(execArr = this.rules.lheading.exec(nextPart))
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push({
           type: 'heading',
-          depth: cap[2] === '=' ? 1 : 2,
-          text: cap[1]
+          depth: execArr[2] === '=' ? 1 : 2,
+          text: execArr[1]
         });
 
         continue;
       }
 
       // hr
-      if(cap = this.rules.hr.exec(src))
+      if(execArr = this.rules.hr.exec(nextPart))
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
         this.tokens.push({type: 'hr'});
 
         continue;
       }
 
       // blockquote
-      if(cap = this.rules.blockquote.exec(src))
+      if(execArr = this.rules.blockquote.exec(nextPart))
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push({type: 'blockquote_start'});
 
-        cap = cap[0].replace(/^ *> ?/gm, '');
+        const str = execArr[0].replace(/^ *> ?/gm, '');
 
         // Pass `top` to keep the current
         // "toplevel" state. This is exactly
         // how markdown.pl works.
-        this.token(cap, top, true);
+        this.token(str, top, true);
 
         this.tokens.push({type: 'blockquote_end'});
 
         continue;
       }
 
-      let
-      next: boolean,
-      loose: boolean,
-      bull: string,
-      blockBullet: string,
-      space: number
-      ;
-
       // list
-      if(cap = this.rules.list.exec(src))
+      if(execArr = this.rules.list.exec(nextPart))
       {
-        src = src.substring(cap[0].length);
-        bull = cap[2];
+        nextPart = nextPart.substring(execArr[0].length);
+        bull = execArr[2];
 
         this.tokens.push({type: 'list_start', ordered: bull.length > 1});
 
         // Get each top-level item.
-        cap = cap[0].match(this.rules.item);
+        const str = execArr[0].match(this.rules.item);
 
         next = false;
-        let l = cap.length;
+        let length = str.length;
 
-        for(let i = 0; i < l; i++)
+        for(let i = 0; i < length; i++)
         {
-          item = cap[i];
+          let item = str[i];
 
-          // Remove the list item's bullet
-          // so it is seen as the next token.
+          // Remove the list item's bullet so it is seen as the next token.
           space = item.length;
           item = item.replace(/^ *([*+-]|\d+\.) +/, '');
 
-          // Outdent whatever the
-          // list item contains. Hacky.
-          if(~item.indexOf('\n '))
+          // Outdent whatever the list item contains. Hacky.
+          if(item.includes('\n '))
           {
             space -= item.length;
             item = !this.options.pedantic
@@ -341,14 +333,14 @@ export class Lexer
 
           // Determine whether the next list item belongs here.
           // Backpedal if it does not belong in this list.
-          if(this.options.smartLists && i !== l - 1)
+          if(this.options.smartLists && i !== length - 1)
           {
-            blockBullet = block.bullet.exec(cap[i + 1])[0];
+            blockBullet = block.bullet.exec(str[i + 1])[0];
 
             if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
             {
-              src = cap.slice(i + 1).join('\n') + src;
-              i = l - 1;
+              nextPart = str.slice(i + 1).join('\n') + nextPart;
+              i = length - 1;
             }
           }
 
@@ -357,7 +349,7 @@ export class Lexer
           // for discount behavior.
           loose = next || /\n\n(?!\s*$)/.test(item);
 
-          if(i !== l - 1)
+          if(i !== length - 1)
           {
             next = item.charAt(item.length - 1) === '\n';
 
@@ -372,7 +364,7 @@ export class Lexer
           });
 
           // Recurse.
-          this.token(item, false, bq);
+          this.token(item, false, isBlockQuote);
 
           this.tokens.push({type: 'list_item_end'});
         }
@@ -383,47 +375,44 @@ export class Lexer
       }
 
       // html
-      if(cap = this.rules.html.exec(src))
+      if(execArr = this.rules.html.exec(nextPart))
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push
         ({
-          type: this.options.sanitize
-            ? 'paragraph'
-            : 'html',
-          pre: !this.options.sanitizer && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-          text: cap[0]
+          type: this.options.sanitize ? 'paragraph' : 'html',
+          pre: !this.options.sanitizer && (execArr[1] === 'pre' || execArr[1] === 'script' || execArr[1] === 'style'),
+          text: execArr[0]
         });
 
         continue;
       }
 
       // def
-      if( (!bq && top) && (cap = this.rules.def.exec(src)) )
+      if( (!isBlockQuote && top) && (execArr = this.rules.def.exec(nextPart)) )
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
-        this.links[cap[1].toLowerCase()] =
+        this.links[execArr[1].toLowerCase()] =
         {
-          href: cap[2],
-          title: cap[3]
+          href: execArr[2],
+          title: execArr[3]
         };
 
         continue;
       }
 
       // table (gfm)
-      if( top && (cap = this.rules.table.exec(src)) )
+      if( top && (execArr = this.rules.table.exec(nextPart)) )
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
-        item =
+        let item: ParamsToken =
         {
           type: 'table',
-          header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-          cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
+          header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */)
         };
 
         for(let i = 0; i < item.align.length; i++)
@@ -446,9 +435,11 @@ export class Lexer
           }
         }
 
-        for(let i = 0; i < item.cells.length; i++)
+        const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
+
+        for(let i = 0; i < td.length; i++)
         {
-          item.cells[i] = item.cells[i]
+          item.cells[i] = td[i]
             .replace(/^ *\| *| *\| *$/g, '')
             .split(/ *\| */);
         }
@@ -459,33 +450,33 @@ export class Lexer
       }
 
       // top-level paragraph
-      if( top && (cap = this.rules.paragraph.exec(src)) )
+      if( top && (execArr = this.rules.paragraph.exec(nextPart)) )
       {
-        src = src.substring(cap[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push({
           type: 'paragraph',
-          text: cap[1].charAt(cap[1].length - 1) === '\n'
-            ? cap[1].slice(0, -1)
-            : cap[1]
+          text: execArr[1].charAt(execArr[1].length - 1) === '\n'
+            ? execArr[1].slice(0, -1)
+            : execArr[1]
         });
 
         continue;
       }
 
       // text
-      if(cap = this.rules.text.exec(src))
+      if(execArr = this.rules.text.exec(nextPart))
       {
         // Top-level should never reach here.
-        src = src.substring(cap[0].length);
-        this.tokens.push({type: 'text', text: cap[0]});
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({type: 'text', text: execArr[0]});
 
         continue;
       }
 
-      if(src)
+      if(nextPart)
       {
-        throw new Error('Infinite loop on byte: ' + src.charCodeAt(0));
+        throw new Error('Infinite loop on byte: ' + nextPart.charCodeAt(0));
       }
     }
 

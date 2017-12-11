@@ -9,7 +9,7 @@
  */
 
 import { Parser } from './parser';
-import { Lexer } from './lexer';
+import { BlockLexer } from './block-lexer';
 import { escape } from './helpers';
 import { MarkedCallback, MarkedOptions } from './interfaces';
 
@@ -50,7 +50,7 @@ export class Marked
 
       try
       {
-        tokens = Lexer.lex(src, options)
+        tokens = BlockLexer.lex(src, options)
       }
       catch(e)
       {
@@ -127,7 +127,7 @@ export class Marked
       if(options)
         options = {...this.defaults, ...options};
 
-      return Parser.parse(Lexer.lex(src, options), options);
+      return Parser.parse(BlockLexer.lex(src, options), options);
     }
     catch(e)
     {

@@ -11,7 +11,7 @@
 import {  } from './interfaces';
 
 
-export class ReplaceGroup
+export class ExtendRegexp
 {
   source: string;
   flags: string;
@@ -23,7 +23,7 @@ export class ReplaceGroup
   }
 
   /**
-   * Extends regular expressions.
+   * Extends regular expression.
    * 
    * @param groupName Regular expretion for search a group name.
    * @param groupRegexp Regular expretion of named group.
@@ -40,6 +40,9 @@ export class ReplaceGroup
     return this;
   }
 
+  /**
+   * Returns a result of extending a regular expression.
+   */
   getRegexp(): RegExp
   {
     return new RegExp(this.source, this.flags);
