@@ -70,6 +70,8 @@ export type TokenType =
 | 'text'
 ;
 
+export type Align = 'center' | 'left' | 'right';
+
 export interface ParamsToken
 {
   type?: TokenType;
@@ -77,10 +79,11 @@ export interface ParamsToken
   lang?: string;
   depth?: number;
   header?: string[];
-  align?: string[];
+  align?: Align[];
   cells?: string[][];
   ordered?: boolean;
   pre?: boolean;
+  escaped?: boolean;
 }
 
 export interface InlineGrammar

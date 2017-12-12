@@ -8,7 +8,7 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { BlockGrammar, MarkedOptions, ParamsToken, Links } from './interfaces';
+import { BlockGrammar, MarkedOptions, ParamsToken, Links, Align } from './interfaces';
 import { ExtendRegexp } from './replace-group';
 import { Marked } from './marked';
 
@@ -223,7 +223,7 @@ export class BlockLexer
         {
           type: 'table',
           header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */)
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[]
         };
 
         for(let i = 0; i < item.align.length; i++)
@@ -412,7 +412,7 @@ export class BlockLexer
         {
           type: 'table',
           header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */)
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[]
         };
 
         for(let i = 0; i < item.align.length; i++)

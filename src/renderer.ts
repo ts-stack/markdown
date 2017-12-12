@@ -8,7 +8,7 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { MarkedOptions } from './interfaces';
+import { MarkedOptions, Align } from './interfaces';
 import { escape, unescape } from './helpers';
 
 export class Renderer
@@ -104,7 +104,7 @@ export class Renderer
     return '<tr>\n' + content + '</tr>\n';
   }
 
-  tablecell(content: string, flags: {header?: boolean, align?: 'center' | 'left' | 'right'}): string
+  tablecell(content: string, flags: {header?: boolean, align?: Align}): string
   {
     const type = flags.header ? 'th' : 'td';
     const tag = flags.align
@@ -113,6 +113,9 @@ export class Renderer
     return tag + content + '</' + type + '>\n';
   }
 
+  /**
+   * Span level renderer.
+   */
   strong(text: string): string
   {
     return '<strong>' + text + '</strong>';
