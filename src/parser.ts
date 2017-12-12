@@ -9,14 +9,17 @@
  */
 
 import { Marked } from './marked';
-import { MarkedOptions } from './interfaces';
+import { MarkedOptions, ParamsToken, Align } from './interfaces';
 import { Renderer } from './renderer';
 import { InlineLexer } from './inline-lexer';
 
+/**
+ * Parsing & Compiling.
+ */
 export class Parser
 {
-  tokens: any[];
-  token: any;
+  tokens: ParamsToken[];
+  token: ParamsToken;
   inline: any;
   options: MarkedOptions;
   renderer: Renderer;
@@ -59,7 +62,7 @@ export class Parser
 
   peek()
   {
-    return this.tokens[this.tokens.length - 1] || 0;
+    return this.tokens[this.tokens.length - 1];
   }
 
   parseText()
@@ -97,9 +100,12 @@ export class Parser
       }
       case 'code':
       {
-        return this.renderer.code(this.token.text,
+        return this.renderer.code
+        (
+          this.token.text,
           this.token.lang,
-          this.token.escaped);
+          this.token.escaped
+        );
       }
       case 'table':
       {
@@ -107,19 +113,20 @@ export class Parser
           , body = ''
           , row
           , cell
-          , flags
-          , j;
+          , flags;
 
         // header
         cell = '';
         for(let i = 0; i < this.token.header.length; i++)
         {
           flags = { header: true, align: this.token.align[i] };
-          cell += this.renderer.tablecell(
+          cell += this.renderer.tablecell
+          (
             this.inline.output(this.token.header[i]),
             { header: true, align: this.token.align[i] }
           );
         }
+
         header += this.renderer.tablerow(cell);
 
         for(let i = 0; i < this.token.cells.length; i++)
@@ -128,9 +135,10 @@ export class Parser
 
           cell = '';
 
-          for(j = 0; j < row.length; j++)
+          for(let j = 0; j < row.length; j++)
           {
-            cell += this.renderer.tablecell(
+            cell += this.renderer.tablecell
+            (
               this.inline.output(row[j]),
               { header: false, align: this.token.align[j] }
             );
@@ -169,7 +177,7 @@ export class Parser
 
         while (this.next().type !== 'list_item_end')
         {
-          body += this.token.type === 'text'
+          body += this.token.type === <any>'text'
             ? this.parseText()
             : this.tok();
         }
