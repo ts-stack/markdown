@@ -3,7 +3,7 @@
   "description": "A markdown parser built for speed",
   "author": "Костя Третяк",
   "version": "0.0.0-alpha.0",
-  "main": "./src/marked",
+  "main": "./dist/index",
   "bin": "./bin/marked",
   "man": "./man/marked.1",
   "preferGlobal": true,

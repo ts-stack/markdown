@@ -1,2 +1,9 @@
-.git*
-test/
+node_modules
+spec
+*.spec*
+*.tgz
+npm-debug.log
+.gitignore
+tsconfig.json
+.vscode
+.travis.yml
