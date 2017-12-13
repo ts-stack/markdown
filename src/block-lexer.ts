@@ -13,7 +13,7 @@ import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
 
 
-export const block: BlockGrammar =
+const block: BlockGrammar =
 {
   newline: /^\n+/,
   code: /^( {4}[^\n]+\n*)+/,
@@ -358,15 +358,10 @@ export class BlockLexer
               loose = next;
           }
 
-          this.tokens.push({
-            type: loose
-              ? 'loose_item_start'
-              : 'list_item_start'
-          });
+          this.tokens.push({type: loose ? 'loose_item_start' : 'list_item_start'});
 
           // Recurse.
           this.token(item, false, isBlockQuote);
-
           this.tokens.push({type: 'list_item_end'});
         }
 
@@ -379,11 +374,13 @@ export class BlockLexer
       if(execArr = this.rules.html.exec(nextPart))
       {
         nextPart = nextPart.substring(execArr[0].length);
+        const attr = execArr[1];
+        const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
 
         this.tokens.push
         ({
           type: this.options.sanitize ? 'paragraph' : 'html',
-          pre: !this.options.sanitizer && (execArr[1] === 'pre' || execArr[1] === 'script' || execArr[1] === 'style'),
+          pre: !this.options.sanitizer && isPre,
           text: execArr[0]
         });
 

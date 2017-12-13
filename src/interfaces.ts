@@ -42,9 +42,15 @@ export interface BlockGrammar
 
 }
 
+export interface Link
+{
+  href: string,
+  title: string
+}
+
 export interface Links
 {
-  [key: string]: {href: string, title: string}
+  [key: string]: Link
 }
 
 export interface BlockGfm extends BlockGrammar

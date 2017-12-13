@@ -8,13 +8,14 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import {  } from './interfaces';
+// For JSDoc ignore license.
+import {  } from '';
 
 
 export class ExtendRegexp
 {
-  source: string;
-  flags: string;
+  private source: string;
+  private flags: string;
 
   constructor(regex: RegExp, flags: string = '')
   {
@@ -25,8 +26,8 @@ export class ExtendRegexp
   /**
    * Extends regular expression.
    * 
-   * @param groupName Regular expretion for search a group name.
-   * @param groupRegexp Regular expretion of named group.
+   * @param groupName Regular expression for search a group name.
+   * @param groupRegexp Regular expression of named group.
    */
   setGroup(groupName: RegExp | string, groupRegexp: RegExp | string): this
   {

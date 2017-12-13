@@ -17,7 +17,7 @@ import { Marked } from './marked';
 /**
  * Inline-Level Grammar.
  */
-export const inline: InlineGrammar =
+const inline: InlineGrammar =
 {
   escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
   autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,

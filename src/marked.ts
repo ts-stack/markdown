@@ -29,10 +29,10 @@ export class Marked
     return this;
   }
 
-  static parser(src: string, options: object ): string;
-  static parser(src: string, callback: MarkedCallback ): string;
-  static parser(src: string, options: object, callback: MarkedCallback ): string;
-  static parser(src: string, options: any, callback?: MarkedCallback ): string
+  static parser(src: string, options: object): string;
+  static parser(src: string, callback: MarkedCallback): string;
+  static parser(src: string, options: object, callback: MarkedCallback): string;
+  static parser(src: string, options: any, callback?: MarkedCallback): string
   {
     if(callback || typeof options == 'function')
     {
