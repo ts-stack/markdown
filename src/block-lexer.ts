@@ -9,7 +9,7 @@
  */
 
 import { BlockGrammar, MarkedOptions, ParamsToken, Links, Align } from './interfaces';
-import { ExtendRegexp } from './replace-group';
+import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
 
 
@@ -95,11 +95,8 @@ block.tables =
 
 export class BlockLexer
 {
-  /**
-   * Expose Block Rules.
-   */
-  private static rules: BlockGrammar = block;
-  private rules: BlockGrammar = block.normal;
+  static rules: BlockGrammar = block;
+  private rules: BlockGrammar;
   private options: MarkedOptions;
   private links: Links;
   private tokens: ParamsToken[];
@@ -120,6 +117,10 @@ export class BlockLexer
       {
         this.rules = block.gfm;
       }
+    }
+    else
+    {
+      this.rules = block.normal;
     }
   }
 

@@ -5,4 +5,4 @@ export * from './interfaces';
 export * from './marked';
 export * from './parser';
 export * from './renderer';
-export * from './replace-group';
+export * from './extend-regexp';

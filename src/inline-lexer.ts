@@ -8,9 +8,9 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { ExtendRegexp } from './replace-group';
+import { ExtendRegexp } from './extend-regexp';
 import { escape } from './helpers';
-import { InlineGrammar, MarkedOptions, BlockGfm, Links } from './interfaces';
+import { InlineGrammar, MarkedOptions, BlockGfm, Links, Link } from './interfaces';
 import { Renderer } from './renderer';
 import { Marked } from './marked';
 
@@ -82,11 +82,8 @@ inline.breaks =
  */
 export class InlineLexer
 {
-  /**
-   * Expose Inline Rules.
-   */
-  private static rules: InlineGrammar = inline;
-  private rules: InlineGrammar = inline.normal;
+  static rules: InlineGrammar = inline;
+  private rules: InlineGrammar;
   private options: MarkedOptions;
   private renderer: Renderer;
   private links: Links;
@@ -96,7 +93,6 @@ export class InlineLexer
   {
     this.options = {...Marked.defaults, ...options};
     this.links = links;
-    this.rules = inline.normal;
     this.renderer = renderer || this.options.renderer || new Renderer;
     this.renderer.options = this.options;
 
@@ -119,6 +115,10 @@ export class InlineLexer
     else if(this.options.pedantic)
     {
       this.rules = inline.pedantic;
+    }
+    else
+    {
+      this.rules = inline.normal;
     }
   }
 
@@ -232,7 +232,7 @@ export class InlineLexer
       {
         nextPart = nextPart.substring(execArr[0].length);
         const keyLink = (execArr[2] || execArr[1]).replace(/\s+/g, ' ');
-        let link = this.links[keyLink.toLowerCase()];
+        const link = this.links[keyLink.toLowerCase()];
 
         if(!link || !link.href)
         {
@@ -305,7 +305,7 @@ export class InlineLexer
   /**
    * Compile Link.
    */
-  outputLink(cap: any, link: any)
+  outputLink(cap: any, link: Link)
   {
     const href = escape(link.href)
       ,title = link.title ? escape(link.title) : null;
@@ -345,17 +345,18 @@ export class InlineLexer
    */
   mangle(text: string)
   {
-    if(!this.options.mangle) return text;
+    if(!this.options.mangle)
+      return text;
+
     let out = '', length = text.length;
 
     for(let i = 0; i < length; i++)
     {
-      let codeNum = text.charCodeAt(i);
       let str: string;
 
       if(Math.random() > 0.5)
       {
-        str = 'x' + codeNum.toString(16);
+        str = 'x' + text.charCodeAt(i).toString(16);
       }
 
       out += '&#' + str + ';';
