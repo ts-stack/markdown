@@ -1,5 +1,6 @@
 /**
- * marked-ts - a markdown parser
+ * @license
+ * 
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
  * https://github.com/KostyaTretyak/marked-ts
  */

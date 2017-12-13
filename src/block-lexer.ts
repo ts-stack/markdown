@@ -1,9 +1,9 @@
 /**
- * marked - a markdown parser
+ * @license
+ * 
  * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
  * https://github.com/chjj/marked
  * 
- * marked-ts - a markdown parser
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
  * https://github.com/KostyaTretyak/marked-ts
  */
