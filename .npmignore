@@ -7,3 +7,8 @@ npm-debug.log
 tsconfig.json
 .vscode
 .travis.yml
+lib
+test
+man
+doc
+yarn.lock
