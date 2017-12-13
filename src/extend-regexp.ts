@@ -24,7 +24,7 @@ export class ExtendRegexp
   }
 
   /**
-   * Extends regular expression.
+   * Extend regular expression.
    * 
    * @param groupName Regular expression for search a group name.
    * @param groupRegexp Regular expression of named group.
@@ -36,7 +36,7 @@ export class ExtendRegexp
     // Remove all occurrences of `^` character.
     str = str.replace(/(^|[^\[])\^/g, '$1');
 
-    // Extends regexp.
+    // Extend regexp.
     this.source = this.source.replace(groupName, str);
     return this;
   }

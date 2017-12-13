@@ -138,7 +138,7 @@ export type MarkedCallback = (...args: any[]) => any;
 export class MarkedOptions
 {
   highlight: (code: string, lang: string, callback?: MarkedCallback) => string = null;
-  renderer: Renderer = new Renderer;
+  renderer: Renderer;
   gfm: boolean = true;
   tables: boolean = true;
   breaks: boolean = true;

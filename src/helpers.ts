@@ -8,7 +8,8 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import {  } from './interfaces';
+// For JSDoc ignore license.
+import {  } from '';
 
 export function escape(html: string, encode?: boolean)
 {

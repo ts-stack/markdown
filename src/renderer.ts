@@ -13,7 +13,7 @@ import { escape, unescape } from './helpers';
 
 export class Renderer
 {
-  options: MarkedOptions;
+  private options: MarkedOptions;
 
   constructor(options: MarkedOptions = <any>{})
   {
@@ -38,10 +38,7 @@ export class Renderer
       return '<pre><code>' + (escaped ? code : escape(code, true)) + '\n</code></pre>';
     }
 
-    return '<pre><code class="'
-      + this.options.langPrefix
-      + escape(lang, true)
-      + '">'
+    return '<pre><code class="' + this.options.langPrefix + escape(lang, true) + '">'
       + (escaped ? code : escape(code, true))
       + '\n</code></pre>\n';
   }
@@ -113,9 +110,8 @@ export class Renderer
     return tag + content + '</' + type + '>\n';
   }
 
-  /**
-   * Span level renderer.
-   */
+  //*** Span level renderer. ***
+
   strong(text: string): string
   {
     return '<strong>' + text + '</strong>';

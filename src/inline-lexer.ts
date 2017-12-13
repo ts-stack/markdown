@@ -83,18 +83,17 @@ inline.breaks =
 export class InlineLexer
 {
   static rules: InlineGrammar = inline;
+  private links: Links;
   private rules: InlineGrammar;
   private options: MarkedOptions;
   private renderer: Renderer;
-  private links: Links;
   private inLink: boolean;
 
   constructor(links: Links, options: MarkedOptions, renderer?: Renderer)
   {
     this.options = {...Marked.defaults, ...options};
     this.links = links;
-    this.renderer = renderer || this.options.renderer || new Renderer;
-    this.renderer.options = this.options;
+    this.renderer = renderer || this.options.renderer || new Renderer(this.options);
 
     if(!this.links)
     {
@@ -127,8 +126,8 @@ export class InlineLexer
    */
   static output(src: string, links: Links, options: MarkedOptions)
   {
-    const inline = new InlineLexer(links, options);
-    return inline.output(src);
+    const lexer = new this(links, options);
+    return lexer.output(src);
   }
 
   /**
@@ -305,14 +304,14 @@ export class InlineLexer
   /**
    * Compile Link.
    */
-  outputLink(cap: any, link: Link)
+  outputLink(execArr: RegExpExecArray, link: Link)
   {
     const href = escape(link.href)
       ,title = link.title ? escape(link.title) : null;
 
-    return cap[0].charAt(0) !== '!'
-      ? this.renderer.link(href, title, this.output(cap[1]))
-      : this.renderer.image(href, title, escape(cap[1]));
+    return execArr[0].charAt(0) !== '!'
+      ? this.renderer.link(href, title, this.output(execArr[1]))
+      : this.renderer.image(href, title, escape(execArr[1]));
   }
 
   /**

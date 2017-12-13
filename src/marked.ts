@@ -11,42 +11,42 @@
 import { Parser } from './parser';
 import { BlockLexer } from './block-lexer';
 import { escape } from './helpers';
-import { MarkedCallback, MarkedOptions } from './interfaces';
+import { MarkedCallback, MarkedOptions, ParamsToken } from './interfaces';
 
 export class Marked
 {
   static defaults = new MarkedOptions;
 
-  static setOptions(opt: MarkedOptions)
+  static setOptions(options: MarkedOptions)
   {
-    this.defaults = {...this.defaults, ...opt};
+    this.defaults = {...this.defaults, ...options};
     return this;
   }
 
-  static options(opt: MarkedOptions)
+  static options(options: MarkedOptions)
   {
-    this.defaults = {...this.defaults, ...opt};
+    this.defaults = {...this.defaults, ...options};
     return this;
   }
 
   static parser(src: string, options: object): string;
   static parser(src: string, callback: MarkedCallback): string;
   static parser(src: string, options: object, callback: MarkedCallback): string;
-  static parser(src: string, options: any, callback?: MarkedCallback): string
+  static parser(src: string, optsOrCallback: MarkedOptions | MarkedCallback, callback?: MarkedCallback): string
   {
-    if(callback || typeof options == 'function')
+    if(callback || typeof optsOrCallback == 'function')
     {
       if(!callback)
       {
-        callback = options;
-        options = null;
+        callback = optsOrCallback as MarkedCallback;
+        optsOrCallback = null;
       }
 
-      options = {...this.defaults, ...options || {}};
+      const options: MarkedOptions = {...this.defaults, ...optsOrCallback || {}};
 
       const highlight = options.highlight;
 
-      let tokens: any;
+      let tokens: ParamsToken[];
 
       try
       {

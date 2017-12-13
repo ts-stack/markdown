@@ -9,7 +9,7 @@
  */
 
 import { Marked } from './marked';
-import { MarkedOptions, ParamsToken, Align } from './interfaces';
+import { MarkedOptions, ParamsToken, Align, Links } from './interfaces';
 import { Renderer } from './renderer';
 import { InlineLexer } from './inline-lexer';
 
@@ -18,32 +18,30 @@ import { InlineLexer } from './inline-lexer';
  */
 export class Parser
 {
-  tokens: ParamsToken[];
-  token: ParamsToken;
-  inline: any;
-  options: MarkedOptions;
-  renderer: Renderer;
+  private tokens: ParamsToken[];
+  private token: ParamsToken;
+  private inlineLexer: InlineLexer;
+  private options: MarkedOptions;
+  private renderer: Renderer;
 
   constructor(options?: MarkedOptions, renderer?: Renderer)
   {
     this.tokens = [];
     this.token = null;
-    this.options = options || Marked.defaults;
-    this.options.renderer = this.options.renderer || new Renderer;
-    this.renderer = this.options.renderer;
-    this.renderer.options = this.options;
+    this.options = {...options, ...Marked.defaults};
+    this.renderer = this.options.renderer || new Renderer(this.options);
   }
 
-  static parse(src: any, options?: MarkedOptions, renderer?: Renderer): string
+  static parse(srcTokens: ParamsToken[], options?: MarkedOptions, renderer?: Renderer): string
   {
     const parser = new this(options, renderer);
-    return parser.parse(src);
+    return parser.parse(srcTokens);
   }
 
-  parse(src: any)
+  parse(srcTokens: ParamsToken[])
   {
-    this.inline = new InlineLexer(src.links, this.options, this.renderer);
-    this.tokens = src.reverse();
+    this.inlineLexer = new InlineLexer(links, this.options, this.renderer);
+    this.tokens = srcTokens.reverse();
 
     let out = '';
 
@@ -74,7 +72,7 @@ export class Parser
       body += '\n' + this.next().text;
     }
 
-    return this.inline.output(body);
+    return this.inlineLexer.output(body);
   }
 
   tok()
@@ -93,7 +91,7 @@ export class Parser
       {
         return this.renderer.heading
         (
-          this.inline.output(this.token.text),
+          this.inlineLexer.output(this.token.text),
           this.token.depth,
           this.token.text
         );
@@ -122,7 +120,7 @@ export class Parser
           flags = { header: true, align: this.token.align[i] };
           cell += this.renderer.tablecell
           (
-            this.inline.output(this.token.header[i]),
+            this.inlineLexer.output(this.token.header[i]),
             { header: true, align: this.token.align[i] }
           );
         }
@@ -139,7 +137,7 @@ export class Parser
           {
             cell += this.renderer.tablecell
             (
-              this.inline.output(row[j]),
+              this.inlineLexer.output(row[j]),
               { header: false, align: this.token.align[j] }
             );
           }
@@ -198,13 +196,13 @@ export class Parser
       case 'html':
       {
         const html = !this.token.pre && !this.options.pedantic
-          ? this.inline.output(this.token.text)
+          ? this.inlineLexer.output(this.token.text)
           : this.token.text;
         return this.renderer.html(html);
       }
       case 'paragraph':
       {
-        return this.renderer.paragraph(this.inline.output(this.token.text));
+        return this.renderer.paragraph(this.inlineLexer.output(this.token.text));
       }
       case 'text':
       {

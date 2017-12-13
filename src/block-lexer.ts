@@ -124,7 +124,7 @@ export class BlockLexer
     }
   }
 
-  static lex(src: string, options: MarkedOptions)
+  static lex(src: string, options: MarkedOptions): ParamsToken[]
   {
     const lexer = new this(options);
     return lexer.lex(src);
@@ -133,7 +133,7 @@ export class BlockLexer
   /**
    * Preprocessing.
    */
-  lex(src: string)
+  lex(src: string): ParamsToken[]
   {
     src = src
       .replace(/\r\n|\r/g, '\n')
@@ -147,7 +147,7 @@ export class BlockLexer
   /**
    * Lexing.
    */
-  token(src: string, top: boolean, isBlockQuote?: boolean)
+  token(src: string, top: boolean, isBlockQuote?: boolean): ParamsToken[]
   {
     let
     // Removes all rows where there are only whitespaces.
