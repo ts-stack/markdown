@@ -9,6 +9,7 @@ tsconfig.json
 .travis.yml
 lib
 test
+dist-test
 man
 doc
 yarn.lock

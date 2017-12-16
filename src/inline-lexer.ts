@@ -9,8 +9,8 @@
  */
 
 import { ExtendRegexp } from './extend-regexp';
-import { escape } from './helpers';
-import { InlineGrammar, MarkedOptions, BlockGfm, Links, Link } from './interfaces';
+import { escape, Noop } from './helpers';
+import { InlineGrammar, MarkedOptions, Links, Link } from './interfaces';
 import { Renderer } from './renderer';
 import { Marked } from './marked';
 
@@ -20,6 +20,8 @@ import { Marked } from './marked';
 const inline: InlineGrammar =
 {
   escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
+  url: <any>Noop,
+  del: <any>Noop,
   autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
   tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
   link: /^!?\[(inside)\]\(href\)/,
@@ -89,16 +91,15 @@ export class InlineLexer
   private renderer: Renderer;
   private inLink: boolean;
 
-  constructor(links: Links, options: MarkedOptions, renderer?: Renderer)
+  constructor(links: Links, options?: MarkedOptions, renderer?: Renderer)
   {
-    this.options = {...Marked.defaults, ...options};
-    this.links = links;
+    // this.options = {...Marked.defaults, ...options};
+    this.options = options || Marked.defaults;
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
-
+    this.links = links;
+    
     if(!this.links)
-    {
       throw new Error('Tokens array requires a `links` property.');
-    }
 
     if(this.options.gfm)
     {
@@ -126,16 +127,19 @@ export class InlineLexer
    */
   static output(src: string, links: Links, options: MarkedOptions)
   {
-    const lexer = new this(links, options);
-    return lexer.output(src);
+    const inlineLexer = new this(links, options);
+    return inlineLexer.output(src, links);
   }
 
   /**
    * Lexing/Compiling.
    */
-  output(nextPart: string)
+  output(nextPart: string, links?: Links)
   {
     let out = '', execArr: RegExpExecArray;
+
+    if(links)
+      this.links = links;
 
     while(nextPart)
     {

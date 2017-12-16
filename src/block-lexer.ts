@@ -11,11 +11,15 @@
 import { BlockGrammar, MarkedOptions, ParamsToken, Links, Align } from './interfaces';
 import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
+import { Noop } from './helpers';
 
 
 const block: BlockGrammar =
 {
   newline: /^\n+/,
+  fences: <any>Noop,
+  nptable: <any>Noop,
+  table: <any>Noop,
   code: /^( {4}[^\n]+\n*)+/,
   hr: /^( *[-*_]){3,} *(?:\n+|$)/,
   heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
@@ -103,7 +107,8 @@ export class BlockLexer
 
   constructor(options: MarkedOptions)
   {
-    this.options = {...Marked.defaults, ...options};
+    // this.options = {...Marked.defaults, ...options};
+    this.options = options || Marked.defaults;
     this.links = {};
     this.tokens = [];
 
@@ -124,7 +129,7 @@ export class BlockLexer
     }
   }
 
-  static lex(src: string, options: MarkedOptions): ParamsToken[]
+  static lex(src: string, options: MarkedOptions): {tokens: ParamsToken[], links: Links}
   {
     const lexer = new this(options);
     return lexer.lex(src);
@@ -133,7 +138,7 @@ export class BlockLexer
   /**
    * Preprocessing.
    */
-  lex(src: string): ParamsToken[]
+  private lex(src: string): {tokens: ParamsToken[], links: Links}
   {
     src = src
       .replace(/\r\n|\r/g, '\n')
@@ -147,7 +152,7 @@ export class BlockLexer
   /**
    * Lexing.
    */
-  token(src: string, top: boolean, isBlockQuote?: boolean): ParamsToken[]
+  token(src: string, top: boolean, isBlockQuote?: boolean): {tokens: ParamsToken[], links: Links}
   {
     let
     // Removes all rows where there are only whitespaces.
@@ -220,11 +225,12 @@ export class BlockLexer
       {
         nextPart = nextPart.substring(execArr[0].length);
 
-        let item: ParamsToken =
+        const item: ParamsToken =
         {
           type: 'table',
           header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[]
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
+          cells: []
         };
 
         for(let i = 0; i < item.align.length; i++)
@@ -410,7 +416,8 @@ export class BlockLexer
         {
           type: 'table',
           header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[]
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
+          cells: []
         };
 
         for(let i = 0; i < item.align.length; i++)
@@ -478,6 +485,6 @@ export class BlockLexer
       }
     }
 
-    return this.tokens;
+    return {tokens: this.tokens, links: this.links};
   }
 }

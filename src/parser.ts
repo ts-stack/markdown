@@ -28,17 +28,18 @@ export class Parser
   {
     this.tokens = [];
     this.token = null;
-    this.options = {...options, ...Marked.defaults};
+    // this.options = {...Marked.defaults, ...options};
+    this.options = options || Marked.defaults;
     this.renderer = this.options.renderer || new Renderer(this.options);
   }
 
-  static parse(srcTokens: ParamsToken[], options?: MarkedOptions, renderer?: Renderer): string
+  static parse(srcTokens: ParamsToken[], options?: MarkedOptions, renderer?: Renderer, links?: Links): string
   {
     const parser = new this(options, renderer);
-    return parser.parse(srcTokens);
+    return parser.parse(links, srcTokens);
   }
 
-  parse(srcTokens: ParamsToken[])
+  private parse(links: Links, srcTokens: ParamsToken[])
   {
     this.inlineLexer = new InlineLexer(links, this.options, this.renderer);
     this.tokens = srcTokens.reverse();

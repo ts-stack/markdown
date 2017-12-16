@@ -1,12 +1,15 @@
 {
   "name": "marked-ts",
   "description": "A markdown parser built for speed",
-  "author": "Костя Третяк",
+  "author": "Костя Третяк <ktretiak.in.ua@gmail.com>",
   "version": "0.0.0-alpha.0",
-  "main": "./dist/index",
+  "main": "dist/index",
+  "typings": "dist/index",
+  "directories": {
+    "lib": "src"
+  },
   "bin": "./bin/marked",
   "man": "./man/marked.1",
-  "preferGlobal": true,
   "repository": "git://github.com/KostyaTretyak/marked-ts.git",
   "homepage": "https://github.com/KostyaTretyak/marked-ts",
   "bugs": {
@@ -14,25 +17,31 @@
   },
   "license": "MIT",
   "keywords": [
+    "markdown-ts",
     "markdown",
     "markup",
     "html"
   ],
   "tags": [
+    "markdown-ts",
     "markdown",
     "markup",
     "html"
   ],
   "devDependencies": {
-    "gulp": "^3.8.11",
-    "gulp-concat": "^2.5.2",
-    "gulp-uglify": "^1.1.0",
+    "@types/highlight.js": "^9.12.2",
+    "@types/markdown-it": "0.0.4",
+    "@types/marked": "^0.3.0",
+    "@types/node": "^8.5.1",
+    "highlight.js": "^9.12.0",
     "markdown": "*",
+    "markdown-it": "^8.4.0",
+    "marked": "^0.3.7",
     "showdown": "*",
     "typescript": "^2.6.2"
   },
   "scripts": {
-    "test": "node test",
+    "test": "node dist-test/index.js",
     "bench": "node test --bench"
   }
 }

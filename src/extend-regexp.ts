@@ -8,7 +8,7 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-// For JSDoc ignore license.
+// For JSDoc ignore license in description ExtendRegexp class.
 import {  } from '';
 
 

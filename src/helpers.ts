@@ -8,7 +8,7 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-// For JSDoc ignore license.
+// For JSDoc ignore license in escape function.
 import {  } from '';
 
 export function escape(html: string, encode?: boolean)
@@ -41,3 +41,5 @@ export function unescape(html: string)
     return '';
   });
 }
+
+export class Noop { static exec = function(){} };

@@ -10,14 +10,16 @@
 
 import { MarkedOptions, Align } from './interfaces';
 import { escape, unescape } from './helpers';
+import { Marked } from './marked';
 
 export class Renderer
 {
   private options: MarkedOptions;
 
-  constructor(options: MarkedOptions = <any>{})
+  constructor(options?: MarkedOptions)
   {
-    this.options = options;
+    // this.options = {...(new MarkedOptions), ...options};
+    this.options = options || Marked.defaults;
   }
 
   code(code: string, lang?: string, escaped?: boolean): string
@@ -57,7 +59,7 @@ export class Renderer
   {
     const id: string = this.options.headerPrefix + raw.toLowerCase().replace(/[^\w]+/g, '-');
 
-    return `<h id="${id}">${text}</h${level}>\n`;
+    return `<h${level} id="${id}">${text}</h${level}>\n`;
   }
 
   hr(): string
@@ -69,7 +71,7 @@ export class Renderer
   {
     const type = ordered ? 'ol' : 'ul';
 
-    return `<${type}>\n${body}</${type}>\n'`;
+    return `<${type}>\n${body}</${type}>\n`;
   }
 
   listitem(text: string): string

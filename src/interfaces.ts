@@ -34,12 +34,11 @@ export interface BlockGrammar
   /**
    * GFM Block Grammar
    */
-  gfm?: BlockGfm,
+  gfm?: this,
   /**
    * GFM + Tables Block Grammar
    */
-  tables?: any,
-
+  tables?: this,
 }
 
 export interface Link
@@ -51,11 +50,6 @@ export interface Link
 export interface Links
 {
   [key: string]: Link
-}
-
-export interface BlockGfm extends BlockGrammar
-{
-  
 }
 
 export type TokenType =
@@ -117,7 +111,7 @@ export interface InlineGrammar
   /**
    * GFM Inline Grammar
    */
-  gfm?: InlineGfm,
+  gfm?: this,
   /**
    * Pedantic Inline Grammar.
    */
@@ -125,31 +119,26 @@ export interface InlineGrammar
   /**
    * GFM + Line Breaks Inline Grammar.
    */
-  breaks?: object,
-}
-
-export interface InlineGfm extends InlineGrammar
-{
-
+  breaks?: this,
 }
 
 export type MarkedCallback = (...args: any[]) => any;
 
 export class MarkedOptions
 {
-  highlight: (code: string, lang: string, callback?: MarkedCallback) => string = null;
-  renderer: Renderer;
-  gfm: boolean = true;
-  tables: boolean = true;
-  breaks: boolean = true;
-  pedantic: boolean = false;
-  sanitize: boolean = false;
-  sanitizer: any = null;
-  smartLists: boolean = true;
-  smartypants: boolean = false;
-  mangle: boolean = true;
-  silent: boolean = false;
-  langPrefix: string = 'lang-';
-  headerPrefix: string = '';
-  xhtml: boolean = false;
+  gfm?: boolean = true;
+  tables?: boolean = true;
+  breaks?: boolean = false;
+  pedantic?: boolean = false;
+  sanitize?: boolean = false;
+  sanitizer?: any = null;
+  mangle?: boolean = true;
+  smartLists?: boolean = false;
+  silent?: boolean = false;
+  highlight?: (code: string, lang: string, callback?: MarkedCallback) => string = null;
+  langPrefix?: string = 'lang-';
+  smartypants?: boolean = false;
+  headerPrefix?: string = '';
+  renderer?: Renderer;
+  xhtml?: boolean = false;
 }

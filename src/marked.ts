@@ -23,16 +23,11 @@ export class Marked
     return this;
   }
 
-  static options(options: MarkedOptions)
-  {
-    this.defaults = {...this.defaults, ...options};
-    return this;
-  }
-
-  static parser(src: string, options: object): string;
-  static parser(src: string, callback: MarkedCallback): string;
-  static parser(src: string, options: object, callback: MarkedCallback): string;
-  static parser(src: string, optsOrCallback: MarkedOptions | MarkedCallback, callback?: MarkedCallback): string
+  static parse(src: string): string;
+  static parse(src: string, options: object): string;
+  static parse(src: string, callback: MarkedCallback): string;
+  static parse(src: string, options: object, callback: MarkedCallback): string;
+  static parse(src: string, optsOrCallback?: MarkedOptions | MarkedCallback, callback?: MarkedCallback): string
   {
     if(callback || typeof optsOrCallback == 'function')
     {
@@ -42,15 +37,13 @@ export class Marked
         optsOrCallback = null;
       }
 
-      const options: MarkedOptions = {...this.defaults, ...optsOrCallback || {}};
+      const options: MarkedOptions = {...this.defaults, ...optsOrCallback};
 
       const highlight = options.highlight;
 
-      let tokens: ParamsToken[];
-
       try
       {
-        tokens = BlockLexer.lex(src, options)
+        var {tokens} = BlockLexer.lex(src, options)
       }
       catch(e)
       {
@@ -59,7 +52,45 @@ export class Marked
 
       let pending = tokens.length;
 
-      const done = function(err?: Error)
+      if(!highlight || highlight.length < 3)
+      {
+        return done();
+      }
+
+      delete options.highlight;
+
+      if(!pending)
+        return done();
+
+      for(let i = 0; i < tokens.length; i++)
+      {
+        const token = tokens[i];
+
+        if(token.type !== 'code')
+        {
+          return --pending || done();
+        }
+
+        return highlight(token.text, token.lang, function(err: Error, code: string)
+        {
+          if(err)
+            return done(err);
+
+          if(code == null || code === token.text)
+          {
+            return --pending || done();
+          }
+
+          token.text = code;
+          token.escaped = true;
+
+          --pending || done();
+        });
+      }
+
+      return;
+
+      function done(err?: Error)
       {
         if(err)
         {
@@ -81,64 +112,26 @@ export class Marked
         options.highlight = highlight;
 
         return err ? callback(err) : callback(null, out);
-      };
-
-      if(!highlight || highlight.length < 3)
-      {
-        return done();
       }
-
-      delete options.highlight;
-
-      if(!pending)
-        return done();
-
-      for (let i = 0; i < tokens.length; i++)
-      {
-        const token = tokens[i];
-
-        if (token.type !== 'code')
-        {
-          return --pending || done();
-        }
-
-        return highlight(token.text, token.lang, function(err: Error, code: number)
-        {
-          if(err)
-            return done(err);
-
-          if(code == null || code === token.text)
-          {
-            return --pending || done();
-          }
-
-          token.text = code;
-          token.escaped = true;
-
-          --pending || done();
-        });
-      }
-
-      return;
     }
+
+    const options = {...this.defaults, ...optsOrCallback};
 
     try
     {
-      if(options)
-        options = {...this.defaults, ...options};
-
-      return Parser.parse(BlockLexer.lex(src, options), options);
+      const {tokens, links} = BlockLexer.lex(src, options);
+      return Parser.parse(tokens, options, null, links);
     }
-    catch(e)
+    catch(err)
     {
-      e.message += '\nPlease report this to https://github.com/KostyaTretyak/marked-ts';
+      err.message += '\nPlease report this to https://github.com/KostyaTretyak/marked-ts';
 
       if( (options || this.defaults).silent )
       {
-        return '<p>An error occured:</p><pre>' + escape(e.message + '', true) + '</pre>';
+        return '<p>An error occured:</p><pre>' + escape(err.message + '', true) + '</pre>';
       }
 
-      throw e;
+      throw err;
     }
   }
 }
