@@ -28,7 +28,6 @@ export class Parser
   {
     this.tokens = [];
     this.token = null;
-    // this.options = {...Marked.defaults, ...options};
     this.options = options || Marked.defaults;
     this.renderer = this.options.renderer || new Renderer(this.options);
   }

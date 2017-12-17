@@ -18,7 +18,6 @@ export class Renderer
 
   constructor(options?: MarkedOptions)
   {
-    // this.options = {...(new MarkedOptions), ...options};
     this.options = options || Marked.defaults;
   }
 

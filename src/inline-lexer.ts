@@ -93,7 +93,6 @@ export class InlineLexer
 
   constructor(links: Links, options?: MarkedOptions, renderer?: Renderer)
   {
-    // this.options = {...Marked.defaults, ...options};
     this.options = options || Marked.defaults;
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
     this.links = links;

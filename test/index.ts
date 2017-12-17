@@ -442,61 +442,14 @@ function parseArg(argv?: Obj): Obj
 {
   argv = process.argv.slice(2);
   let options: Obj = {}
-    , orphans = []
-    , arg;
-
-  function getarg()
-  {
-    let arg = argv.shift();
-
-    if(arg.indexOf('--') === 0)
-    {
-      // e.g. --opt
-      arg = arg.split('=');
-
-      if(arg.length > 1)
-      {
-        // e.g. --opt=val
-        argv.unshift(arg.slice(1).join('='));
-      }
-
-      arg = arg[0];
-    }
-    else if(arg[0] === '-')
-    {
-      if(arg.length > 2)
-      {
-        // e.g. -abc
-        argv = arg.substring(1).split('').map( (ch: string) =>
-        {
-          return '-' + ch;
-        }).concat(argv);
-
-        arg = argv.shift();
-      }
-      else
-      {
-        // e.g. -a
-      }
-    }
-    else
-    {
-      // e.g. foo
-    }
-
-    return arg;
-  }
+  ,orphans = []
+  ,arg;
 
   while (argv.length)
   {
     arg = getarg();
     switch (arg)
     {
-      case '-f':
-      case '--fix':
-      case 'fix':
-        options.fix = true;
-        break;
       case '-b':
       case '--bench':
         options.bench = true;
@@ -543,6 +496,48 @@ function parseArg(argv?: Obj): Obj
   }
 
   return options;
+
+  function getarg()
+  {
+    let arg = argv.shift();
+
+    if(arg.indexOf('--') === 0)
+    {
+      // e.g. --opt
+      arg = arg.split('=');
+
+      if(arg.length > 1)
+      {
+        // e.g. --opt=val
+        argv.unshift(arg.slice(1).join('='));
+      }
+
+      arg = arg[0];
+    }
+    else if(arg[0] === '-')
+    {
+      if(arg.length > 2)
+      {
+        // e.g. -abc
+        argv = arg.substring(1).split('').map( (ch: string) =>
+        {
+          return '-' + ch;
+        }).concat(argv);
+
+        arg = argv.shift();
+      }
+      else
+      {
+        // e.g. -a
+      }
+    }
+    else
+    {
+      // e.g. foo
+    }
+
+    return arg;
+  }
 }
 
 /**

@@ -107,7 +107,6 @@ export class BlockLexer
 
   constructor(options: MarkedOptions)
   {
-    // this.options = {...Marked.defaults, ...options};
     this.options = options || Marked.defaults;
     this.links = {};
     this.tokens = [];
