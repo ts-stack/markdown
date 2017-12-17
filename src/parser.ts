@@ -32,7 +32,7 @@ export class Parser
     this.renderer = this.options.renderer || new Renderer(this.options);
   }
 
-  static parse(srcTokens: ParamsToken[], options?: MarkedOptions, renderer?: Renderer, links?: Links): string
+  static parse(srcTokens: ParamsToken[], links: Links, options?: MarkedOptions, renderer?: Renderer): string
   {
     const parser = new this(options, renderer);
     return parser.parse(links, srcTokens);
@@ -108,10 +108,10 @@ export class Parser
       case 'table':
       {
         let header = ''
-          , body = ''
-          , row
-          , cell
-          , flags;
+          ,body = ''
+          ,row
+          ,cell
+          ,flags;
 
         // header
         cell = '';

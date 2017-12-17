@@ -14,6 +14,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Marked, MarkedOptions, BlockLexer, InlineLexer } from '../';
 
+let files: Obj;
+
 /**
  * Execute
  */
@@ -233,37 +235,15 @@ export interface runTestsOptions
 
 export function bench(name: string, func: Function)
 {
-  const files = bench.files || load();
-
-  if(!bench.files)
-  {
-    bench.files = files;
-
-    // Change certain tests to allow
-    // comparison to older benchmark times.
-    fs.readdirSync(__dirname + '/../test/new').forEach( name =>
-    {
-      if(path.extname(name) === '.html')
-        return;
-
-      if(name === 'main.text')
-        return;
-
-      delete files[name];
-    });
-
-    files['backslash_escapes.text'] = {text: 'hello world \\[how](are you) today'};
-
-    files['main.text'].text = files['main.text'].text.replace('* * *\n\n', '');
-  }
+  files = files || load();
 
   var start = Date.now()
-    , times = 1000
-    , keys = Object.keys(files)
-    , i
-    , l = keys.length
-    , filename
-    , file;
+    ,times = 1000
+    ,keys = Object.keys(files)
+    ,i
+    ,l = keys.length
+    ,filename
+    ,file;
 
   while(times--)
   {
@@ -275,7 +255,7 @@ export function bench(name: string, func: Function)
     }
   }
 
-  console.log('%s completed in %dms.', name, Date.now() - start);
+  console.log('%s completed in %d ms.', name, Date.now() - start);
 }
 
 /**
@@ -410,6 +390,16 @@ export function runBench(options: runTestsOptions)
     console.log(`Could not bench 'markdown-it'. (Error: ${e.message})`);
   }
 
+  // markdown
+  try
+  {
+    bench('markdown', require('markdown').parse);
+  }
+  catch(e)
+  {
+    console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
+  }
+
   // showdown
   try
   {
@@ -421,16 +411,6 @@ export function runBench(options: runTestsOptions)
   catch(e)
   {
     console.log(`Could not bench 'showdown'. (Error: ${e.message})`);
-  }
-
-  // markdown
-  try
-  {
-    bench('markdown', require('markdown').parse);
-  }
-  catch(e)
-  {
-    console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
   }
 }
 

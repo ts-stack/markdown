@@ -99,7 +99,6 @@ block.tables =
 
 export class BlockLexer
 {
-  static rules: BlockGrammar = block;
   private rules: BlockGrammar;
   private options: MarkedOptions;
   private links: Links;

@@ -84,7 +84,6 @@ inline.breaks =
  */
 export class InlineLexer
 {
-  static rules: InlineGrammar = inline;
   private links: Links;
   private rules: InlineGrammar;
   private options: MarkedOptions;
@@ -98,7 +97,7 @@ export class InlineLexer
     this.links = links;
     
     if(!this.links)
-      throw new Error('Tokens array requires a `links` property.');
+      throw new Error(`InlineLexer requires 'links' parameter.`);
 
     if(this.options.gfm)
     {

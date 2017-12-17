@@ -31,13 +31,13 @@ export class ExtendRegexp
    */
   setGroup(groupName: RegExp | string, groupRegexp: RegExp | string): this
   {
-    let str = typeof groupRegexp == 'string' ? groupRegexp : groupRegexp.source;
+    let newRegexp: string = typeof groupRegexp == 'string' ? groupRegexp : groupRegexp.source;
 
     // Remove all occurrences of `^` character.
-    str = str.replace(/(^|[^\[])\^/g, '$1');
+    newRegexp = newRegexp.replace(/(^|[^\[])\^/g, '$1');
 
     // Extend regexp.
-    this.source = this.source.replace(groupName, str);
+    this.source = this.source.replace(groupName, newRegexp);
     return this;
   }
 

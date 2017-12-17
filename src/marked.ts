@@ -43,7 +43,7 @@ export class Marked
 
       try
       {
-        var {tokens} = BlockLexer.lex(src, options)
+        var {tokens, links} = BlockLexer.lex(src, options)
       }
       catch(e)
       {
@@ -102,7 +102,7 @@ export class Marked
 
         try
         {
-          out = Parser.parse(tokens, options);
+          out = Parser.parse(tokens, links, options);
         }
         catch(e)
         {
@@ -120,7 +120,7 @@ export class Marked
     try
     {
       const {tokens, links} = BlockLexer.lex(src, options);
-      return Parser.parse(tokens, options, null, links);
+      return Parser.parse(tokens, links, options);
     }
     catch(err)
     {

@@ -10,3 +10,4 @@ tsconfig.json
 lib
 test
 dist-test
+src
