@@ -9,7 +9,7 @@ install:
 before_script:
   - ./node_modules/.bin/tsc
   - cd test
-  - ./node_modules/.bin/tsc
+  - ../node_modules/.bin/tsc
 
 script:
   - npm test
