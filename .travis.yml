@@ -1,5 +1,14 @@
 language: node_js
+
 node_js:
-  - "0.10"
-  - "0.8"
-  - "0.6"
+  - "8"
+
+install:
+  - npm i
+
+before_script:
+  - cd test
+  - ./node_modules/.bin/tsc
+
+script:
+  - npm test

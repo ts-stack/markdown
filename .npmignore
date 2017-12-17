@@ -10,6 +10,3 @@ tsconfig.json
 lib
 test
 dist-test
-man
-doc
-yarn.lock

@@ -8,8 +8,6 @@
   "directories": {
     "lib": "src"
   },
-  "bin": "./bin/marked",
-  "man": "./man/marked.1",
   "repository": "git://github.com/KostyaTretyak/marked-ts.git",
   "homepage": "https://github.com/KostyaTretyak/marked-ts",
   "bugs": {
@@ -17,13 +15,11 @@
   },
   "license": "MIT",
   "keywords": [
-    "markdown-ts",
     "markdown",
     "markup",
     "html"
   ],
   "tags": [
-    "markdown-ts",
     "markdown",
     "markup",
     "html"
@@ -31,7 +27,6 @@
   "devDependencies": {
     "@types/highlight.js": "^9.12.2",
     "@types/markdown-it": "0.0.4",
-    "@types/marked": "^0.3.0",
     "@types/node": "^8.5.1",
     "highlight.js": "^9.12.0",
     "markdown": "*",
