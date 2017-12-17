@@ -19,62 +19,30 @@ import { Marked, MarkedOptions, BlockLexer, InlineLexer } from '../';
  */
 if(!module.parent)
 {
-  process.title = 'marked';
-  const args = process.argv.slice();
-  process.exit(main(args) ? 0 : 1);
+  process.title = 'marked-ts';
+  process.exit(main() ? 0 : 1);
 }
 
-/**
- * Load Tests
- */
-
-export type Obj = {[key: string]: any};
-
-export function load()
+export function main()
 {
-  const dir = __dirname + '/../test/tests';
-  let files: {[key: string]: any} = {};
+  const opt = parseArg();
 
-  const list = fs
-  .readdirSync(dir)
-  .filter(file => path.extname(file) !== '.html')
-  .sort((fileName1, fileName2) =>
+  if(opt.bench)
   {
-    const a = path.basename(fileName1).toLowerCase().charCodeAt(0);
-    const b = path.basename(fileName2).toLowerCase().charCodeAt(0);
-    return a > b ? 1 : (a < b ? -1 : 0);
-  });
-
-  const length = list.length;
-
-  for(let i = 0; i < length; i++)
-  {
-    const file = path.join(dir, list[i]);
-
-    files[path.basename(file)] =
-    {
-      text: fs.readFileSync(file, 'utf8'),
-      html: fs.readFileSync(file.replace(/[^.]+$/, 'html'), 'utf8')
-    };
+    return runBench(opt);
   }
 
-  return files;
-}
+  if(opt.time)
+  {
+    return time(opt);
+  }
 
-/**
- * Test Runner
- */
-
-export interface runTestsOptions
-{
-  files?: {[key: string]: any},
-  marked?: MarkedOptions,
-  stop?: boolean,
+  return runTests(opt);
 }
 
 export function runTests(options: runTestsOptions): boolean;
 export function runTests(engine: Function, options: runTestsOptions): boolean;
-export function runTests(engine: any, options?: runTestsOptions): boolean
+export function runTests(engine: Function | runTestsOptions, options?: runTestsOptions): boolean
 {
   if(typeof engine != 'function')
   {
@@ -82,21 +50,20 @@ export function runTests(engine: any, options?: runTestsOptions): boolean
     engine = null;
   }
 
-  engine = engine || Marked.parse.bind(Marked);
+  engine = (engine || Marked.parse.bind(Marked)) as Function;
   options = options || {};
   const files = options.files || load();
   const keys = Object.keys(files)
   ,failures = [];
 
   let original: MarkedOptions
-  , filename
-  , failed = 0
-  , complete = 0
-  , file
-  , flags
-  , text
-  , html
-  , j;
+  ,filename
+  ,failed = 0
+  ,complete = 0
+  ,file
+  ,flags
+  ,text
+  ,html;
 
   if(options.marked)
   {
@@ -122,7 +89,6 @@ export function runTests(engine: any, options?: runTestsOptions): boolean
     if(flags.length)
     {
       original = Marked.defaults;
-      Marked.defaults = <any>{};
       Marked.defaults = {...Marked.defaults};
 
       flags.forEach( key =>
@@ -211,6 +177,54 @@ export function runTests(engine: any, options?: runTestsOptions): boolean
   }
 
   return !failed;
+}
+
+/**
+ * Load Tests
+ */
+
+export type Obj = {[key: string]: any};
+
+export function load()
+{
+  const dir = __dirname + '/../test/tests';
+  let files: {[key: string]: any} = {};
+
+  const list = fs
+  .readdirSync(dir)
+  .filter(file => path.extname(file) !== '.html')
+  .sort((fileName1, fileName2) =>
+  {
+    const a = path.basename(fileName1).toLowerCase().charCodeAt(0);
+    const b = path.basename(fileName2).toLowerCase().charCodeAt(0);
+    return a > b ? 1 : (a < b ? -1 : 0);
+  });
+
+  const length = list.length;
+
+  for(let i = 0; i < length; i++)
+  {
+    const file = path.join(dir, list[i]);
+
+    files[path.basename(file)] =
+    {
+      text: fs.readFileSync(file, 'utf8'),
+      html: fs.readFileSync(file.replace(/[^.]+$/, 'html'), 'utf8')
+    };
+  }
+
+  return files;
+}
+
+/**
+ * Test Runner
+ */
+
+export interface runTestsOptions
+{
+  files?: {[key: string]: any},
+  marked?: MarkedOptions,
+  stop?: boolean,
 }
 
 /**
@@ -550,21 +564,4 @@ function camelize(text: string)
   {
     return a + b.toUpperCase();
   });
-}
-
-export function main(argv: any)
-{
-  const opt = parseArg();
-
-  if(opt.bench)
-  {
-    return runBench(opt);
-  }
-
-  if(opt.time)
-  {
-    return time(opt);
-  }
-
-  return runTests(opt);
 }
