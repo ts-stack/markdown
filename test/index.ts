@@ -376,11 +376,40 @@ export function runBench(options: runTestsOptions)
 
   bench('marked (pedantic)', marked);
 
+  // remarkable
+  try
+  {
+    const Remarkable = require('remarkable');
+
+    const md = new Remarkable
+    (
+      'full',
+      {
+        html: true,
+        linkify: true,
+        typographer: false,
+      }
+    );
+
+    const render = md.render.bind(md);
+
+    bench('remarkable', render);
+  }
+  catch(e)
+  {
+    console.log(`Could not bench 'remarkable'. (Error: ${e.message})`);
+  }
+
   // markdown-it
   try
   {
     const MarkdownIt = require('markdown-it');
-    const md = new MarkdownIt();
+    const md = new MarkdownIt
+    ({
+      html: true,
+      linkify: true,
+      typographer: false,
+    });
     const render = md.render.bind(md);
 
     bench('markdown-it', render);
