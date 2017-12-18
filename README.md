@@ -13,7 +13,7 @@ For now - work in progress (there is only alpha.1 version).
 ## Install
 
 ``` bash
-npm install marked --save
+npm install marked-ts --save
 ```
 
 ## Usage with TypeScript
@@ -21,7 +21,7 @@ npm install marked --save
 Minimal usage:
 
 ```js
-import { Marked } from 'marked';
+import { Marked } from 'marked-ts';
 
 console.log(Marked.parse('I am using __markdown__.'));
 // Outputs: <p>I am using <strong>markdown</strong>.</p>
@@ -30,7 +30,7 @@ console.log(Marked.parse('I am using __markdown__.'));
 Example setting options with default values:
 
 ```js
-import { Marked, Renderer } from 'marked';
+import { Marked, Renderer } from 'marked-ts';
 
 Marked.setOptions
 ({
@@ -52,7 +52,7 @@ console.log(Marked.parse('I am using __markdown__.'));
 Minimal usage:
 
 ```js
-const marked = require('marked');
+const marked = require('marked-ts');
 
 console.log(marked.Marked.parse('I am using __markdown__.'));
 // Outputs: <p>I am using <strong>markdown</strong>.</p>
@@ -61,7 +61,7 @@ console.log(marked.Marked.parse('I am using __markdown__.'));
 Example setting options with default values:
 
 ```js
-const marked = require('marked');
+const marked = require('marked-ts');
 
 marked.Marked.setOptions
 ({
