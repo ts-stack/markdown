@@ -29,7 +29,7 @@ const inline: InlineGrammar =
   nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
   strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
   em: /^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
-  code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
+  code: /^(`+)([\s\S]*?[^`])\1(?!`)/,
   br: /^ {2,}\n(?!\s*$)/,
   text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/,
   _inside: /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/,
@@ -268,7 +268,7 @@ export class InlineLexer
       if(execArr = this.rules.code.exec(nextPart))
       {
         nextPart = nextPart.substring(execArr[0].length);
-        out += this.renderer.codespan(escape(execArr[2], true));
+        out += this.renderer.codespan(escape(execArr[2].trim(), true));
         continue;
       }
 
