@@ -44,10 +44,6 @@ block.list = new ExtendRegexp(block.list)
 .setGroup('def', '\\n+(?=' + block.def.source + ')')
 .getRegexp();
 
-block.blockquote = new ExtendRegexp(block.blockquote)
-.setGroup('def', block.def)
-.getRegexp();
-
 block._tag = '(?!(?:'
   + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
   + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
