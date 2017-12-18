@@ -150,7 +150,7 @@ export class BlockLexer
   {
     let
     // Removes all rows where there are only whitespaces.
-    nextPart: string = src.replace(/^\s+$/gm, ''),
+    nextPart: string = src.replace(/^ +$/gm, ''),
     execArr: RegExpExecArray,
     next: boolean,
     loose: boolean,

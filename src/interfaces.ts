@@ -24,6 +24,9 @@ export interface BlockGrammar
   paragraph?: RegExp,
   text?: RegExp,
   bullet?: RegExp,
+  /**
+   * List item (<li>).
+   */
   item?: RegExp,
   _tag?: string,
 
