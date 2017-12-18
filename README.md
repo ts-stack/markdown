@@ -304,7 +304,7 @@ default with the old behavior moved into `pedantic`.
 Type: `boolean`
 Default: `false`
 
-Use "smart" typograhic punctuation for things like quotes and dashes.
+Use "smart" typographic punctuation for things like quotes and dashes.
 
 ## Access to lexer and parser
 
@@ -326,7 +326,7 @@ console.log(lexer.rules);
 
 The point of marked was to create a markdown compiler where it was possible to
 frequently parse huge chunks of markdown without having to worry about
-caching the compiled output somehow...or blocking for an unnecesarily long time.
+caching the compiled output somehow...or blocking for an unnecessarily long time.
 
 marked is very concise and still implements all markdown features. It is also
 now fully compatible with the client-side.
@@ -350,17 +350,18 @@ node v8.9.x
 $ node dist-test/index.js --bench
 ```
 
-|        engine        | completed in ms
-| -------------------- | ---------
-| marked-ts            | 7084
-| marked-ts (gfm)      | 7294
-| marked-ts (pedantic) | 6530
-| marked               | 6593
-| marked (gfm)         | 6778
-| marked (pedantic)    | 6069
-| markdown-it          | 6648
-| markdown             | 27805
-| showdown             | 42924
+|            engine            | completed in ms
+| ---------------------------- | ---------
+| marked-ts alpha.1            | 6 850
+| marked-ts (gfm) alpha.1      | 7 101
+| marked-ts (pedantic) alpha.1 | 6 248
+| marked v0.3.7                | 6 429
+| marked (gfm) v0.3.7          | 6 818
+| marked (pedantic) v0.3.7     | 6 205
+| remarkable v1.7.1            | 6 260
+| markdown-it v8.4.0           | 7 026
+| markdown v0.5.0              | 27 180
+| showdown v1.8.5              | 42 775
 
 For those feeling skeptical: These benchmarks run the entire markdown test suite 1000 times. The test suite tests every feature. It doesn't cater to specific aspects.
 

@@ -32,6 +32,7 @@
     "markdown": "*",
     "markdown-it": "^8.4.0",
     "marked": "^0.3.7",
+    "remarkable": "^1.7.1",
     "showdown": "*",
     "typescript": "^2.6.2"
   },
