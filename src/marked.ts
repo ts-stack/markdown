@@ -11,7 +11,7 @@
 import { Parser } from './parser';
 import { BlockLexer } from './block-lexer';
 import { escape } from './helpers';
-import { MarkedCallback, MarkedOptions, ParamsToken } from './interfaces';
+import { MarkedCallback, MarkedOptions, ParamsToken, Links } from './interfaces';
 
 export class Marked
 {
@@ -40,10 +40,11 @@ export class Marked
       const options: MarkedOptions = {...this.defaults, ...optsOrCallback};
 
       const highlight = options.highlight;
+      let tokens: ParamsToken[], links: Links;
 
       try
       {
-        var {tokens, links} = BlockLexer.lex(src, options)
+        ({tokens, links} = BlockLexer.lex(src, options));
       }
       catch(e)
       {
