@@ -287,9 +287,8 @@ node v8.9.x
 npm install
 ./node_modules/.bin/tsc
 cd test
-./node_modules/.bin/tsc
-cd ..
-node dist-test/index.js --bench
+../node_modules/.bin/tsc
+node index.js --bench
 ```
 
 |            engine            | completed in ms
