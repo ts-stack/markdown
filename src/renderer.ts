@@ -111,7 +111,7 @@ export class Renderer
     return tag + content + '</' + type + '>\n';
   }
 
-  //*** Span level renderer. ***
+  //*** Inline level renderer methods. ***
 
   strong(text: string): string
   {

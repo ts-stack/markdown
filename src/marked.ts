@@ -11,7 +11,7 @@
 import { Parser } from './parser';
 import { BlockLexer } from './block-lexer';
 import { escape } from './helpers';
-import { MarkedCallback, MarkedOptions, ParamsToken, Links } from './interfaces';
+import { ParseCallback, MarkedOptions, ParamsToken, Links } from './interfaces';
 
 export class Marked
 {
@@ -20,7 +20,7 @@ export class Marked
   /**
    * Merges the default options with options that will be set.
    * 
-   * @param options Options that will be merged with default options.
+   * @param options Hash of options. Can also be set using the `Marked.setOptions` method as seen above.
    */
   static setOptions(options: MarkedOptions)
   {
@@ -31,38 +31,38 @@ export class Marked
   /**
    * Accepts Markdown text and returns text in HTML format.
    * 
-   * @param src A source markdown text.
+   * @param src String of markdown source to be compiled.
    */
   static parse(src: string): string;
   /**
    * Accepts Markdown text and returns text in HTML format.
    * 
-   * @param src A source markdown text.
-   * @param options Options to be used instead of the default options.
+   * @param src String of markdown source to be compiled.
+   * @param options Hash of options. Can also be set using the `Marked.setOptions` method as seen above.
    */
   static parse(src: string, options: object): string;
   /**
    * Accepts Markdown text and returns text in HTML format.
    * 
-   * @param src A source markdown text.
+   * @param src String of markdown source to be compiled.
    * @param callback Function that handles errors.
    */
-  static parse(src: string, callback: MarkedCallback): string;
+  static parse(src: string, callback: ParseCallback): string;
   /**
    * Accepts Markdown text and returns text in HTML format.
    * 
-   * @param src A source markdown text.
-   * @param options Options to be used instead of the default options.
+   * @param src String of markdown source to be compiled.
+   * @param options Hash of options. Can also be set using the `Marked.setOptions` method as seen above.
    * @param callback Function that handles errors.
    */
-  static parse(src: string, options: object, callback: MarkedCallback): string;
-  static parse(src: string, optsOrCallback?: MarkedOptions | MarkedCallback, callback?: MarkedCallback): string
+  static parse(src: string, options: object, callback: ParseCallback): string;
+  static parse(src: string, optsOrCallback?: MarkedOptions | ParseCallback, callback?: ParseCallback): string
   {
     if(callback || typeof optsOrCallback == 'function')
     {
       if(!callback)
       {
-        callback = optsOrCallback as MarkedCallback;
+        callback = optsOrCallback as ParseCallback;
         optsOrCallback = null;
       }
 

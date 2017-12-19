@@ -8,7 +8,7 @@
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
-For now - work in progress (there is only alpha.1 version).
+For now - work in progress (there is only alpha.2 version).
 
 ## Install
 
@@ -77,249 +77,187 @@ marked.Marked.setOptions
 
 console.log(marked.Marked.parse('I am using __markdown__.'));
 ```
+## API
 
-### Browser
+### Methods of Marked class
 
-```html
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <title>Marked in the browser</title>
-  <script src="lib/marked.js"></script>
-</head>
-<body>
-  <div id="content"></div>
-  <script>
-    document.getElementById('content').innerHTML =
-      marked('# Marked in browser\n\nRendered by **marked**.');
-  </script>
-</body>
-</html>
+```ts
+/**
+ * Accepts Markdown text and returns text in HTML format.
+ * 
+ * @param src String of markdown source to be compiled.
+ * 
+ * @param options Hash of options. Can also be
+ * set using the `Marked.setOptions` method as seen above.
+ * 
+ * @param callback Function called when the `src`
+ * has been fully parsed when using async call. If
+ * the `options` argument is omitted, this can be used as
+ * the second argument.
+ */
+static parse(src: string): string;
+static parse(src: string, options: object): string;
+static parse(src: string, callback: ParseCallback): string;
+static parse(src: string, options: object, callback: ParseCallback): string;
+
+type ParseCallback = (err: Error, output?: string) => any;
+
+
+/**
+ * Merges the default options with options that will be set.
+ * 
+ * @param options Hash of options. Can also be set using
+ * the `Marked.setOptions` method as seen above.
+ */
+static setOptions(options: MarkedOptions): this;
+
+
+class MarkedOptions
+{
+  gfm?: boolean = true;
+  tables?: boolean = true;
+  breaks?: boolean = false;
+  pedantic?: boolean = false;
+  sanitize?: boolean = false;
+  sanitizer?: any = null;
+  mangle?: boolean = true;
+  smartLists?: boolean = false;
+  silent?: boolean = false;
+  /**
+   * @param code The section of code to pass to the highlighter.
+   * @param lang The programming language specified in the code block.
+   * @param callback The callback function to call when using an async highlighter.
+   */
+  highlight?: (code: string, lang: string, callback?: ParseCallback) => string = null;
+  langPrefix?: string = 'lang-';
+  smartypants?: boolean = false;
+  headerPrefix?: string = '';
+  /**
+   * An object containing functions to render tokens to HTML. Default: `new Renderer()`
+   */
+  renderer?: Renderer;
+  xhtml?: boolean = false;
+}
 ```
 
-## marked(markdownString [,options] [,callback])
+### Example useage with highlight.js
 
-### markdownString
+```bash
+npm install highlight.js @types/highlight.js --save
+```
 
-Type: `string`
+A function to highlight code blocks:
 
-String of markdown source to be compiled.
+```ts
+import { Marked } from 'marked-ts';
+import { highlightAuto } from 'highlight.js';
 
-### options
+let md = '```js\n console.log("hello"); \n```';
 
-Type: `object`
+// Using async version of `Marked.parse()`
+Marked.parse(md, (err, output) =>
+{
+  if(err)
+    throw err;
 
-Hash of options. Can also be set using the `marked.setOptions` method as seen
-above.
-
-### callback
-
-Type: `function`
-
-Function called when the `markdownString` has been fully parsed when using
-async highlighting. If the `options` argument is omitted, this can be used as
-the second argument.
-
-## Options
-
-### highlight
-
-Type: `function`
-
-A function to highlight code blocks. The first example below uses async highlighting with
-[node-pygmentize-bundled][pygmentize], and the second is a synchronous example using
-[highlight.js][highlight]:
-
-```js
-const marked = require('marked');
-
-const markdownString = '```js\n console.log("hello"); \n```';
-
-// Async highlighting with pygmentize-bundled
-marked.setOptions({
-  highlight: function (code, lang, callback) {
-    require('pygmentize-bundled')({ lang: lang, format: 'html' }, code, function (err, result) {
-      callback(err, result.toString());
-    });
-  }
-});
-
-// Using async version of marked
-marked(markdownString, function (err, content) {
-  if (err) throw err;
-  console.log(content);
+  console.log(output);
 });
 
 // Synchronous highlighting with highlight.js
-marked.setOptions({
-  highlight: function (code) {
-    return require('highlight.js').highlightAuto(code).value;
-  }
-});
+Marked.setOptions({ highlight: code => highlightAuto(code).value; });
 
-console.log(marked(markdownString));
+console.log(Marked.parse(md));
 ```
-
-#### highlight arguments
-
-`code`
-
-Type: `string`
-
-The section of code to pass to the highlighter.
-
-`lang`
-
-Type: `string`
-
-The programming language specified in the code block.
-
-`callback`
-
-Type: `function`
-
-The callback function to call when using an async highlighter.
-
-### renderer
-
-Type: `object`
-Default: `new Renderer()`
-
-An object containing functions to render tokens to HTML.
 
 #### Overriding renderer methods
 
 The renderer option allows you to render tokens in a custom manner. Here is an
-example of overriding the default heading token rendering by adding an embedded anchor tag like on GitHub:
+example of overriding the default heading token rendering by adding custom head id:
 
-```javascript
-const marked = require('marked');
-const renderer = new marked.Renderer();
+```ts
+import { Marked, Renderer, MarkedOptions } from 'marked-ts';
 
-renderer.heading = function (text, level) {
-  let escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
+// Setting some options for Marked.
+const markedOptions: MarkedOptions = {};
 
-  return '<h' + level + '><a name="' +
-                escapedText +
-                 '" class="anchor" href="#' +
-                 escapedText +
-                 '"><span class="header-link"></span></a>' +
-                  text + '</h' + level + '>';
-},
+const renderer = new Renderer(markedOptions);
 
-console.log(marked('# heading+', { renderer: renderer }));
-```
-This code will output the following HTML:
-```html
-<h1>
-  <a name="heading-" class="anchor" href="#heading-">
-    <span class="header-link"></span>
-  </a>
-  heading+
-</h1>
-```
-
-#### Block level renderer methods
-
-- code(*string* code, *string* language)
-- blockquote(*string* quote)
-- html(*string* html)
-- heading(*string* text, *number*  level)
-- hr()
-- list(*string* body, *boolean* ordered)
-- listitem(*string*  text)
-- paragraph(*string* text)
-- table(*string* header, *string* body)
-- tablerow(*string* content)
-- tablecell(*string* content, *object* flags)
-
-`flags` has the following properties:
-
-```js
+// Overriding renderer.
+renderer.heading = function (text, level)
 {
-    header: true || false,
-    align: 'center' || 'left' || 'right'
-}
+  const patt = /\s?{([^}]+)}$/;
+  const link = patt.exec(text);
+  let linkStr: string;
+  
+  if(link && link.length && link[1])
+  {
+    text = text.replace(patt, '');
+    linkStr = link[1];
+  }
+  else
+  {
+    linkStr = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
+  }
+
+  return '<h' + level + ' id="' + linkStr + '">' + text + '</h' + level + '>';
+};
+
+markedOptions.renderer = renderer;
+Marked.setOptions(markedOptions);
+
+console.log(Marked.parse('# heading {my-custom-hash}'));
 ```
 
-#### Inline level renderer methods
+This code will output the following HTML:
 
-- strong(*string* text)
-- em(*string* text)
-- codespan(*string* code)
-- br()
-- del(*string* text)
-- link(*string* href, *string* title, *string* text)
-- image(*string* href, *string* title, *string* text)
-
-### gfm
-
-Type: `boolean`
-Default: `true`
-
-Enable [GitHub flavored markdown][gfm].
-
-### tables
-
-Type: `boolean`
-Default: `true`
-
-Enable GFM [tables][tables].
-This option requires the `gfm` option to be true.
-
-### breaks
-
-Type: `boolean`
-Default: `false`
-
-Enable GFM [line breaks][breaks].
-This option requires the `gfm` option to be true.
-
-### pedantic
-
-Type: `boolean`
-Default: `false`
-
-Conform to obscure parts of `markdown.pl` as much as possible. Don't fix any of
-the original markdown bugs or poor behavior.
-
-### sanitize
-
-Type: `boolean`
-Default: `false`
-
-Sanitize the output. Ignore any HTML that has been input.
-
-### smartLists
-
-Type: `boolean`
-Default: `true`
-
-Use smarter list behavior than the original markdown. May eventually be
-default with the old behavior moved into `pedantic`.
-
-### smartypants
-
-Type: `boolean`
-Default: `false`
-
-Use "smart" typographic punctuation for things like quotes and dashes.
-
-## Access to lexer and parser
-
-You also have direct access to the lexer and parser if you so desire.
-
-``` js
-const tokens = marked.lexer(text, options);
-console.log(marked.parser(tokens));
+```html
+<h1 id="my-custom-hash">heading</h1>
 ```
 
-``` js
-const lexer = new marked.Lexer(options);
-const tokens = lexer.lex(text);
-console.log(tokens);
-console.log(lexer.rules);
+#### Renderer methods API
+
+```ts
+//*** Block level renderer methods. ***
+
+code(code: string, lang?: string, escaped?: boolean): string;
+
+blockquote(quote: string): string;
+
+html(html: string): string;
+
+heading(text: string, level: number, raw: string): string;
+
+hr(): string;
+
+list(body: string, ordered?: boolean): string;
+
+listitem(text: string): string;
+
+paragraph(text: string): string;
+
+table(header: string, body: string): string;
+
+tablerow(content: string): string;
+
+tablecell(content: string, flags: {header?: boolean, align?: Align}): string;
+
+//*** Inline level renderer methods. ***
+
+strong(text: string): string;
+
+em(text: string): string;
+
+codespan(text: string): string;
+
+br(): string;
+
+del(text: string): string;
+
+link(href: string, title: string, text: string): string;
+
+image(href: string, title: string, text: string): string;
+
+text(text: string): string;
 ```
 
 ## Philosophy behind marked
@@ -328,10 +266,9 @@ The point of marked was to create a markdown compiler where it was possible to
 frequently parse huge chunks of markdown without having to worry about
 caching the compiled output somehow...or blocking for an unnecessarily long time.
 
-marked is very concise and still implements all markdown features. It is also
-now fully compatible with the client-side.
+Marked is very concise and still implements all markdown features.
 
-marked more or less passes the official markdown test suite in its
+Marked more or less passes the official markdown test suite in its
 entirety. This is important because a surprising number of markdown compilers
 cannot pass more than a few tests. It was very difficult to get marked as
 compliant as it is. It could have cut corners in several areas for the sake
@@ -352,9 +289,9 @@ $ node dist-test/index.js --bench
 
 |            engine            | completed in ms
 | ---------------------------- | ---------
-| marked-ts alpha.1            | 6 850
-| marked-ts (gfm) alpha.1      | 7 101
-| marked-ts (pedantic) alpha.1 | 6 248
+| marked-ts alpha.2            | 4 563
+| marked-ts (gfm) alpha.2      | 4 785
+| marked-ts (pedantic) alpha.2 | 4 245
 | marked v0.3.7                | 6 429
 | marked (gfm) v0.3.7          | 6 818
 | marked (pedantic) v0.3.7     | 6 205

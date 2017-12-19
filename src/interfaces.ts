@@ -7,6 +7,8 @@
 
 import { Renderer } from './renderer';
 
+export type Obj = {[key: string]: any};
+
 export interface BlockGrammar
 {
   newline?: RegExp,
@@ -125,7 +127,7 @@ export interface InlineGrammar
   breaks?: this,
 }
 
-export type MarkedCallback = (...args: any[]) => any;
+export type ParseCallback = (err: Error, output?: string) => any;
 
 export class MarkedOptions
 {
@@ -138,10 +140,18 @@ export class MarkedOptions
   mangle?: boolean = true;
   smartLists?: boolean = false;
   silent?: boolean = false;
-  highlight?: (code: string, lang: string, callback?: MarkedCallback) => string = null;
+  /**
+   * @param code The section of code to pass to the highlighter.
+   * @param lang The programming language specified in the code block.
+   * @param callback The callback function to call when using an async highlighter.
+   */
+  highlight?: (code: string, lang: string, callback?: ParseCallback) => string = null;
   langPrefix?: string = 'lang-';
   smartypants?: boolean = false;
   headerPrefix?: string = '';
+  /**
+   * An object containing functions to render tokens to HTML. Default: `new Renderer()`
+   */
   renderer?: Renderer;
   xhtml?: boolean = false;
 }

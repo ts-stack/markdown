@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Marked, MarkedOptions, BlockLexer, InlineLexer } from '../';
+import { Marked, MarkedOptions, BlockLexer, InlineLexer, Obj } from '../';
 
 let files: Obj;
 
@@ -185,8 +185,6 @@ export function runTests(engine: Function | runTestsOptions, options?: runTestsO
  * Load Tests
  */
 
-export type Obj = {[key: string]: any};
-
 export function load()
 {
   const dir = __dirname + '/../test/tests';
@@ -320,6 +318,7 @@ export function runBench(options: runTestsOptions)
 
   bench('marked-ts (pedantic)', Marked.parse.bind(Marked));
 
+  console.log(`----------------------------------------`);
   const marked = require('marked');
 
   // Non-GFM, Non-pedantic
@@ -376,6 +375,7 @@ export function runBench(options: runTestsOptions)
 
   bench('marked (pedantic)', marked);
 
+  console.log(`----------------------------------------`);
   // remarkable
   try
   {
@@ -400,6 +400,7 @@ export function runBench(options: runTestsOptions)
     console.log(`Could not bench 'remarkable'. (Error: ${e.message})`);
   }
 
+  console.log(`----------------------------------------`);
   // markdown-it
   try
   {
@@ -419,6 +420,7 @@ export function runBench(options: runTestsOptions)
     console.log(`Could not bench 'markdown-it'. (Error: ${e.message})`);
   }
 
+  console.log(`----------------------------------------`);
   // markdown
   try
   {
@@ -429,6 +431,7 @@ export function runBench(options: runTestsOptions)
     console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
   }
 
+  console.log(`----------------------------------------`);
   // showdown
   try
   {

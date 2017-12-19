@@ -2,7 +2,7 @@
   "name": "marked-ts",
   "description": "A markdown parser built for speed",
   "author": "Костя Третяк <ktretiak.in.ua@gmail.com>",
-  "version": "0.0.0-alpha.1",
+  "version": "0.0.0-alpha.2",
   "main": "dist/index",
   "typings": "dist/index",
   "directories": {

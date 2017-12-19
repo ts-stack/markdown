@@ -8,17 +8,52 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-// For JSDoc ignore license in escape function.
-import {  } from '';
+
+interface Replacements
+{
+  [key: string]: string;
+}
+
+const escapeTest = /[&<>"']/;
+const escapeReplace = /[&<>"']/g;
+const replacements: Replacements =
+{
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+};
+
+const escapeTestNoEncode = /(?:[<>"']|&(?!#?\w+;))/;
+const escapeReplaceNoEncode = /(?:[<>"']|&(?!#?\w+;))/g;
+const replacementsNoEncode: Replacements =
+{
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+};
 
 export function escape(html: string, encode?: boolean)
 {
-  return html
-    .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  if(encode)
+  {
+    if(escapeTest.test(html))
+    {
+      return html.replace(escapeReplace, (ch: string) => replacements[ch]);
+    }
+  }
+  else
+  {
+    if(escapeTestNoEncode.test(html))
+    {
+      return html.replace(escapeReplaceNoEncode, (ch: string) => replacementsNoEncode[ch]);
+    }
+  }
+
+  return html;
 }
 
 export function unescape(html: string)
