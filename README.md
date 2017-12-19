@@ -140,7 +140,7 @@ class MarkedOptions
 }
 ```
 
-### Example useage with highlight.js
+### Example usage with highlight.js
 
 ```bash
 npm install highlight.js @types/highlight.js --save
