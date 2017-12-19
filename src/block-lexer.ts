@@ -469,12 +469,20 @@ export class BlockLexer
       {
         nextPart = nextPart.substring(execArr[0].length);
 
-        this.tokens.push({
-          type: 'paragraph',
-          text: execArr[1].charAt(execArr[1].length - 1) === '\n'
-            ? execArr[1].slice(0, -1)
-            : execArr[1]
-        });
+        if(execArr[1].charAt(execArr[1].length - 1) === '\n')
+        {
+          this.tokens.push({
+            type: 'paragraph',
+            text: execArr[1].slice(0, -1),
+          });
+        }
+        else
+        {
+          this.tokens.push({
+            type: this.tokens.length > 0 ? 'paragraph' : 'html',
+            text: execArr[1],
+          });
+        }
 
         continue;
       }
