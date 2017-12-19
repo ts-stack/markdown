@@ -10,9 +10,14 @@
 
 import { ExtendRegexp } from './extend-regexp';
 import { escape, Noop } from './helpers';
-import { InlineGrammar, MarkedOptions, Links, Link } from './interfaces';
 import { Renderer } from './renderer';
 import { Marked } from './marked';
+import {
+  InlineGrammar,
+  MarkedOptions,
+  Links,
+  Link
+} from './interfaces';
 
 /**
  * Inline-Level Grammar.
@@ -325,20 +330,20 @@ export class InlineLexer
       return text;
 
     return text
-      // em-dashes
-      .replace(/---/g, '\u2014')
-      // en-dashes
-      .replace(/--/g, '\u2013')
-      // opening singles
-      .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
-      // closing singles & apostrophes
-      .replace(/'/g, '\u2019')
-      // opening doubles
-      .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
-      // closing doubles
-      .replace(/"/g, '\u201d')
-      // ellipses
-      .replace(/\.{3}/g, '\u2026');
+        // em-dashes
+        .replace(/---/g, '\u2014')
+        // en-dashes
+        .replace(/--/g, '\u2013')
+        // opening singles
+        .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
+        // closing singles & apostrophes
+        .replace(/'/g, '\u2019')
+        // opening doubles
+        .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
+        // closing doubles
+        .replace(/"/g, '\u201d')
+        // ellipses
+        .replace(/\.{3}/g, '\u2026');
     }
 
   /**

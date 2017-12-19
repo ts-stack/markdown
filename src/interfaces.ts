@@ -161,3 +161,8 @@ export interface LexerReturns
   tokens: ParamsToken[],
   links: Links
 }
+
+export interface Replacements
+{
+  [key: string]: string;
+}
