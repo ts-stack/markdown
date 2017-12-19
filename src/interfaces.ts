@@ -145,3 +145,9 @@ export class MarkedOptions
   renderer?: Renderer;
   xhtml?: boolean = false;
 }
+
+export interface LexerReturns
+{
+  tokens: ParamsToken[],
+  links: Links
+}

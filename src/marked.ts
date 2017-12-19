@@ -17,15 +17,44 @@ export class Marked
 {
   static defaults = new MarkedOptions;
 
+  /**
+   * Merges the default options with options that will be set.
+   * 
+   * @param options Options that will be merged with default options.
+   */
   static setOptions(options: MarkedOptions)
   {
     this.defaults = {...this.defaults, ...options};
     return this;
   }
 
+  /**
+   * Accepts Markdown text and returns text in HTML format.
+   * 
+   * @param src A source markdown text.
+   */
   static parse(src: string): string;
+  /**
+   * Accepts Markdown text and returns text in HTML format.
+   * 
+   * @param src A source markdown text.
+   * @param options Options to be used instead of the default options.
+   */
   static parse(src: string, options: object): string;
+  /**
+   * Accepts Markdown text and returns text in HTML format.
+   * 
+   * @param src A source markdown text.
+   * @param callback Function that handles errors.
+   */
   static parse(src: string, callback: MarkedCallback): string;
+  /**
+   * Accepts Markdown text and returns text in HTML format.
+   * 
+   * @param src A source markdown text.
+   * @param options Options to be used instead of the default options.
+   * @param callback Function that handles errors.
+   */
   static parse(src: string, options: object, callback: MarkedCallback): string;
   static parse(src: string, optsOrCallback?: MarkedOptions | MarkedCallback, callback?: MarkedCallback): string
   {
@@ -37,7 +66,7 @@ export class Marked
         optsOrCallback = null;
       }
 
-      const options: MarkedOptions = {...this.defaults, ...optsOrCallback};
+      const options: MarkedOptions = this.defaults || optsOrCallback as MarkedOptions;
 
       const highlight = options.highlight;
       let tokens: ParamsToken[], links: Links;
@@ -116,7 +145,7 @@ export class Marked
       }
     }
 
-    const options = {...this.defaults, ...optsOrCallback};
+    const options: MarkedOptions = this.defaults || optsOrCallback as MarkedOptions;
 
     try
     {

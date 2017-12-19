@@ -8,10 +8,17 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { BlockGrammar, MarkedOptions, ParamsToken, Links, Align } from './interfaces';
 import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
 import { Noop } from './helpers';
+import {
+  BlockGrammar,
+  MarkedOptions,
+  ParamsToken,
+  Links,
+  Align,
+  LexerReturns
+} from './interfaces';
 
 
 const block: BlockGrammar =
@@ -123,7 +130,13 @@ export class BlockLexer
     }
   }
 
-  static lex(src: string, options: MarkedOptions): {tokens: ParamsToken[], links: Links}
+  /**
+   * Accepts Markdown text and returns object with tokens and links.
+   * 
+   * @param src A source markdown text.
+   * @param options Options to be used instead of the default options.
+   */
+  static lex(src: string, options: MarkedOptions): LexerReturns
   {
     const lexer = new this(options);
     return lexer.lex(src);
@@ -132,7 +145,7 @@ export class BlockLexer
   /**
    * Preprocessing.
    */
-  private lex(src: string): {tokens: ParamsToken[], links: Links}
+  private lex(src: string): LexerReturns
   {
     src = src
       .replace(/\r\n|\r/g, '\n')
@@ -140,13 +153,13 @@ export class BlockLexer
       .replace(/\u00a0/g, ' ')
       .replace(/\u2424/g, '\n');
 
-    return this.token(src, true);
+    return this.getTokens(src, true);
   }
 
   /**
    * Lexing.
    */
-  token(src: string, top: boolean, isBlockQuote?: boolean): {tokens: ParamsToken[], links: Links}
+  private getTokens(src: string, top: boolean, isBlockQuote?: boolean): LexerReturns
   {
     let
     // Removes all rows where there are only whitespaces.
@@ -294,7 +307,7 @@ export class BlockLexer
         // Pass `top` to keep the current
         // "toplevel" state. This is exactly
         // how markdown.pl works.
-        this.token(str, top, true);
+        this.getTokens(str, top, true);
 
         this.tokens.push({type: 'blockquote_end'});
 
@@ -361,7 +374,7 @@ export class BlockLexer
           this.tokens.push({type: loose ? 'loose_item_start' : 'list_item_start'});
 
           // Recurse.
-          this.token(item, false, isBlockQuote);
+          this.getTokens(item, false, isBlockQuote);
           this.tokens.push({type: 'list_item_end'});
         }
 

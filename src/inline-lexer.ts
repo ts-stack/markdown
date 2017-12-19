@@ -95,7 +95,7 @@ export class InlineLexer
     this.options = options || Marked.defaults;
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
     this.links = links;
-    
+
     if(!this.links)
       throw new Error(`InlineLexer requires 'links' parameter.`);
 
