@@ -24,7 +24,7 @@ export class Parser
   private options: MarkedOptions;
   private renderer: Renderer;
 
-  constructor(options?: MarkedOptions, renderer?: Renderer)
+  constructor(options?: MarkedOptions)
   {
     this.tokens = [];
     this.token = null;
@@ -32,9 +32,9 @@ export class Parser
     this.renderer = this.options.renderer || new Renderer(this.options);
   }
 
-  static parse(srcTokens: ParamsToken[], links: Links, options?: MarkedOptions, renderer?: Renderer): string
+  static parse(srcTokens: ParamsToken[], links: Links, options?: MarkedOptions): string
   {
-    const parser = new this(options, renderer);
+    const parser = new this(options);
     return parser.parse(links, srcTokens);
   }
 
@@ -110,19 +110,16 @@ export class Parser
         let header = ''
           ,body = ''
           ,row
-          ,cell
-          ,flags;
+          ,cell;
 
         // header
         cell = '';
         for(let i = 0; i < this.token.header.length; i++)
         {
-          flags = { header: true, align: this.token.align[i] };
-          cell += this.renderer.tablecell
-          (
-            this.inlineLexer.output(this.token.header[i]),
-            { header: true, align: this.token.align[i] }
-          );
+          const flags = { header: true, align: this.token.align[i] };
+          const out = this.inlineLexer.output(this.token.header[i]);
+
+          cell += this.renderer.tablecell(out, flags);
         }
 
         header += this.renderer.tablerow(cell);
