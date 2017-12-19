@@ -150,9 +150,9 @@ export class Renderer
           .replace(/[^\w:]/g, '')
           .toLowerCase();
       }
-      catch (e)
+      catch(e)
       {
-        return '';
+        return text;
       }
 
       if
@@ -162,7 +162,7 @@ export class Renderer
         || prot.indexOf('data:') === 0
       )
       {
-        return '';
+        return text;
       }
     }
 
