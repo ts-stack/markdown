@@ -159,8 +159,8 @@ export class MarkedOptions
    * with a "/" as required by XHTML.
    */
   xhtml?: boolean = false;
-  escape: (html: string, encode?: boolean) => string = escape;
-  unescape: (html: string) => string = unescape;
+  escape?: (html: string, encode?: boolean) => string = escape;
+  unescape?: (html: string) => string = unescape;
 }
 
 export interface LexerReturns
