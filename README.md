@@ -119,7 +119,7 @@ class MarkedOptions
   breaks?: boolean = false;
   pedantic?: boolean = false;
   sanitize?: boolean = false;
-  sanitizer?: any = null;
+  sanitizer?: (text: string) => string;
   mangle?: boolean = true;
   smartLists?: boolean = false;
   silent?: boolean = false;
@@ -128,7 +128,7 @@ class MarkedOptions
    * @param lang The programming language specified in the code block.
    * @param callback The callback function to call when using an async highlighter.
    */
-  highlight?: (code: string, lang: string, callback?: ParseCallback) => string = null;
+  highlight?: (code: string, lang: string, callback?: ParseCallback) => string;
   langPrefix?: string = 'lang-';
   smartypants?: boolean = false;
   headerPrefix?: string = '';
@@ -136,7 +136,13 @@ class MarkedOptions
    * An object containing functions to render tokens to HTML. Default: `new Renderer()`
    */
   renderer?: Renderer;
+  /**
+   * Self-close the tags for void elements (&lt;br/&gt;, &lt;img/&gt;, etc.)
+   * with a "/" as required by XHTML.
+   */
   xhtml?: boolean = false;
+  escape: (html: string, encode?: boolean) => string = escape;
+  unescape: (html: string) => string = unescape;
 }
 ```
 

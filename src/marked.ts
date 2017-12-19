@@ -10,7 +10,6 @@
 
 import { Parser } from './parser';
 import { BlockLexer } from './block-lexer';
-import { escape } from './helpers';
 import { ParseCallback, MarkedOptions, ParamsToken, Links } from './interfaces';
 
 export class Marked
@@ -158,7 +157,7 @@ export class Marked
 
       if( (options || this.defaults).silent )
       {
-        return '<p>An error occured:</p><pre>' + escape(err.message + '', true) + '</pre>';
+        return '<p>An error occured:</p><pre>' + this.defaults.escape(err.message + '', true) + '</pre>';
       }
 
       throw err;

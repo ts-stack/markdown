@@ -9,7 +9,6 @@
  */
 
 import { MarkedOptions, Align } from './interfaces';
-import { escape, unescape } from './helpers';
 import { Marked } from './marked';
 
 export class Renderer
@@ -36,11 +35,11 @@ export class Renderer
 
     if(!lang)
     {
-      return '<pre><code>' + (escaped ? code : escape(code, true)) + '\n</code></pre>';
+      return '<pre><code>' + (escaped ? code : this.options.escape(code, true)) + '\n</code></pre>';
     }
 
-    return '<pre><code class="' + this.options.langPrefix + escape(lang, true) + '">'
-      + (escaped ? code : escape(code, true))
+    return '<pre><code class="' + this.options.langPrefix + this.options.escape(lang, true) + '">'
+      + (escaped ? code : this.options.escape(code, true))
       + '\n</code></pre>\n';
   }
 
@@ -146,7 +145,7 @@ export class Renderer
 
       try
       {
-        prot = decodeURIComponent(unescape(href))
+        prot = decodeURIComponent(this.options.unescape(href))
           .replace(/[^\w:]/g, '')
           .toLowerCase();
       }

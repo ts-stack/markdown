@@ -9,7 +9,7 @@
  */
 
 import { ExtendRegexp } from './extend-regexp';
-import { escape, Noop } from './helpers';
+import { Noop } from './helpers';
 import { Renderer } from './renderer';
 import { Marked } from './marked';
 import {
@@ -171,7 +171,7 @@ export class InlineLexer
         }
         else
         {
-          text = escape(execArr[1]);
+          text = this.options.escape(execArr[1]);
           href = text;
         }
 
@@ -185,7 +185,7 @@ export class InlineLexer
         let text: string, href: string;
 
         nextPart = nextPart.substring(execArr[0].length);
-        text = escape(execArr[1]);
+        text = this.options.escape(execArr[1]);
         href = text;
         out += this.renderer.link(href, null, text);
         continue;
@@ -208,7 +208,7 @@ export class InlineLexer
         out += this.options.sanitize
           ? this.options.sanitizer
             ? this.options.sanitizer(execArr[0])
-            : escape(execArr[0])
+            : this.options.escape(execArr[0])
           : execArr[0];
 
         continue;
@@ -273,7 +273,7 @@ export class InlineLexer
       if(execArr = this.rules.code.exec(nextPart))
       {
         nextPart = nextPart.substring(execArr[0].length);
-        out += this.renderer.codespan(escape(execArr[2].trim(), true));
+        out += this.renderer.codespan(this.options.escape(execArr[2].trim(), true));
         continue;
       }
 
@@ -297,7 +297,7 @@ export class InlineLexer
       if(execArr = this.rules.text.exec(nextPart))
       {
         nextPart = nextPart.substring(execArr[0].length);
-        out += this.renderer.text( escape(this.smartypants(execArr[0])) );
+        out += this.renderer.text( this.options.escape(this.smartypants(execArr[0])) );
         continue;
       }
 
@@ -313,12 +313,12 @@ export class InlineLexer
    */
   outputLink(execArr: RegExpExecArray, link: Link)
   {
-    const href = escape(link.href)
-      ,title = link.title ? escape(link.title) : null;
+    const href = this.options.escape(link.href)
+      ,title = link.title ? this.options.escape(link.title) : null;
 
     return execArr[0].charAt(0) !== '!'
       ? this.renderer.link(href, title, this.output(execArr[1]))
-      : this.renderer.image(href, title, escape(execArr[1]));
+      : this.renderer.image(href, title, this.options.escape(execArr[1]));
   }
 
   /**
