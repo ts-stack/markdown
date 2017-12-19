@@ -27,14 +27,6 @@ const replacements: Replacements =
 
 const escapeTestNoEncode = /(?:[<>"']|&(?!#?\w+;))/;
 const escapeReplaceNoEncode = /(?:[<>"']|&(?!#?\w+;))/g;
-const replacementsNoEncode: Replacements =
-{
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;'
-};
 
 export function escape(html: string, encode?: boolean)
 {
@@ -49,7 +41,7 @@ export function escape(html: string, encode?: boolean)
   {
     if(escapeTestNoEncode.test(html))
     {
-      return html.replace(escapeReplaceNoEncode, (ch: string) => replacementsNoEncode[ch]);
+      return html.replace(escapeReplaceNoEncode, (ch: string) => replacements[ch]);
     }
   }
 
