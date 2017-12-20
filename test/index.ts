@@ -173,7 +173,7 @@ export function runTests(engine: Function | runTestsOptions, options?: runTestsO
     console.log('%d/%d tests failed.', failed, len);
 
   // Tests currently failing.
-  if(~failures.indexOf('def_blocks.text'))
+  if(~failures.indexOf('def_blocks.md'))
   {
     failed -= 1;
   }
