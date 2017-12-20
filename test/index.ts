@@ -14,6 +14,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Marked, MarkedOptions, BlockLexer, InlineLexer, Obj } from '../';
 
+interface runTestsOptions
+{
+  files?: {[key: string]: any},
+  marked?: MarkedOptions,
+  stop?: boolean,
+  bench?: boolean,
+  extended?: boolean
+}
+
 let files: Obj;
 
 /**
@@ -213,29 +222,14 @@ function load()
 }
 
 /**
- * Test Runner
- */
-
-interface runTestsOptions
-{
-  files?: {[key: string]: any},
-  marked?: MarkedOptions,
-  time?: boolean,
-  stop?: boolean,
-  bench?: boolean,
-  extended?: boolean
-}
-
-/**
  * Benchmark a function
  */
 
-function bench(name: string, func: Function)
+function bench(name: string, func: Function, times: number = 1)
 {
   files = files || load();
 
   let start = Date.now()
-    ,times = 1000
     ,keys = Object.keys(files)
     ,i
     ,l = keys.length
@@ -383,6 +377,19 @@ function runBench(options: runTestsOptions)
     console.log(`----------------------------------------`);
   }
 
+  if(options.extended)
+    console.log(`----------------------------------------`);
+
+  // markdown
+  try
+  {
+    bench('markdown', require('markdown').parse);
+  }
+  catch(e)
+  {
+    console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
+  }
+
   // remarkable
   try
   {
@@ -410,6 +417,22 @@ function runBench(options: runTestsOptions)
   if(options.extended)
     console.log(`----------------------------------------`);
 
+  // showdown
+  try
+  {
+    const Showdown = require('showdown');
+    const converter = new Showdown.Converter();
+    const render = converter.makeHtml.bind(converter);
+    bench('showdown', render);
+  }
+  catch(e)
+  {
+    console.log(`Could not bench 'showdown'. (Error: ${e.message})`);
+  }
+
+  if(options.extended)
+    console.log(`----------------------------------------`);
+
   // markdown-it
   try
   {
@@ -427,35 +450,6 @@ function runBench(options: runTestsOptions)
   catch(e)
   {
     console.log(`Could not bench 'markdown-it'. (Error: ${e.message})`);
-  }
-
-  if(options.extended)
-    console.log(`----------------------------------------`);
-
-  // markdown
-  try
-  {
-    bench('markdown', require('markdown').parse);
-  }
-  catch(e)
-  {
-    console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
-  }
-
-  if(options.extended)
-    console.log(`----------------------------------------`);
-
-  // showdown
-  try
-  {
-    const Showdown = require('showdown');
-    const converter = new Showdown.Converter();
-    const render = converter.makeHtml.bind(converter);
-    bench('showdown', render);
-  }
-  catch(e)
-  {
-    console.log(`Could not bench 'showdown'. (Error: ${e.message})`);
   }
 }
 

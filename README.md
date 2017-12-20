@@ -2,8 +2,7 @@
 
 # marked-ts
 
-> A full-featured markdown parser and compiler, written in TypeScript. Built
-> for speed.
+> A full-featured markdown parser and compiler, written in TypeScript.
 
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
@@ -299,17 +298,17 @@ npm run compile
 npm run bench
 ```
 
-These benchmarks run the entire markdown test suite 1000 times. The test suite tests every feature.
+These benchmarks run the entire markdown test suite (51 files) once. The test suite includes every feature.
 It doesn't cater to specific aspects.
 
 |            engine            | completed in ms
 | ---------------------------- | ---------
-| marked-ts alpha.2            | 4 563
-| marked v0.3.7                | 6 429
-| remarkable v1.7.1            | 6 260
-| markdown-it v8.4.0           | 7 026
-| markdown v0.5.0              | 27 180
-| showdown v1.8.5              | 42 775
+| marked-ts alpha.2            | 16
+| marked v0.3.7                | 18
+| markdown v0.5.0              | 52
+| remarkable v1.7.1            | 53
+| showdown v1.8.5              | 107
+| markdown-it v8.4.0           | 118
 
 
 ### Contribution and License Agreement
