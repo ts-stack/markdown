@@ -305,11 +305,7 @@ It doesn't cater to specific aspects.
 |            engine            | completed in ms
 | ---------------------------- | ---------
 | marked-ts alpha.2            | 4 563
-| marked-ts (gfm) alpha.2      | 4 785
-| marked-ts (pedantic) alpha.2 | 4 245
 | marked v0.3.7                | 6 429
-| marked (gfm) v0.3.7          | 6 818
-| marked (pedantic) v0.3.7     | 6 205
 | remarkable v1.7.1            | 6 260
 | markdown-it v8.4.0           | 7 026
 | markdown v0.5.0              | 27 180

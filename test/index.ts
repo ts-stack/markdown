@@ -224,7 +224,10 @@ export interface runTestsOptions
 {
   files?: {[key: string]: any},
   marked?: MarkedOptions,
+  time?: boolean,
   stop?: boolean,
+  bench?: boolean,
+  extended?: boolean
 }
 
 /**
@@ -282,43 +285,47 @@ export function runBench(options: runTestsOptions)
 
   bench('marked-ts', Marked.parse.bind(Marked));
 
-  // GFM
-  Marked.setOptions
-  ({
-    gfm: true,
-    tables: false,
-    breaks: false,
-    pedantic: false,
-    sanitize: false,
-    smartLists: false
-  });
-
-  if(options.marked)
+  if(options.extended)
   {
-    Marked.setOptions(options.marked);
+    // GFM
+    Marked.setOptions
+    ({
+      gfm: true,
+      tables: false,
+      breaks: false,
+      pedantic: false,
+      sanitize: false,
+      smartLists: false
+    });
+
+    if(options.marked)
+    {
+      Marked.setOptions(options.marked);
+    }
+
+    bench('marked-ts (gfm)', Marked.parse.bind(Marked));
+
+    // Pedantic
+    Marked.setOptions
+    ({
+      gfm: false,
+      tables: false,
+      breaks: false,
+      pedantic: true,
+      sanitize: false,
+      smartLists: false
+    });
+
+    if(options.marked)
+    {
+      Marked.setOptions(options.marked);
+    }
+
+    bench('marked-ts (pedantic)', Marked.parse.bind(Marked));
+
+    console.log(`----------------------------------------`);
   }
 
-  bench('marked-ts (gfm)', Marked.parse.bind(Marked));
-
-  // Pedantic
-  Marked.setOptions
-  ({
-    gfm: false,
-    tables: false,
-    breaks: false,
-    pedantic: true,
-    sanitize: false,
-    smartLists: false
-  });
-
-  if(options.marked)
-  {
-    Marked.setOptions(options.marked);
-  }
-
-  bench('marked-ts (pedantic)', Marked.parse.bind(Marked));
-
-  console.log(`----------------------------------------`);
   const marked = require('marked');
 
   // Non-GFM, Non-pedantic
@@ -339,43 +346,47 @@ export function runBench(options: runTestsOptions)
 
   bench('marked', marked);
 
-  // GFM
-  marked.setOptions
-  ({
-    gfm: true,
-    tables: false,
-    breaks: false,
-    pedantic: false,
-    sanitize: false,
-    smartLists: false
-  });
-
-  if(options.marked)
+  if(options.extended)
   {
-    marked.setOptions(options.marked);
+    // GFM
+    marked.setOptions
+    ({
+      gfm: true,
+      tables: false,
+      breaks: false,
+      pedantic: false,
+      sanitize: false,
+      smartLists: false
+    });
+
+    if(options.marked)
+    {
+      marked.setOptions(options.marked);
+    }
+
+    bench('marked (gfm)', marked);
+
+    // Pedantic
+    marked.setOptions
+    ({
+      gfm: false,
+      tables: false,
+      breaks: false,
+      pedantic: true,
+      sanitize: false,
+      smartLists: false
+    });
+
+    if(options.marked)
+    {
+      marked.setOptions(options.marked);
+    }
+
+    bench('marked (pedantic)', marked);
+
+    console.log(`----------------------------------------`);
   }
 
-  bench('marked (gfm)', marked);
-
-  // Pedantic
-  marked.setOptions
-  ({
-    gfm: false,
-    tables: false,
-    breaks: false,
-    pedantic: true,
-    sanitize: false,
-    smartLists: false
-  });
-
-  if(options.marked)
-  {
-    marked.setOptions(options.marked);
-  }
-
-  bench('marked (pedantic)', marked);
-
-  console.log(`----------------------------------------`);
   // remarkable
   try
   {
@@ -400,7 +411,9 @@ export function runBench(options: runTestsOptions)
     console.log(`Could not bench 'remarkable'. (Error: ${e.message})`);
   }
 
-  console.log(`----------------------------------------`);
+  if(options.extended)
+    console.log(`----------------------------------------`);
+
   // markdown-it
   try
   {
@@ -420,7 +433,9 @@ export function runBench(options: runTestsOptions)
     console.log(`Could not bench 'markdown-it'. (Error: ${e.message})`);
   }
 
-  console.log(`----------------------------------------`);
+  if(options.extended)
+    console.log(`----------------------------------------`);
+
   // markdown
   try
   {
@@ -431,7 +446,9 @@ export function runBench(options: runTestsOptions)
     console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
   }
 
-  console.log(`----------------------------------------`);
+  if(options.extended)
+    console.log(`----------------------------------------`);
+
   // showdown
   try
   {
@@ -450,7 +467,7 @@ export function runBench(options: runTestsOptions)
  * A simple one-time benchmark
  */
 
-function time(options: runTestsOptions = {})
+function time(options?: runTestsOptions)
 {
   if(options.marked)
   {
@@ -467,7 +484,7 @@ function time(options: runTestsOptions = {})
 function parseArg(argv?: Obj): Obj
 {
   argv = process.argv.slice(2);
-  let options: Obj = {}
+  let options: runTestsOptions = {}
   ,orphans = []
   ,arg;
 
@@ -488,6 +505,10 @@ function parseArg(argv?: Obj): Obj
       case '--time':
         options.time = true;
         break;
+      case '-e':
+      case '--extended':
+        options.extended = true;
+        break;
       default:
         if(arg.indexOf('--') === 0)
         {
@@ -502,13 +523,13 @@ function parseArg(argv?: Obj): Obj
 
           if(arg.indexOf('--no-') === 0)
           {
-            options.marked[opt] = typeof (<any>Marked.defaults)[opt] !== 'boolean'
+            (<any>options.marked)[opt] = typeof (<any>Marked.defaults)[opt] !== 'boolean'
               ? null
               : false;
           }
           else
           {
-            options.marked[opt] = typeof (<any>Marked.defaults)[opt] !== 'boolean'
+            (<any>options.marked)[opt] = typeof (<any>Marked.defaults)[opt] !== 'boolean'
               ? argv.shift()
               : true;
           }
