@@ -235,7 +235,7 @@ export function bench(name: string, func: Function)
 {
   files = files || load();
 
-  var start = Date.now()
+  let start = Date.now()
     ,times = 1000
     ,keys = Object.keys(files)
     ,i

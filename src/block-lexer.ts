@@ -134,7 +134,7 @@ export class BlockLexer
    * Accepts Markdown text and returns object with tokens and links.
    * 
    * @param src String of markdown source to be compiled.
-   * @param options Hash of options. Can also be set using the `Marked.setOptions` method as seen above.
+   * @param options Hash of options.
    */
   static lex(src: string, options: MarkedOptions): LexerReturns
   {

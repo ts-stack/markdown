@@ -19,7 +19,7 @@ export class Marked
   /**
    * Merges the default options with options that will be set.
    * 
-   * @param options Hash of options. Can also be set using the `Marked.setOptions` method as seen above.
+   * @param options Hash of options.
    */
   static setOptions(options: MarkedOptions)
   {
@@ -37,7 +37,7 @@ export class Marked
    * Accepts Markdown text and returns text in HTML format.
    * 
    * @param src String of markdown source to be compiled.
-   * @param options Hash of options. Can also be set using the `Marked.setOptions` method as seen above.
+   * @param options Hash of options.
    */
   static parse(src: string, options: object): string;
   /**
@@ -51,7 +51,7 @@ export class Marked
    * Accepts Markdown text and returns text in HTML format.
    * 
    * @param src String of markdown source to be compiled.
-   * @param options Hash of options. Can also be set using the `Marked.setOptions` method as seen above.
+   * @param options Hash of options.
    * @param callback Function that handles errors.
    */
   static parse(src: string, options: object, callback: ParseCallback): string;

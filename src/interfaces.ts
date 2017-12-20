@@ -159,7 +159,15 @@ export class MarkedOptions
    * with a "/" as required by XHTML.
    */
   xhtml?: boolean = false;
+  /**
+   * The function that will be using to escape HTML entities.
+   * By default using inner helper.
+   */
   escape?: (html: string, encode?: boolean) => string = escape;
+  /**
+   * The function that will be using to unescape HTML entities.
+   * By default using inner helper.
+   */
   unescape?: (html: string) => string = unescape;
 }
 

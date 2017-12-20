@@ -24,7 +24,7 @@ Minimal usage:
 import { Marked } from 'marked-ts';
 
 console.log(Marked.parse('I am using __markdown__.'));
-// Outputs: <p>I am using <strong>markdown</strong>.</p>
+// Outputs: I am using <strong>markdown</strong>.
 ```
 
 Example setting options with default values:
@@ -55,7 +55,7 @@ Minimal usage:
 const marked = require('marked-ts');
 
 console.log(marked.Marked.parse('I am using __markdown__.'));
-// Outputs: <p>I am using <strong>markdown</strong>.</p>
+// Outputs: I am using <strong>markdown</strong>.
 ```
 
 Example setting options with default values:
@@ -106,8 +106,7 @@ type ParseCallback = (err: Error, output?: string) => any;
 /**
  * Merges the default options with options that will be set.
  * 
- * @param options Hash of options. Can also be set using
- * the `Marked.setOptions` method as seen above.
+ * @param options Hash of options.
  */
 static setOptions(options: MarkedOptions): this;
 
@@ -141,7 +140,15 @@ class MarkedOptions
    * with a "/" as required by XHTML.
    */
   xhtml?: boolean = false;
-  escape: (html: string, encode?: boolean) => string = escape;
+  /**
+   * The function that will be using to escape HTML entities.
+   * By default using inner helper.
+   */
+  escape?: (html: string, encode?: boolean) => string = escape;
+  /**
+   * The function that will be using to unescape HTML entities.
+   * By default using inner helper.
+   */
   unescape: (html: string) => string = unescape;
 }
 ```
@@ -170,7 +177,7 @@ Marked.parse(md, (err, output) =>
 });
 
 // Synchronous highlighting with highlight.js
-Marked.setOptions({ highlight: code => highlightAuto(code).value; });
+Marked.setOptions({ highlight: code => highlightAuto(code).value });
 
 console.log(Marked.parse(md));
 ```
