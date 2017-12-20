@@ -18,6 +18,7 @@ interface runTestsOptions
 {
   files?: {[key: string]: any},
   marked?: MarkedOptions,
+  time?: boolean,
   stop?: boolean,
   bench?: boolean,
   extended?: boolean
