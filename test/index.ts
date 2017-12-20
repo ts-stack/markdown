@@ -19,13 +19,9 @@ let files: Obj;
 /**
  * Execute
  */
-if(!module.parent)
-{
-  process.title = 'marked-ts';
-  process.exit(main() ? 0 : 1);
-}
+main();
 
-export function main()
+function main()
 {
   const opt = parseArg();
 
@@ -42,9 +38,9 @@ export function main()
   return runTests(opt);
 }
 
-export function runTests(options: runTestsOptions): boolean;
-export function runTests(engine: Function, options: runTestsOptions): boolean;
-export function runTests(engine: Function | runTestsOptions, options?: runTestsOptions): boolean
+function runTests(options: runTestsOptions): boolean;
+function runTests(engine: Function, options: runTestsOptions): boolean;
+function runTests(engine: Function | runTestsOptions, options?: runTestsOptions): boolean
 {
   if(typeof engine != 'function')
   {
@@ -185,7 +181,7 @@ export function runTests(engine: Function | runTestsOptions, options?: runTestsO
  * Load Tests
  */
 
-export function load()
+function load()
 {
   const dir = __dirname + '/../test/tests';
   let files: {[key: string]: any} = {};
@@ -220,7 +216,7 @@ export function load()
  * Test Runner
  */
 
-export interface runTestsOptions
+interface runTestsOptions
 {
   files?: {[key: string]: any},
   marked?: MarkedOptions,
@@ -234,7 +230,7 @@ export interface runTestsOptions
  * Benchmark a function
  */
 
-export function bench(name: string, func: Function)
+function bench(name: string, func: Function)
 {
   files = files || load();
 
@@ -263,7 +259,7 @@ export function bench(name: string, func: Function)
  * Benchmark all engines
  */
 
-export function runBench(options: runTestsOptions)
+function runBench(options: runTestsOptions)
 {
   options = options || {};
 
@@ -433,34 +429,34 @@ export function runBench(options: runTestsOptions)
     console.log(`Could not bench 'markdown-it'. (Error: ${e.message})`);
   }
 
-  if(options.extended)
-    console.log(`----------------------------------------`);
+  // if(options.extended)
+  //   console.log(`----------------------------------------`);
 
-  // markdown
-  try
-  {
-    bench('markdown', require('markdown').parse);
-  }
-  catch(e)
-  {
-    console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
-  }
+  // // markdown
+  // try
+  // {
+  //   bench('markdown', require('markdown').parse);
+  // }
+  // catch(e)
+  // {
+  //   console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
+  // }
 
-  if(options.extended)
-    console.log(`----------------------------------------`);
+  // if(options.extended)
+  //   console.log(`----------------------------------------`);
 
-  // showdown
-  try
-  {
-    const Showdown = require('showdown');
-    const converter = new Showdown.Converter();
-    const render = converter.makeHtml.bind(converter);
-    bench('showdown', render);
-  }
-  catch(e)
-  {
-    console.log(`Could not bench 'showdown'. (Error: ${e.message})`);
-  }
+  // // showdown
+  // try
+  // {
+  //   const Showdown = require('showdown');
+  //   const converter = new Showdown.Converter();
+  //   const render = converter.makeHtml.bind(converter);
+  //   bench('showdown', render);
+  // }
+  // catch(e)
+  // {
+  //   console.log(`Could not bench 'showdown'. (Error: ${e.message})`);
+  // }
 }
 
 /**
