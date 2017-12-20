@@ -2,7 +2,7 @@
 
 # marked-ts
 
-> A full-featured markdown parser and compiler, written in JavaScript. Built
+> A full-featured markdown parser and compiler, written in TypeScript. Built
 > for speed.
 
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
@@ -284,10 +284,7 @@ Marked is very concise and still implements all markdown features.
 Marked more or less passes the official markdown test suite in its
 entirety. This is important because a surprising number of markdown compilers
 cannot pass more than a few tests. It was very difficult to get marked as
-compliant as it is. It could have cut corners in several areas for the sake
-of performance, but did not in order to be exactly what you expect in terms
-of a markdown rendering. In fact, this is why marked could be considered at a
-disadvantage in the benchmarks above.
+compliant as it is.
 
 Along with implementing every markdown feature, marked also implements [GFM
 features][gfmf].
@@ -304,6 +301,9 @@ cd test
 node index.js --bench
 ```
 
+These benchmarks run the entire markdown test suite 1000 times. The test suite tests every feature.
+It doesn't cater to specific aspects.
+
 |            engine            | completed in ms
 | ---------------------------- | ---------
 | marked-ts alpha.2            | 4 563
@@ -317,7 +317,6 @@ node index.js --bench
 | markdown v0.5.0              | 27 180
 | showdown v1.8.5              | 42 775
 
-For those feeling skeptical: These benchmarks run the entire markdown test suite 1000 times. The test suite tests every feature. It doesn't cater to specific aspects.
 
 ### Contribution and License Agreement
 
