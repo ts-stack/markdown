@@ -28,6 +28,7 @@
     "@types/highlight.js": "^9.12.2",
     "@types/markdown-it": "0.0.4",
     "@types/node": "^8.5.1",
+    "concurrently": "^3.5.1",
     "highlight.js": "^9.12.0",
     "markdown": "*",
     "markdown-it": "^8.4.0",
@@ -39,6 +40,7 @@
   "scripts": {
     "test": "node dist-test/index.js",
     "compile": "./node_modules/.bin/tsc && ./node_modules/.bin/tsc --project test",
-    "bench": "node dist-test/index.js --bench"
+    "bench": "node dist-test/index.js --bench",
+    "watch": "concurrently 'tsc -w' 'tsc -w --project test'"
   }
 }
