@@ -295,10 +295,8 @@ node v8.9.x
 
 ``` bash
 npm install
-./node_modules/.bin/tsc
-cd test
-../node_modules/.bin/tsc
-node index.js --bench
+npm run compile
+npm run bench
 ```
 
 These benchmarks run the entire markdown test suite 1000 times. The test suite tests every feature.

@@ -7,9 +7,7 @@ install:
   - npm i
 
 before_script:
-  - ./node_modules/.bin/tsc
-  - cd test
-  - ../node_modules/.bin/tsc
+  - npm run compile
 
 script:
   - npm test
