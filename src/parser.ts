@@ -32,16 +32,16 @@ export class Parser
     this.renderer = this.options.renderer || new Renderer(this.options);
   }
 
-  static parse(srcTokens: ParamsToken[], links: Links, options?: MarkedOptions): string
+  static parse(tokens: ParamsToken[], links: Links, options?: MarkedOptions): string
   {
     const parser = new this(options);
-    return parser.parse(links, srcTokens);
+    return parser.parse(links, tokens);
   }
 
-  private parse(links: Links, srcTokens: ParamsToken[])
+  private parse(links: Links, tokens: ParamsToken[])
   {
     this.inlineLexer = new InlineLexer(links, this.options, this.renderer);
-    this.tokens = srcTokens.reverse();
+    this.tokens = tokens.reverse();
 
     let out = '';
 
@@ -53,17 +53,17 @@ export class Parser
     return out;
   }
 
-  next()
+  private next()
   {
     return this.token = this.tokens.pop();
   }
 
-  peek()
+  private peek()
   {
     return this.tokens[this.tokens.length - 1];
   }
 
-  parseText()
+  private parseText()
   {
     let body = this.token.text;
 
@@ -75,9 +75,9 @@ export class Parser
     return this.inlineLexer.output(body);
   }
 
-  tok()
+  private tok()
   {
-    switch (this.token.type)
+    switch(this.token.type)
     {
       case 'space':
       {
