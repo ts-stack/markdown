@@ -11,8 +11,10 @@ For now - work in progress (there is only alpha.2 version).
 
 ## Install
 
+If you want to use `marked-ts` without TypeScript functionality, you can install it with `--no-optional` switch:
+
 ``` bash
-npm install marked-ts --save
+npm install marked-ts --no-optional --save
 ```
 
 ## Usage with TypeScript
@@ -78,7 +80,7 @@ console.log(marked.Marked.parse('I am using __markdown__.'));
 ```
 ## API
 
-### Methods of Marked class
+### Methods of Marked class and necessary types
 
 ```ts
 /**
@@ -95,11 +97,9 @@ console.log(marked.Marked.parse('I am using __markdown__.'));
  * the second argument.
  */
 static parse(src: string): string;
-static parse(src: string, options: object): string;
-static parse(src: string, callback: ParseCallback): string;
-static parse(src: string, options: object, callback: ParseCallback): string;
-
-type ParseCallback = (err: Error, output?: string) => any;
+static parse(src: string, options: MarkedOptions): string;
+static parse(src: string, callback: ParseCallback): any;
+static parse(src: string, options: MarkedOptions, callback: ParseCallback): any;
 
 
 /**
@@ -109,7 +109,9 @@ type ParseCallback = (err: Error, output?: string) => any;
  */
 static setOptions(options: MarkedOptions): this;
 
+type ParseCallback<T=string> = (err: Error, output?: string) => T;
 
+// This class also using as a type.
 class MarkedOptions
 {
   gfm?: boolean = true;
@@ -126,7 +128,7 @@ class MarkedOptions
    * @param lang The programming language specified in the code block.
    * @param callback The callback function to call when using an async highlighter.
    */
-  highlight?: (code: string, lang: string, callback?: ParseCallback) => string;
+  highlight?: (code: string, lang: string, callback?: ParseCallback) => any;
   langPrefix?: string = 'lang-';
   smartypants?: boolean = false;
   headerPrefix?: string = '';
@@ -226,7 +228,7 @@ This code will output the following HTML:
 <h1 id="my-custom-hash">heading</h1>
 ```
 
-#### Renderer methods API
+### Renderer methods API
 
 ```ts
 //*** Block level renderer methods. ***

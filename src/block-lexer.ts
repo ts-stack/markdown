@@ -107,7 +107,7 @@ export class BlockLexer
   private links: Links;
   private tokens: ParamsToken[];
 
-  constructor(options: MarkedOptions)
+  constructor(options?: MarkedOptions)
   {
     this.options = options || Marked.defaults;
     this.links = {};
@@ -136,7 +136,7 @@ export class BlockLexer
    * @param src String of markdown source to be compiled.
    * @param options Hash of options.
    */
-  static lex(src: string, options: MarkedOptions): LexerReturns
+  static lex(src: string, options?: MarkedOptions): LexerReturns
   {
     const lexer = new this(options);
     return lexer.lex(src);

@@ -128,7 +128,15 @@ export interface InlineGrammar
   breaks?: this,
 }
 
-export type ParseCallback = (err: Error, output?: string) => any;
+export type ParseCallback<T=string> = (err: Error, output?: string) => T;
+
+export interface HighlightOverloading
+{
+  fn(code: string, lang?: string): string;
+  fn<T>(code: string, lang?: string, callback?: ParseCallback<T>): T;
+}
+
+export type HighlightType = HighlightOverloading['fn'];
 
 export class MarkedOptions
 {
@@ -146,7 +154,7 @@ export class MarkedOptions
    * @param lang The programming language specified in the code block.
    * @param callback The callback function to call when using an async highlighter.
    */
-  highlight?: (code: string, lang: string, callback?: ParseCallback) => string;
+  highlight?: HighlightType;
   langPrefix?: string = 'lang-';
   smartypants?: boolean = false;
   headerPrefix?: string = '';

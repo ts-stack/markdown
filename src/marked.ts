@@ -37,25 +37,29 @@ export class Marked
    * Accepts Markdown text and returns text in HTML format.
    * 
    * @param src String of markdown source to be compiled.
-   * @param options Hash of options.
+   * @param options Hash of options. They do not merge with default options. If you want
+   * the merging, you can to do this via `Marked.setOptions()`.
    */
-  static parse(src: string, options: object): string;
+  static parse(src: string, options: MarkedOptions): string;
   /**
    * Accepts Markdown text and returns text in HTML format.
    * 
    * @param src String of markdown source to be compiled.
    * @param callback Function that handles errors.
    */
-  static parse(src: string, callback: ParseCallback): string;
+  static parse<T>(src: string, callback: ParseCallback<T>): T;
   /**
    * Accepts Markdown text and returns text in HTML format.
    * 
    * @param src String of markdown source to be compiled.
-   * @param options Hash of options.
+   * 
+   * @param options Hash of options. They do not merge with default options. If you want
+   * the merging, you can to do this via `Marked.setOptions()`.
+   * 
    * @param callback Function that handles errors.
    */
-  static parse(src: string, options: object, callback: ParseCallback): string;
-  static parse(src: string, optsOrCallback?: MarkedOptions | ParseCallback, callback?: ParseCallback): string
+  static parse<T>(src: string, options: MarkedOptions, callback: ParseCallback<T>): T;
+  static parse(src: string, optsOrCallback?: MarkedOptions | ParseCallback, callback?: ParseCallback): any
   {
     if(callback || typeof optsOrCallback == 'function')
     {
@@ -67,7 +71,6 @@ export class Marked
 
       const options: MarkedOptions = this.defaults || optsOrCallback as MarkedOptions;
 
-      const highlight = options.highlight;
       let tokens: ParamsToken[], links: Links;
 
       try
@@ -79,14 +82,19 @@ export class Marked
         return callback(e);
       }
 
-      let pending = tokens.length;
 
+      const highlight = options.highlight;
+
+      // `length` here it's number of function arguments
       if(!highlight || highlight.length < 3)
       {
         return done();
       }
 
+      // ************** Highlighting ************** //
+
       delete options.highlight;
+      let pending = tokens.length;
 
       if(!pending)
         return done();
@@ -97,23 +105,28 @@ export class Marked
 
         if(token.type !== 'code')
         {
-          return --pending || done();
+          if(!--pending)
+            return done();
+
+          continue;
         }
 
-        return highlight(token.text, token.lang, function(err: Error, code: string)
+        return highlight(token.text, token.lang, (err: Error, code: string) =>
         {
           if(err)
             return done(err);
 
           if(code == null || code === token.text)
           {
-            return --pending || done();
+            if(!--pending)
+              return done();
           }
 
           token.text = code;
           token.escaped = true;
 
-          --pending || done();
+          if(!--pending)
+            return done();
         });
       }
 
@@ -140,7 +153,7 @@ export class Marked
 
         options.highlight = highlight;
 
-        return err ? callback(err) : callback(null, out);
+        return callback(err, out);
       }
     }
 
@@ -155,7 +168,7 @@ export class Marked
     {
       err.message += '\nPlease report this to https://github.com/KostyaTretyak/marked-ts';
 
-      if( (options || this.defaults).silent )
+      if(options.silent)
       {
         return '<p>An error occured:</p><pre>' + this.defaults.escape(err.message + '', true) + '</pre>';
       }

@@ -24,6 +24,9 @@
     "markup",
     "html"
   ],
+  "optionalDependencies": {
+    "typescript": "^2.6.2"
+  },
   "devDependencies": {
     "@types/highlight.js": "^9.12.2",
     "@types/markdown-it": "0.0.4",
@@ -34,13 +37,12 @@
     "markdown-it": "^8.4.0",
     "marked": "^0.3.7",
     "remarkable": "^1.7.1",
-    "showdown": "*",
-    "typescript": "^2.6.2"
+    "showdown": "*"
   },
   "scripts": {
     "test": "node dist-test/index.js",
     "compile": "./node_modules/.bin/tsc && ./node_modules/.bin/tsc --project test",
     "bench": "node dist-test/index.js --bench",
-    "watch": "concurrently 'tsc -w' 'tsc -w --project test'"
+    "watch": "concurrently './node_modules/.bin/tsc -w' './node_modules/.bin/tsc -w --project test'"
   }
 }
