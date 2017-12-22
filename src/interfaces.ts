@@ -60,7 +60,7 @@ export interface Links
 
 export enum TokenType
 {
-  space
+  space = 1
   ,code
   ,heading
   ,table

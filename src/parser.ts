@@ -67,7 +67,7 @@ export class Parser
   {
     let body = this.token.text;
 
-    while (this.peek().type === TokenType.text)
+    while (this.peek().type == TokenType.text)
     {
       body += '\n' + this.next().text;
     }
@@ -148,7 +148,7 @@ export class Parser
       {
         let body = '';
 
-        while (this.next().type !== TokenType.blockquote_end)
+        while (this.next().type != TokenType.blockquote_end)
         {
           body += this.tok();
         }
@@ -159,7 +159,7 @@ export class Parser
       {
         let body = '', ordered = this.token.ordered;
 
-        while (this.next().type !== TokenType.list_end)
+        while (this.next().type != TokenType.list_end)
         {
           body += this.tok();
         }
@@ -170,9 +170,9 @@ export class Parser
       {
         let body = '';
 
-        while (this.next().type !== TokenType.list_item_end)
+        while (this.next().type != TokenType.list_item_end)
         {
-          body += this.token.type === <any>TokenType.text
+          body += this.token.type == <any>TokenType.text
             ? this.parseText()
             : this.tok();
         }
@@ -183,7 +183,7 @@ export class Parser
       {
         let body = '';
 
-        while (this.next().type !== TokenType.list_item_end)
+        while (this.next().type != TokenType.list_item_end)
         {
           body += this.tok();
         }

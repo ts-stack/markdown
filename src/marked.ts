@@ -118,7 +118,7 @@ export class Marked
     {
       const token = tokens[i];
 
-      if(token.type !== TokenType.code)
+      if(token.type != TokenType.code)
       {
         if(!--pending)
           return done();
