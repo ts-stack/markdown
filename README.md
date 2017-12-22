@@ -7,7 +7,7 @@
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
-For now - work in progress (there is only alpha.2 version).
+For now - work in progress (there is only alpha.3 version).
 
 ## Install
 
@@ -17,7 +17,7 @@ If you want to use `marked-ts` without TypeScript functionality, you can install
 npm install marked-ts --no-optional --save
 ```
 
-## Usage with TypeScript
+## Usage
 
 Minimal usage:
 
@@ -48,36 +48,6 @@ Marked.setOptions
 console.log(Marked.parse('I am using __markdown__.'));
 ```
 
-## Usage with JavaScript
-
-Minimal usage:
-
-```js
-const marked = require('marked-ts');
-
-console.log(marked.Marked.parse('I am using __markdown__.'));
-// Outputs: I am using <strong>markdown</strong>.
-```
-
-Example setting options with default values:
-
-```js
-const marked = require('marked-ts');
-
-marked.Marked.setOptions
-({
-  renderer: new marked.Renderer(),
-  gfm: true,
-  tables: true,
-  breaks: false,
-  pedantic: false,
-  sanitize: false,
-  smartLists: true,
-  smartypants: false
-});
-
-console.log(marked.Marked.parse('I am using __markdown__.'));
-```
 ## API
 
 ### Methods of Marked class and necessary types
@@ -305,7 +275,7 @@ It doesn't cater to specific aspects.
 
 |            engine            | completed in ms
 | ---------------------------- | ---------
-| marked-ts alpha.2            | 16
+| marked-ts alpha.3            | 16
 | marked v0.3.7                | 18
 | markdown v0.5.0              | 52
 | remarkable v1.7.1            | 53
