@@ -17,7 +17,8 @@ import {
   ParamsToken,
   Links,
   Align,
-  LexerReturns
+  LexerReturns,
+  TokenType
 } from './interfaces';
 
 
@@ -181,7 +182,7 @@ export class BlockLexer
 
         if(execArr[0].length > 1)
         {
-          this.tokens.push({type: 'space'});
+          this.tokens.push({type: TokenType.space});
         }
       }
 
@@ -192,7 +193,7 @@ export class BlockLexer
         const code = execArr[0].replace(/^ {4}/gm, '');
 
         this.tokens.push({
-          type: 'code',
+          type: TokenType.code,
           text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
         });
 
@@ -205,7 +206,7 @@ export class BlockLexer
         nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push({
-          type: 'code',
+          type: TokenType.code,
           lang: execArr[2],
           text: execArr[3] || ''
         });
@@ -219,7 +220,7 @@ export class BlockLexer
         nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push({
-          type: 'heading',
+          type: TokenType.heading,
           depth: execArr[1].length,
           text: execArr[2]
         });
@@ -234,7 +235,7 @@ export class BlockLexer
 
         const item: ParamsToken =
         {
-          type: 'table',
+          type: TokenType.table,
           header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
           align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
           cells: []
@@ -278,7 +279,7 @@ export class BlockLexer
         nextPart = nextPart.substring(execArr[0].length);
 
         this.tokens.push({
-          type: 'heading',
+          type: TokenType.heading,
           depth: execArr[2] === '=' ? 1 : 2,
           text: execArr[1]
         });
@@ -290,7 +291,7 @@ export class BlockLexer
       if(execArr = this.rules.hr.exec(nextPart))
       {
         nextPart = nextPart.substring(execArr[0].length);
-        this.tokens.push({type: 'hr'});
+        this.tokens.push({type: TokenType.hr});
 
         continue;
       }
@@ -300,7 +301,7 @@ export class BlockLexer
       {
         nextPart = nextPart.substring(execArr[0].length);
 
-        this.tokens.push({type: 'blockquote_start'});
+        this.tokens.push({type: TokenType.blockquote_start});
 
         const str = execArr[0].replace(/^ *> ?/gm, '');
 
@@ -309,7 +310,7 @@ export class BlockLexer
         // how markdown.pl works.
         this.getTokens(str, top, true);
 
-        this.tokens.push({type: 'blockquote_end'});
+        this.tokens.push({type: TokenType.blockquote_end});
 
         continue;
       }
@@ -323,7 +324,7 @@ export class BlockLexer
         nextPart = nextPart.substring(execArr[0].length);
         bull = execArr[2];
 
-        this.tokens.push({type: 'list_start', ordered: bull.length > 1});
+        this.tokens.push({type: TokenType.list_start, ordered: bull.length > 1});
 
         // Get each top-level item.
         const str = execArr[0].match(this.rules.item);
@@ -374,14 +375,14 @@ export class BlockLexer
               loose = next;
           }
 
-          this.tokens.push({type: loose ? 'loose_item_start' : 'list_item_start'});
+          this.tokens.push({type: loose ? TokenType.loose_item_start : TokenType.list_item_start});
 
           // Recurse.
           this.getTokens(item, false, isBlockQuote);
-          this.tokens.push({type: 'list_item_end'});
+          this.tokens.push({type: TokenType.list_item_end});
         }
 
-        this.tokens.push({type: 'list_end'});
+        this.tokens.push({type: TokenType.list_end});
 
         continue;
       }
@@ -395,7 +396,7 @@ export class BlockLexer
 
         this.tokens.push
         ({
-          type: this.options.sanitize ? 'paragraph' : 'html',
+          type: this.options.sanitize ? TokenType.paragraph : TokenType.html,
           pre: !this.options.sanitizer && isPre,
           text: execArr[0]
         });
@@ -424,7 +425,7 @@ export class BlockLexer
 
         let item: ParamsToken =
         {
-          type: 'table',
+          type: TokenType.table,
           header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
           align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
           cells: []
@@ -472,14 +473,14 @@ export class BlockLexer
         if(execArr[1].charAt(execArr[1].length - 1) === '\n')
         {
           this.tokens.push({
-            type: 'paragraph',
+            type: TokenType.paragraph,
             text: execArr[1].slice(0, -1),
           });
         }
         else
         {
           this.tokens.push({
-            type: this.tokens.length > 0 ? 'paragraph' : 'html',
+            type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.html,
             text: execArr[1],
           });
         }
@@ -492,7 +493,7 @@ export class BlockLexer
       {
         // Top-level should never reach here.
         nextPart = nextPart.substring(execArr[0].length);
-        this.tokens.push({type: 'text', text: execArr[0]});
+        this.tokens.push({type: TokenType.text, text: execArr[0]});
 
         continue;
       }

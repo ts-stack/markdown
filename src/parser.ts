@@ -9,7 +9,7 @@
  */
 
 import { Marked } from './marked';
-import { MarkedOptions, ParamsToken, Align, Links } from './interfaces';
+import { MarkedOptions, ParamsToken, Align, Links, TokenType } from './interfaces';
 import { Renderer } from './renderer';
 import { InlineLexer } from './inline-lexer';
 
@@ -67,7 +67,7 @@ export class Parser
   {
     let body = this.token.text;
 
-    while (this.peek().type === 'text')
+    while (this.peek().type === TokenType.text)
     {
       body += '\n' + this.next().text;
     }
@@ -79,15 +79,15 @@ export class Parser
   {
     switch(this.token.type)
     {
-      case 'space':
+      case TokenType.space:
       {
         return '';
       }
-      case 'hr':
+      case TokenType.hr:
       {
         return this.renderer.hr();
       }
-      case 'heading':
+      case TokenType.heading:
       {
         return this.renderer.heading
         (
@@ -96,7 +96,7 @@ export class Parser
           this.token.text
         );
       }
-      case 'code':
+      case TokenType.code:
       {
         return this.renderer.code
         (
@@ -105,7 +105,7 @@ export class Parser
           this.token.escaped
         );
       }
-      case 'table':
+      case TokenType.table:
       {
         let header = ''
           ,body = ''
@@ -144,64 +144,64 @@ export class Parser
 
         return this.renderer.table(header, body);
       }
-      case 'blockquote_start':
+      case TokenType.blockquote_start:
       {
         let body = '';
 
-        while (this.next().type !== 'blockquote_end')
+        while (this.next().type !== TokenType.blockquote_end)
         {
           body += this.tok();
         }
 
         return this.renderer.blockquote(body);
       }
-      case 'list_start':
+      case TokenType.list_start:
       {
         let body = '', ordered = this.token.ordered;
 
-        while (this.next().type !== 'list_end')
+        while (this.next().type !== TokenType.list_end)
         {
           body += this.tok();
         }
 
         return this.renderer.list(body, ordered);
       }
-      case 'list_item_start':
+      case TokenType.list_item_start:
       {
         let body = '';
 
-        while (this.next().type !== 'list_item_end')
+        while (this.next().type !== TokenType.list_item_end)
         {
-          body += this.token.type === <any>'text'
+          body += this.token.type === <any>TokenType.text
             ? this.parseText()
             : this.tok();
         }
 
         return this.renderer.listitem(body);
       }
-      case 'loose_item_start':
+      case TokenType.loose_item_start:
       {
         let body = '';
 
-        while (this.next().type !== 'list_item_end')
+        while (this.next().type !== TokenType.list_item_end)
         {
           body += this.tok();
         }
 
         return this.renderer.listitem(body);
       }
-      case 'html':
+      case TokenType.html:
       {
         const html = !this.token.pre && !this.options.pedantic
           ? this.inlineLexer.output(this.token.text)
           : this.token.text;
         return this.renderer.html(html);
       }
-      case 'paragraph':
+      case TokenType.paragraph:
       {
         return this.renderer.paragraph(this.inlineLexer.output(this.token.text));
       }
-      case 'text':
+      case TokenType.text:
       {
         return this.renderer.paragraph(this.parseText());
       }

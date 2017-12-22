@@ -58,24 +58,25 @@ export interface Links
   [key: string]: Link
 }
 
-export type TokenType =
-'space'
-| 'code'
-| 'heading'
-| 'table'
-| 'hr'
-| 'blockquote_start'
-| 'blockquote_end'
-| 'list_start'
-| 'list_end'
-| 'loose_item_start'
-| 'loose_item_end'
-| 'list_item_start'
-| 'list_item_end'
-| 'paragraph'
-| 'html'
-| 'text'
-;
+export enum TokenType
+{
+  space
+  ,code
+  ,heading
+  ,table
+  ,hr
+  ,blockquote_start
+  ,blockquote_end
+  ,list_start
+  ,list_end
+  ,loose_item_start
+  ,loose_item_end
+  ,list_item_start
+  ,list_item_end
+  ,paragraph
+  ,html
+  ,text
+}
 
 export type Align = 'center' | 'left' | 'right';
 

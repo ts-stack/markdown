@@ -10,7 +10,7 @@
 
 import { Parser } from './parser';
 import { BlockLexer } from './block-lexer';
-import { ParseCallback, MarkedOptions, ParamsToken, Links } from './interfaces';
+import { ParseCallback, MarkedOptions, ParamsToken, Links, TokenType } from './interfaces';
 
 export class Marked
 {
@@ -118,7 +118,7 @@ export class Marked
     {
       const token = tokens[i];
 
-      if(token.type !== 'code')
+      if(token.type !== TokenType.code)
       {
         if(!--pending)
           return done();
