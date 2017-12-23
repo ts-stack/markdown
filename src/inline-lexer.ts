@@ -27,8 +27,8 @@ const inline: InlineGrammar =
   escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
   url: <any>Noop,
   del: <any>Noop,
-  autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
-  tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
+  autolink: /^<([^ <>]+(@|:\/)[^ <>]+)>/,
+  tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^<'">])*?>/,
   link: /^!?\[(inside)\]\(href\)/,
   reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
   nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
@@ -163,10 +163,12 @@ export class InlineLexer
 
         if(execArr[2] === '@')
         {
-          text = execArr[1].charAt(6) === ':'
+          text = this.options.escape
+          (
+            execArr[1].charAt(6) === ':'
             ? this.mangle(execArr[1].substring(7))
-            : this.mangle(execArr[1]);
-
+            : this.mangle(execArr[1])
+          );
           href = this.mangle('mailto:') + text;
         }
         else

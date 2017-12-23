@@ -47,7 +47,7 @@ export function escape(html: string, encode?: boolean)
 export function unescape(html: string)
 {
 	// Explicitly match decimal, hex, and named HTML entities 
-  return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/g, function(_, n)
+  return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi, function(_, n)
   {
     n = n.toLowerCase();
 

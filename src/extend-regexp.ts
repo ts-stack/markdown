@@ -32,8 +32,6 @@ export class ExtendRegexp
   setGroup(groupName: RegExp | string, groupRegexp: RegExp | string): this
   {
     let newRegexp: string = typeof groupRegexp == 'string' ? groupRegexp : groupRegexp.source;
-
-    // Remove all occurrences of `^` character.
     newRegexp = newRegexp.replace(/(^|[^\[])\^/g, '$1');
 
     // Extend regexp.
