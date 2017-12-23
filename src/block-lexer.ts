@@ -319,47 +319,7 @@ export class BlockLexer
       // table (gfm)
       if( top && (execArr = this.rules.table.exec(nextPart)) )
       {
-        nextPart = nextPart.substring(execArr[0].length);
-
-        let item: ParamsToken =
-        {
-          type: TokenType.table,
-          header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
-          cells: []
-        };
-
-        for(let i = 0; i < item.align.length; i++)
-        {
-          if( /^ *-+: *$/.test(item.align[i]) )
-          {
-            item.align[i] = 'right';
-          }
-          else if( /^ *:-+: *$/.test(item.align[i]) )
-          {
-            item.align[i] = 'center';
-          }
-          else if( /^ *:-+ *$/.test(item.align[i]) )
-          {
-            item.align[i] = 'left';
-          }
-          else
-          {
-            item.align[i] = null;
-          }
-        }
-
-        const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
-
-        for(let i = 0; i < td.length; i++)
-        {
-          item.cells[i] = td[i]
-            .replace(/^ *\| *| *\| *$/g, '')
-            .split(/ *\| */);
-        }
-
-        this.tokens.push(item);
-
+        nextPart = this.pushTableGfm(nextPart, execArr);
         continue;
       }
 
@@ -403,6 +363,52 @@ export class BlockLexer
     }
 
     return {tokens: this.tokens, links: this.links};
+  }
+
+  protected pushTableGfm(nextPart: string, execArr: RegExpExecArray): string
+  {
+    nextPart = nextPart.substring(execArr[0].length);
+
+    let item: ParamsToken =
+    {
+      type: TokenType.table,
+      header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+      align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
+      cells: []
+    };
+
+    for(let i = 0; i < item.align.length; i++)
+    {
+      if( /^ *-+: *$/.test(item.align[i]) )
+      {
+        item.align[i] = 'right';
+      }
+      else if( /^ *:-+: *$/.test(item.align[i]) )
+      {
+        item.align[i] = 'center';
+      }
+      else if( /^ *:-+ *$/.test(item.align[i]) )
+      {
+        item.align[i] = 'left';
+      }
+      else
+      {
+        item.align[i] = null;
+      }
+    }
+
+    const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
+
+    for(let i = 0; i < td.length; i++)
+    {
+      item.cells[i] = td[i]
+        .replace(/^ *\| *| *\| *$/g, '')
+        .split(/ *\| */);
+    }
+
+    this.tokens.push(item);
+
+    return nextPart;
   }
 
   // table no leading pipe (gfm).
