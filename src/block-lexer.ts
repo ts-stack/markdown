@@ -18,13 +18,23 @@ import {
   Links,
   Align,
   LexerReturns,
-  TokenType
+  TokenType,
+  BlockGfm,
+  BlockTables
 } from './interfaces';
 
 export class BlockLexer
 {
   private static block: BlockGrammar;
-  private rules: BlockGrammar;
+  /**
+   * GFM Block Grammar.
+   */
+  private static gfm: BlockGfm;
+  /**
+   * GFM + Tables Block Grammar.
+   */
+  private static tables: BlockTables;
+  private rules: BlockGrammar | BlockGfm | BlockTables;
   private options: MarkedOptions;
   private links: Links;
   private tokens: ParamsToken[];
@@ -39,20 +49,20 @@ export class BlockLexer
     {
       if(this.options.tables)
       {
-        this.rules = BlockLexer.getBlock().tables;
+        this.rules = BlockLexer.getBlockTables();
       }
       else
       {
-        this.rules = BlockLexer.getBlock().gfm;
+        this.rules = BlockLexer.getBlockGfm();
       }
     }
     else
     {
-      this.rules = BlockLexer.getBlock().normal;
+      this.rules = BlockLexer.getBlock();
     }
   }
 
-  private static getBlock(): BlockGrammar
+  protected static getBlock(): BlockGrammar
   {
     if(this.block)
       return this.block;
@@ -60,9 +70,6 @@ export class BlockLexer
     const block: BlockGrammar =
     {
       newline: /^\n+/,
-      fences: <any>Noop,
-      nptable: <any>Noop,
-      table: <any>Noop,
       code: /^( {4}[^\n]+\n*)+/,
       hr: /^( *[-*_]){3,} *(?:\n+|$)/,
       heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
@@ -74,7 +81,8 @@ export class BlockLexer
       paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
       text: /^[^\n]+/,
       bullet: /(?:[*+-]|\d+\.)/,
-      item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
+      item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/,
+      _tag: ''
     };
 
     block.item = new ExtendRegexp(block.item, 'gm')
@@ -108,11 +116,19 @@ export class BlockLexer
     .setGroup('def', block.def)
     .getRegexp();
 
-    block.normal = {...block};
+    return this.block = block;
+  }
 
-    block.gfm =
+  protected static getBlockGfm(): BlockGfm
+  {
+    if(this.gfm)
+      return this.gfm;
+
+    const block = this.getBlock();
+
+    const gfm =
     {
-      ...block.normal,
+      ...block,
       ...{
         fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
         paragraph: /^/,
@@ -120,23 +136,29 @@ export class BlockLexer
       }
     };
 
-    const group1 = block.gfm.fences.source.replace('\\1', '\\2');
+    const group1 = gfm.fences.source.replace('\\1', '\\2');
     const group2 = block.list.source.replace('\\1', '\\3');
 
-    block.gfm.paragraph = new ExtendRegexp(block.paragraph)
+    gfm.paragraph = new ExtendRegexp(block.paragraph)
     .setGroup('(?!', `(?!${group1}|${group2}|`)
     .getRegexp();
 
-    block.tables =
+    return this.gfm = gfm;
+  }
+
+  protected static getBlockTables(): BlockTables
+  {
+    if(this.tables)
+      return this.tables;
+
+    return this.tables =
     {
-      ...block.gfm,
+      ...this.getBlockGfm(),
       ...{
         nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
         table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
       }
     };
-
-    return this.block = block;
   }
 
   /**
@@ -202,7 +224,7 @@ export class BlockLexer
       }
 
       // fences code (gfm)
-      if( execArr = this.rules.fences.exec(nextPart) )
+      if( this.isBlockGfm(this.rules) && (execArr = this.rules.fences.exec(nextPart)) )
       {
         nextPart = nextPart.substring(execArr[0].length);
 
@@ -230,7 +252,12 @@ export class BlockLexer
       }
 
       // table no leading pipe (gfm)
-      if( top && (execArr = this.rules.nptable.exec(nextPart)) )
+      if
+      (
+        top
+        && this.isBlockTables(this.rules)
+        && (execArr = this.rules.nptable.exec(nextPart))
+      )
       {
         nextPart = this.pushTable(nextPart, execArr);
         continue;
@@ -317,7 +344,7 @@ export class BlockLexer
       }
 
       // table (gfm)
-      if( top && (execArr = this.rules.table.exec(nextPart)) )
+      if( top && this.isBlockTables(this.rules) && (execArr = this.rules.table.exec(nextPart)) )
       {
         nextPart = this.pushTableGfm(nextPart, execArr);
         continue;
@@ -363,6 +390,16 @@ export class BlockLexer
     }
 
     return {tokens: this.tokens, links: this.links};
+  }
+
+  protected isBlockGfm(block: BlockGrammar | BlockGfm | BlockTables): block is BlockGfm
+  {
+    return (<BlockGfm>block).fences !== undefined;
+  }
+
+  protected isBlockTables(block: BlockGrammar | BlockGfm | BlockTables): block is BlockTables
+  {
+    return (<BlockTables>block).table !== undefined;
   }
 
   protected pushTableGfm(nextPart: string, execArr: RegExpExecArray): string

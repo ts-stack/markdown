@@ -12,39 +12,34 @@ export type Obj = {[key: string]: any};
 
 export interface BlockGrammar
 {
-  newline?: RegExp,
-  code?: RegExp,
-  fences?: RegExp,
-  hr?: RegExp,
-  heading?: RegExp,
-  nptable?: RegExp,
-  lheading?: RegExp,
-  blockquote?: RegExp,
-  list?: RegExp,
-  html?: RegExp,
-  def?: RegExp,
-  table?: RegExp,
-  paragraph?: RegExp,
-  text?: RegExp,
-  bullet?: RegExp,
+  newline: RegExp,
+  code: RegExp,
+  hr: RegExp,
+  heading: RegExp,
+  lheading: RegExp,
+  blockquote: RegExp,
+  list: RegExp,
+  html: RegExp,
+  def: RegExp,
+  paragraph: RegExp,
+  text: RegExp,
+  bullet: RegExp,
   /**
    * List item (<li>).
    */
-  item?: RegExp,
-  _tag?: string,
+  item: RegExp,
+  _tag: string
+}
 
-  /**
-   * Normal Block Grammar
-   */
-  normal?: this,
-  /**
-   * GFM Block Grammar
-   */
-  gfm?: this,
-  /**
-   * GFM + Tables Block Grammar
-   */
-  tables?: this,
+export interface BlockGfm extends BlockGrammar
+{
+  fences: RegExp
+}
+
+export interface BlockTables extends BlockGfm
+{
+  nptable: RegExp,
+  table: RegExp
 }
 
 export interface Link
