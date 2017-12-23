@@ -21,85 +21,91 @@ import {
   TokenType
 } from './interfaces';
 
+const block = getBlock();
 
-const block: BlockGrammar =
+function getBlock(): BlockGrammar
 {
-  newline: /^\n+/,
-  fences: <any>Noop,
-  nptable: <any>Noop,
-  table: <any>Noop,
-  code: /^( {4}[^\n]+\n*)+/,
-  hr: /^( *[-*_]){3,} *(?:\n+|$)/,
-  heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
-  lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-  blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-  list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
-  html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
-  def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
-  paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
-  text: /^[^\n]+/,
-  bullet: /(?:[*+-]|\d+\.)/,
-  item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
-};
+  const block: BlockGrammar =
+  {
+    newline: /^\n+/,
+    fences: <any>Noop,
+    nptable: <any>Noop,
+    table: <any>Noop,
+    code: /^( {4}[^\n]+\n*)+/,
+    hr: /^( *[-*_]){3,} *(?:\n+|$)/,
+    heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
+    lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
+    blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
+    list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
+    html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
+    def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
+    paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
+    text: /^[^\n]+/,
+    bullet: /(?:[*+-]|\d+\.)/,
+    item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
+  };
 
-block.item = new ExtendRegexp(block.item, 'gm')
-.setGroup(/bull/g, block.bullet)
-.getRegexp();
+  block.item = new ExtendRegexp(block.item, 'gm')
+  .setGroup(/bull/g, block.bullet)
+  .getRegexp();
 
-block.list = new ExtendRegexp(block.list)
-.setGroup(/bull/g, block.bullet)
-.setGroup('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
-.setGroup('def', '\\n+(?=' + block.def.source + ')')
-.getRegexp();
+  block.list = new ExtendRegexp(block.list)
+  .setGroup(/bull/g, block.bullet)
+  .setGroup('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
+  .setGroup('def', '\\n+(?=' + block.def.source + ')')
+  .getRegexp();
 
-block._tag = '(?!(?:'
-  + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
-  + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
-  + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
+  block._tag = '(?!(?:'
+    + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
+    + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
+    + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
 
-block.html = new ExtendRegexp(block.html)
-.setGroup('comment', /<!--[\s\S]*?-->/)
-.setGroup('closed', /<(tag)[\s\S]+?<\/\1>/)
-.setGroup('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
-.setGroup(/tag/g, block._tag)
-.getRegexp();
+  block.html = new ExtendRegexp(block.html)
+  .setGroup('comment', /<!--[\s\S]*?-->/)
+  .setGroup('closed', /<(tag)[\s\S]+?<\/\1>/)
+  .setGroup('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
+  .setGroup(/tag/g, block._tag)
+  .getRegexp();
 
-block.paragraph = new ExtendRegexp(block.paragraph)
-.setGroup('hr', block.hr)
-.setGroup('heading', block.heading)
-.setGroup('lheading', block.lheading)
-.setGroup('blockquote', block.blockquote)
-.setGroup('tag', '<' + block._tag)
-.setGroup('def', block.def)
-.getRegexp();
+  block.paragraph = new ExtendRegexp(block.paragraph)
+  .setGroup('hr', block.hr)
+  .setGroup('heading', block.heading)
+  .setGroup('lheading', block.lheading)
+  .setGroup('blockquote', block.blockquote)
+  .setGroup('tag', '<' + block._tag)
+  .setGroup('def', block.def)
+  .getRegexp();
 
-block.normal = {...block};
+  block.normal = {...block};
 
-block.gfm =
-{
-  ...block.normal,
-  ...{
-    fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
-    paragraph: /^/,
-    heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
-  }
-};
+  block.gfm =
+  {
+    ...block.normal,
+    ...{
+      fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
+      paragraph: /^/,
+      heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
+    }
+  };
 
-const group1 = block.gfm.fences.source.replace('\\1', '\\2');
-const group2 = block.list.source.replace('\\1', '\\3');
+  const group1 = block.gfm.fences.source.replace('\\1', '\\2');
+  const group2 = block.list.source.replace('\\1', '\\3');
 
-block.gfm.paragraph = new ExtendRegexp(block.paragraph)
-.setGroup('(?!', `(?!${group1}|${group2}|`)
-.getRegexp();
+  block.gfm.paragraph = new ExtendRegexp(block.paragraph)
+  .setGroup('(?!', `(?!${group1}|${group2}|`)
+  .getRegexp();
 
-block.tables =
-{
-  ...block.gfm,
-  ...{
-    nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
-    table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
-  }
-};
+  block.tables =
+  {
+    ...block.gfm,
+    ...{
+      nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
+      table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
+    }
+  };
+
+  return block;
+}
 
 export class BlockLexer
 {
