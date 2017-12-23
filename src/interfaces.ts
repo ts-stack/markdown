@@ -60,14 +60,14 @@ export enum TokenType
   ,heading
   ,table
   ,hr
-  ,blockquote_start
-  ,blockquote_end
-  ,list_start
-  ,list_end
-  ,loose_item_start
-  ,loose_item_end
-  ,list_item_start
-  ,list_item_end
+  ,blockquoteStart
+  ,blockquoteEnd
+  ,listStart
+  ,listEnd
+  ,looseItemStart
+  ,looseItemEnd
+  ,listItemStart
+  ,listItemEnd
   ,paragraph
   ,html
   ,text

@@ -291,7 +291,7 @@ export class BlockLexer
       {
         nextPart = nextPart.substring(execArr[0].length);
 
-        this.tokens.push({type: TokenType.blockquote_start});
+        this.tokens.push({type: TokenType.blockquoteStart});
 
         const str = execArr[0].replace(/^ *> ?/gm, '');
 
@@ -300,7 +300,7 @@ export class BlockLexer
         // how markdown.pl works.
         this.getTokens(str, top, true);
 
-        this.tokens.push({type: TokenType.blockquote_end});
+        this.tokens.push({type: TokenType.blockquoteEnd});
 
         continue;
       }
@@ -501,7 +501,7 @@ export class BlockLexer
     nextPart = nextPart.substring(execArr[0].length);
     const bull: string = execArr[2];
 
-    this.tokens.push({type: TokenType.list_start, ordered: bull.length > 1});
+    this.tokens.push({type: TokenType.listStart, ordered: bull.length > 1});
 
     // Get each top-level item.
     const str = execArr[0].match(this.rules.item);
@@ -557,14 +557,14 @@ export class BlockLexer
           loose = next;
       }
 
-      this.tokens.push({type: loose ? TokenType.loose_item_start : TokenType.list_item_start});
+      this.tokens.push({type: loose ? TokenType.looseItemStart : TokenType.listItemStart});
 
       // Recurse.
       this.getTokens(item, false, isBlockQuote);
-      this.tokens.push({type: TokenType.list_item_end});
+      this.tokens.push({type: TokenType.listItemEnd});
     }
 
-    this.tokens.push({type: TokenType.list_end});
+    this.tokens.push({type: TokenType.listEnd});
 
     return nextPart;
   }

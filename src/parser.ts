@@ -144,33 +144,33 @@ export class Parser
 
         return this.renderer.table(header, body);
       }
-      case TokenType.blockquote_start:
+      case TokenType.blockquoteStart:
       {
         let body = '';
 
-        while (this.next().type != TokenType.blockquote_end)
+        while (this.next().type != TokenType.blockquoteEnd)
         {
           body += this.tok();
         }
 
         return this.renderer.blockquote(body);
       }
-      case TokenType.list_start:
+      case TokenType.listStart:
       {
         let body = '', ordered = this.token.ordered;
 
-        while (this.next().type != TokenType.list_end)
+        while (this.next().type != TokenType.listEnd)
         {
           body += this.tok();
         }
 
         return this.renderer.list(body, ordered);
       }
-      case TokenType.list_item_start:
+      case TokenType.listItemStart:
       {
         let body = '';
 
-        while (this.next().type != TokenType.list_item_end)
+        while (this.next().type != TokenType.listItemEnd)
         {
           body += this.token.type == <any>TokenType.text
             ? this.parseText()
@@ -179,11 +179,11 @@ export class Parser
 
         return this.renderer.listitem(body);
       }
-      case TokenType.loose_item_start:
+      case TokenType.looseItemStart:
       {
         let body = '';
 
-        while (this.next().type != TokenType.list_item_end)
+        while (this.next().type != TokenType.listItemEnd)
         {
           body += this.tok();
         }
