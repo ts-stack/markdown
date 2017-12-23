@@ -168,18 +168,11 @@ export class BlockLexer
   /**
    * Lexing.
    */
-  private getTokens(src: string, top: boolean, isBlockQuote?: boolean): LexerReturns
+  protected getTokens(src: string, top: boolean, isBlockQuote?: boolean): LexerReturns
   {
-    let
     // Removes all rows where there are only whitespaces.
-    nextPart: string = src.replace(/^ +$/gm, ''),
-    execArr: RegExpExecArray,
-    next: boolean,
-    loose: boolean,
-    bull: string,
-    blockBullet: string,
-    space: number
-    ;
+    let nextPart: string = src.replace(/^ +$/gm, '');
+    let execArr: RegExpExecArray;
 
     while(nextPart)
     {
@@ -323,75 +316,10 @@ export class BlockLexer
         continue;
       }
 
-      /**
-       * @todo Improve performance.
-       */
       // list
       if(execArr = this.rules.list.exec(nextPart))
       {
-        nextPart = nextPart.substring(execArr[0].length);
-        bull = execArr[2];
-
-        this.tokens.push({type: TokenType.list_start, ordered: bull.length > 1});
-
-        // Get each top-level item.
-        const str = execArr[0].match(this.rules.item);
-
-        next = false;
-        let length = str.length;
-
-        for(let i = 0; i < length; i++)
-        {
-          let item = str[i];
-
-          // Remove the list item's bullet so it is seen as the next token.
-          space = item.length;
-          item = item.replace(/^ *([*+-]|\d+\.) +/, '');
-
-          // Outdent whatever the list item contains. Hacky.
-          if(item.includes('\n '))
-          {
-            space -= item.length;
-            item = !this.options.pedantic
-              ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
-              : item.replace(/^ {1,4}/gm, '');
-          }
-
-          // Determine whether the next list item belongs here.
-          // Backpedal if it does not belong in this list.
-          if(this.options.smartLists && i !== length - 1)
-          {
-            blockBullet = BlockLexer.getBlock().bullet.exec(str[i + 1])[0];
-
-            if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
-            {
-              nextPart = str.slice(i + 1).join('\n') + nextPart;
-              i = length - 1;
-            }
-          }
-
-          // Determine whether item is loose or not.
-          // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-          // for discount behavior.
-          loose = next || /\n\n(?!\s*$)/.test(item);
-
-          if(i !== length - 1)
-          {
-            next = item.charAt(item.length - 1) === '\n';
-
-            if(!loose)
-              loose = next;
-          }
-
-          this.tokens.push({type: loose ? TokenType.loose_item_start : TokenType.list_item_start});
-
-          // Recurse.
-          this.getTokens(item, false, isBlockQuote);
-          this.tokens.push({type: TokenType.list_item_end});
-        }
-
-        this.tokens.push({type: TokenType.list_end});
-
+        nextPart = this.pushList(nextPart, execArr, isBlockQuote);
         continue;
       }
 
@@ -513,5 +441,81 @@ export class BlockLexer
     }
 
     return {tokens: this.tokens, links: this.links};
+  }
+
+  /**
+   * @todo Improve performance.
+   */
+  protected pushList(nextPart: string, execArr: RegExpExecArray, isBlockQuote: boolean): string
+  {
+    nextPart = nextPart.substring(execArr[0].length);
+    const bull: string = execArr[2];
+
+    this.tokens.push({type: TokenType.list_start, ordered: bull.length > 1});
+
+    // Get each top-level item.
+    const str = execArr[0].match(this.rules.item);
+    const length = str.length;
+
+    let
+    next: boolean = false,
+    space: number,
+    blockBullet: string,
+    loose: boolean
+    ;
+
+    for(let i = 0; i < length; i++)
+    {
+      let item = str[i];
+
+      // Remove the list item's bullet so it is seen as the next token.
+      space = item.length;
+      item = item.replace(/^ *([*+-]|\d+\.) +/, '');
+
+      // Outdent whatever the list item contains. Hacky.
+      if(item.includes('\n '))
+      {
+        space -= item.length;
+        item = !this.options.pedantic
+          ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
+          : item.replace(/^ {1,4}/gm, '');
+      }
+
+      // Determine whether the next list item belongs here.
+      // Backpedal if it does not belong in this list.
+      if(this.options.smartLists && i !== length - 1)
+      {
+        blockBullet = BlockLexer.getBlock().bullet.exec(str[i + 1])[0];
+
+        if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
+        {
+          nextPart = str.slice(i + 1).join('\n') + nextPart;
+          i = length - 1;
+        }
+      }
+
+      // Determine whether item is loose or not.
+      // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
+      // for discount behavior.
+      loose = next || /\n\n(?!\s*$)/.test(item);
+
+      if(i !== length - 1)
+      {
+        next = item.charAt(item.length - 1) === '\n';
+
+        if(!loose)
+          loose = next;
+      }
+
+      this.tokens.push({type: loose ? TokenType.loose_item_start : TokenType.list_item_start});
+
+      // Recurse.
+      this.getTokens(item, false, isBlockQuote);
+      this.tokens.push({type: TokenType.list_item_end});
+    }
+
+    this.tokens.push({type: TokenType.list_end});
+
+    return nextPart;
   }
 }
