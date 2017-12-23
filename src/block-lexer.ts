@@ -29,11 +29,11 @@ export class BlockLexer
   /**
    * GFM Block Grammar.
    */
-  private static gfm: BlockGfm;
+  private static blockGfm: BlockGfm;
   /**
    * GFM + Tables Block Grammar.
    */
-  private static tables: BlockTables;
+  private static blockTables: BlockTables;
   private rules: BlockGrammar | BlockGfm | BlockTables;
   private options: MarkedOptions;
   private links: Links;
@@ -121,8 +121,8 @@ export class BlockLexer
 
   protected static getBlockGfm(): BlockGfm
   {
-    if(this.gfm)
-      return this.gfm;
+    if(this.blockGfm)
+      return this.blockGfm;
 
     const block = this.getBlock();
 
@@ -143,15 +143,15 @@ export class BlockLexer
     .setGroup('(?!', `(?!${group1}|${group2}|`)
     .getRegexp();
 
-    return this.gfm = gfm;
+    return this.blockGfm = gfm;
   }
 
   protected static getBlockTables(): BlockTables
   {
-    if(this.tables)
-      return this.tables;
+    if(this.blockTables)
+      return this.blockTables;
 
-    return this.tables =
+    return this.blockTables =
     {
       ...this.getBlockGfm(),
       ...{
