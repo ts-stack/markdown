@@ -61,7 +61,7 @@ function runTests(engine: Function | runTestsOptions, options?: runTestsOptions)
   engine = (engine || Marked.parse.bind(Marked)) as Function;
   options = options || {};
   const files = options.files || load();
-  const keys = Object.keys(files)
+  const filenames = Object.keys(files)
   ,failures = [];
 
   let original: MarkedOptions
@@ -78,12 +78,12 @@ function runTests(engine: Function | runTestsOptions, options?: runTestsOptions)
     Marked.setOptions(options.marked);
   }
 
-  const len = keys.length;
+  const len = filenames.length;
 
   mainFor:
   for(let i = 0; i < len; i++)
   {
-    filename = keys[i];
+    filename = filenames[i];
     file = files[filename];
 
     if(original)
@@ -97,7 +97,7 @@ function runTests(engine: Function | runTestsOptions, options?: runTestsOptions)
     if(flags.length)
     {
       original = Marked.defaults;
-      Marked.defaults = {...Marked.defaults};
+      Marked.defaults = {...original};
 
       flags.forEach( key =>
       {
@@ -378,13 +378,13 @@ function runBench(options: runTestsOptions)
     console.log(`----------------------------------------`);
   }
 
-  if(options.extended)
-    console.log(`----------------------------------------`);
-
   // markdown
   try
   {
     bench('markdown', require('markdown').parse);
+
+    if(options.extended)
+      console.log(`----------------------------------------`);
   }
   catch(e)
   {
@@ -403,6 +403,7 @@ function runBench(options: runTestsOptions)
         html: true,
         linkify: true,
         typographer: false,
+        breaks: false,
       }
     );
 
@@ -447,6 +448,8 @@ function runBench(options: runTestsOptions)
     const render = md.render.bind(md);
 
     bench('markdown-it', render);
+    if(options.extended)
+      console.log(`----------------------------------------`);
   }
   catch(e)
   {
