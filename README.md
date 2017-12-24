@@ -292,7 +292,7 @@ It doesn't cater to specific aspects.
 
 For this purpose, test files are used and accumulated in one file.
 If you specify, for example, `--length 100` the first file will be taken,
-check whether it is longer than 100 kilobytes, and if no - it will be attached to the first one
+check whether it is longer than 100 kilobytes, and if no - it will be attached to the next one
 and check its length, and so on.
 
 
