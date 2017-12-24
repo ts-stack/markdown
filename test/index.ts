@@ -18,10 +18,12 @@ interface runTestsOptions
 {
   files?: {[key: string]: any},
   marked?: MarkedOptions,
-  time?: boolean,
+  once?: boolean,
   stop?: boolean,
   bench?: boolean,
-  extended?: boolean
+  extended?: boolean,
+  times?: number,
+  length?: number
 }
 
 let files: Obj;
@@ -40,7 +42,7 @@ function main()
     return runBench(opt);
   }
 
-  if(opt.time)
+  if(opt.once)
   {
     return time(opt);
   }
@@ -50,15 +52,15 @@ function main()
 
 function runTests(options: runTestsOptions): boolean;
 function runTests(engine: Function, options: runTestsOptions): boolean;
-function runTests(engine: Function | runTestsOptions, options?: runTestsOptions): boolean
+function runTests(functionOrEngine: Function | runTestsOptions, options?: runTestsOptions): boolean
 {
-  if(typeof engine != 'function')
+  if(typeof functionOrEngine != 'function')
   {
-    options = engine;
-    engine = null;
+    options = functionOrEngine;
+    functionOrEngine = null;
   }
 
-  engine = (engine || Marked.parse.bind(Marked)) as Function;
+  const engine: Function = functionOrEngine || Marked.parse.bind(Marked);
   options = options || {};
   const files = options.files || load();
   const filenames = Object.keys(files)
@@ -226,25 +228,49 @@ function load()
  * Benchmark a function
  */
 
-function bench(name: string, func: Function, times: number = 1)
+/**
+ * @param lengthStr Length in kilobytes. Default 50 KB.
+ */
+function initBench(lengthStr: number = 50, times: number = 1): string
 {
+  lengthStr = lengthStr * 1024;
+
   files = files || load();
 
-  let start = Date.now()
-    ,keys = Object.keys(files)
-    ,i
-    ,l = keys.length
-    ,filename
-    ,file;
+  let
+  keys = Object.keys(files)
+  ,i
+  ,l = keys.length
+  ,filename
+  ,file
+  ,accumulatedMarkdown = ''
+  ;
+
+  while(lengthStr > accumulatedMarkdown.length)
+  for(i = 0; (i < l) && (lengthStr > accumulatedMarkdown.length); i++)
+  {
+    filename = keys[i];
+    file = files[filename];
+    accumulatedMarkdown += '\n\n' + file.text;
+  }
+
+  const lenAcumulatedFile = Math.round(accumulatedMarkdown.length / 1024);
+  console.log(`Test run ${times} times for one file ${lenAcumulatedFile} KB, with accumulated Markdown tests:`);
+  console.log(`:: ========================== ::`);
+  return accumulatedMarkdown;
+}
+
+/**
+ * @param name Name of engine.
+ * @param func Function to be used for testing.
+ */
+function bench(name: string, accumulatedMarkdown: string, func: Function, times: number = 1)
+{
+  const start = Date.now();
 
   while(times--)
   {
-    for(i = 0; i < l; i++)
-    {
-      filename = keys[i];
-      file = files[filename];
-      func(file.text);
-    }
+    func(accumulatedMarkdown);
   }
 
   console.log('%s completed in %d ms.', name, Date.now() - start);
@@ -257,6 +283,9 @@ function bench(name: string, func: Function, times: number = 1)
 function runBench(options: runTestsOptions)
 {
   options = options || {};
+  const times = options.times;
+  const length = options.length;
+  const accumulatedMarkdown = initBench(length, times);
 
   // Non-GFM, Non-pedantic
   Marked.setOptions
@@ -274,7 +303,7 @@ function runBench(options: runTestsOptions)
     Marked.setOptions(options.marked);
   }
 
-  bench('marked-ts', Marked.parse.bind(Marked));
+  bench('marked-ts', accumulatedMarkdown, Marked.parse.bind(Marked), times);
 
   if(options.extended)
   {
@@ -294,7 +323,7 @@ function runBench(options: runTestsOptions)
       Marked.setOptions(options.marked);
     }
 
-    bench('marked-ts (gfm)', Marked.parse.bind(Marked));
+    bench('marked-ts (gfm)', accumulatedMarkdown, Marked.parse.bind(Marked), times);
 
     // Pedantic
     Marked.setOptions
@@ -312,12 +341,12 @@ function runBench(options: runTestsOptions)
       Marked.setOptions(options.marked);
     }
 
-    bench('marked-ts (pedantic)', Marked.parse.bind(Marked));
+    bench('marked-ts (pedantic)', accumulatedMarkdown, Marked.parse.bind(Marked), times);
 
     console.log(`----------------------------------------`);
   }
 
-  const marked = require('marked');
+  const marked = require('../lib');
 
   // Non-GFM, Non-pedantic
   marked.setOptions
@@ -335,7 +364,7 @@ function runBench(options: runTestsOptions)
     marked.setOptions(options.marked);
   }
 
-  bench('marked', marked);
+  bench('marked', accumulatedMarkdown, marked, times);
 
   if(options.extended)
   {
@@ -355,7 +384,7 @@ function runBench(options: runTestsOptions)
       marked.setOptions(options.marked);
     }
 
-    bench('marked (gfm)', marked);
+    bench('marked (gfm)', accumulatedMarkdown, marked, times);
 
     // Pedantic
     marked.setOptions
@@ -373,7 +402,7 @@ function runBench(options: runTestsOptions)
       marked.setOptions(options.marked);
     }
 
-    bench('marked (pedantic)', marked);
+    bench('marked (pedantic)', accumulatedMarkdown, marked, times);
 
     console.log(`----------------------------------------`);
   }
@@ -381,7 +410,7 @@ function runBench(options: runTestsOptions)
   // markdown
   try
   {
-    bench('markdown', require('markdown').parse);
+    bench('markdown', accumulatedMarkdown, require('markdown').parse, times);
 
     if(options.extended)
       console.log(`----------------------------------------`);
@@ -409,7 +438,7 @@ function runBench(options: runTestsOptions)
 
     const render = md.render.bind(md);
 
-    bench('remarkable', render);
+    bench('remarkable', accumulatedMarkdown, render, times);
   }
   catch(e)
   {
@@ -425,7 +454,7 @@ function runBench(options: runTestsOptions)
     const Showdown = require('showdown');
     const converter = new Showdown.Converter();
     const render = converter.makeHtml.bind(converter);
-    bench('showdown', render);
+    bench('showdown', accumulatedMarkdown, render, times);
   }
   catch(e)
   {
@@ -447,7 +476,7 @@ function runBench(options: runTestsOptions)
     });
     const render = md.render.bind(md);
 
-    bench('markdown-it', render);
+    bench('markdown-it', accumulatedMarkdown, render, times);
     if(options.extended)
       console.log(`----------------------------------------`);
   }
@@ -468,117 +497,62 @@ function time(options?: runTestsOptions)
     Marked.setOptions(options.marked);
   }
 
-  bench('marked', Marked.parse.bind(Marked));
+  const accumulatedMarkdown = initBench();
+
+  bench('marked', accumulatedMarkdown, Marked.parse.bind(Marked));
 }
 
 /**
  * Argument Parsing
  */
 
-function parseArg(argv?: Obj): Obj
+function parseArg(): runTestsOptions
 {
-  argv = process.argv.slice(2);
-  let options: runTestsOptions = {}
-  ,orphans = []
-  ,arg;
+  let argv = process.argv.slice(2);
+  let options: runTestsOptions = {};
 
-  while (argv.length)
+  for(let i = 0; i < argv.length; i++)
   {
-    arg = getarg();
-    switch (arg)
+    const arg = argv[i];
+    let [key, value] = arg.split('=');
+
+    // We have next parameter or value of current parameter.
+    if(!value && argv[i + 1])
+    {
+      value = argv[i + 1].split('-')[0];
+
+      if(value) i++;
+    }
+
+    switch (key)
     {
       case '-b':
       case '--bench':
         options.bench = true;
         break;
+      case '-l':
+      case '--length':
+        options.length = +value;
+        break;
       case '-s':
       case '--stop':
         options.stop = true;
         break;
+      case '--once':
+        options.once = true;
+        break;
       case '-t':
-      case '--time':
-        options.time = true;
+      case '--times':
+        options.times = +value;
         break;
       case '-e':
-      case '--extended':
+      case '--ext':
         options.extended = true;
-        break;
-      default:
-        if(arg.indexOf('--') === 0)
-        {
-          const opt = camelize(arg.replace(/^--(no-)?/, ''));
-
-          if(!Marked.defaults.hasOwnProperty(opt))
-          {
-            continue;
-          }
-
-          options.marked = options.marked || {};
-
-          if(arg.indexOf('--no-') === 0)
-          {
-            (<any>options.marked)[opt] = typeof (<any>Marked.defaults)[opt] !== 'boolean'
-              ? null
-              : false;
-          }
-          else
-          {
-            (<any>options.marked)[opt] = typeof (<any>Marked.defaults)[opt] !== 'boolean'
-              ? argv.shift()
-              : true;
-          }
-        }
-        else
-        {
-          orphans.push(arg);
-        }
         break;
     }
   }
 
   return options;
-
-  function getarg()
-  {
-    let arg = argv.shift();
-
-    if(arg.indexOf('--') === 0)
-    {
-      // e.g. --opt
-      arg = arg.split('=');
-
-      if(arg.length > 1)
-      {
-        // e.g. --opt=val
-        argv.unshift(arg.slice(1).join('='));
-      }
-
-      arg = arg[0];
-    }
-    else if(arg[0] === '-')
-    {
-      if(arg.length > 2)
-      {
-        // e.g. -abc
-        argv = arg.substring(1).split('').map( (ch: string) =>
-        {
-          return '-' + ch;
-        }).concat(argv);
-
-        arg = argv.shift();
-      }
-      else
-      {
-        // e.g. -a
-      }
-    }
-    else
-    {
-      // e.g. foo
-    }
-
-    return arg;
-  }
 }
 
 /**

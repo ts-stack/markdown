@@ -7,7 +7,7 @@
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
-For now - work in progress (there is only alpha.3 version).
+For now - work in progress (there is only alpha.4 version).
 
 ## Install
 
@@ -270,18 +270,39 @@ npm run compile
 npm run bench
 ```
 
-These benchmarks run the entire markdown test suite (51 files) once. The test suite includes every feature.
+By default, these benchmarks run the entire markdown test suite (52 files) once. The test suite includes every feature.
 It doesn't cater to specific aspects.
 
 |            engine            | completed in ms
 | ---------------------------- | ---------
-| marked-ts alpha.3            | 16
+| marked-ts alpha.4            | 16
 | marked v0.3.7                | 18
 | markdown v0.5.0              | 52
 | remarkable v1.7.1            | 53
 | showdown v1.8.5              | 107
 | markdown-it v8.4.0           | 118
 
+### Options for benchmarks
+
+```text
+-l, --length       Approximate string length in kilobytes. Default ~ 50 KB.
+-t, --times        Number of runs this bench. Default - 1 times.
+-e, --ext          Extended bench for `marked-ts` and `marked`. Default - false.
+```
+
+For this purpose, test files are used and accumulated in one file.
+If you specify, for example, `--length 100` the first file will be taken,
+check whether it is longer than 100 kilobytes, and if no - it will be attached to the first one
+and check its length, and so on.
+
+
+### Example of usage bench options
+
+In order for npm passing the parameters, they need to be separated via ` -- `:
+
+```text
+npm run bench -- --length 500 --times 1
+```
 
 ### Contribution and License Agreement
 

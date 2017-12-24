@@ -126,7 +126,7 @@ export class BlockLexer
 
     const block = this.getBlock();
 
-    const gfm =
+    const gfm: BlockGfm =
     {
       ...block,
       ...{
