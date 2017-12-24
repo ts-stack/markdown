@@ -272,22 +272,22 @@ npm run compile
 npm run bench
 ```
 
-By default, these benchmarks run the entire markdown test suite (52 files) once. The test suite includes every feature.
+By default, these benchmarks run the entire markdown test suite once. The test suite includes every feature.
 It doesn't cater to specific aspects.
 
 |            engine            | completed in ms
 | ---------------------------- | ---------
-| marked-ts alpha.4            | 16
-| marked v0.3.7                | 18
-| markdown v0.5.0              | 52
-| remarkable v1.7.1            | 53
-| showdown v1.8.5              | 107
-| markdown-it v8.4.0           | 118
+| marked-ts alpha.4            | 93
+| marked v0.3.9                | 104
+| remarkable v1.7.1            | 208
+| markdown-it v8.4.0           | 347
+| showdown v1.8.6              | 352
+| markdown v0.5.0              | 288
 
 ### Options for benchmarks
 
 ```text
--l, --length       Approximate string length in kilobytes. Default ~ 50 KB.
+-l, --length       Approximate string length in kilobytes. Default ~ 300 KB.
 -t, --times        Number of runs this bench. Default - 1 times.
 -e, --ext          Extended bench for `marked-ts` and `marked`. Default - false.
 ```

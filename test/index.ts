@@ -229,9 +229,9 @@ function load()
  */
 
 /**
- * @param lengthStr Length in kilobytes. Default 50 KB.
+ * @param lengthStr Length in kilobytes. Default 300 KB.
  */
-function initBench(lengthStr: number = 50, times: number = 1): string
+function initBench(lengthStr: number = 300, times: number = 1): string
 {
   lengthStr = lengthStr * 1024;
 
@@ -265,7 +265,7 @@ function initBench(lengthStr: number = 50, times: number = 1): string
  * @param name Name of engine.
  * @param func Function to be used for testing.
  */
-function bench(name: string, accumulatedMarkdown: string, func: Function, times: number = 1)
+function bench(name: string, accumulatedMarkdown: string, func: Function, times: number = 1): void
 {
   const start = Date.now();
 
@@ -346,7 +346,7 @@ function runBench(options: runTestsOptions)
     bench('marked-ts (pedantic)', accumulatedMarkdown, Marked.parse.bind(Marked), times);
   }
 
-  const marked = require('../lib');
+  const marked = require('marked');
 
   // Non-GFM, Non-pedantic
   marked.setOptions
@@ -495,8 +495,8 @@ function time(options?: runTestsOptions)
 
 function parseArg(): runTestsOptions
 {
-  let argv = process.argv.slice(2);
-  let options: runTestsOptions = {};
+  const argv = process.argv.slice(2);
+  const options: runTestsOptions = {};
 
   for(let i = 0; i < argv.length; i++)
   {
