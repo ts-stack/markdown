@@ -44,7 +44,7 @@ function main()
 
   if(opt.once)
   {
-    return time(opt);
+    return once(opt);
   }
 
   return runTests(opt);
@@ -346,7 +346,7 @@ function runBench(options: runTestsOptions)
     bench('marked-ts (pedantic)', accumulatedMarkdown, Marked.parse.bind(Marked), times);
   }
 
-  const marked = require('marked');
+  const marked = require('../lib');
 
   // Non-GFM, Non-pedantic
   marked.setOptions
@@ -477,16 +477,19 @@ function runBench(options: runTestsOptions)
  * A simple one-time benchmark
  */
 
-function time(options?: runTestsOptions)
+function once(options?: runTestsOptions)
 {
   if(options.marked)
   {
     Marked.setOptions(options.marked);
   }
 
-  const accumulatedMarkdown = initBench();
+  const times = options.times;
+  const length = options.length;
 
-  bench('marked', accumulatedMarkdown, Marked.parse.bind(Marked));
+  const accumulatedMarkdown = initBench(length, times);
+
+  bench('marked', accumulatedMarkdown, Marked.parse.bind(Marked), times);
 }
 
 /**
@@ -540,16 +543,4 @@ function parseArg(): runTestsOptions
   }
 
   return options;
-}
-
-/**
- * Helpers
- */
-
-function camelize(text: string)
-{
-  return text.replace(/(\w)-(\w)/g, function(_, a, b)
-  {
-    return a + b.toUpperCase();
-  });
 }
