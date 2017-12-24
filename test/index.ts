@@ -240,14 +240,14 @@ function initBench(lengthStr: number = 50, times: number = 1): string
   let
   keys = Object.keys(files)
   ,i
-  ,l = keys.length
+  ,countFiles = keys.length
   ,filename
   ,file
   ,accumulatedMarkdown = ''
   ;
 
   while(lengthStr > accumulatedMarkdown.length)
-  for(i = 0; (i < l) && (lengthStr > accumulatedMarkdown.length); i++)
+  for(i = 0; (i < countFiles) && (lengthStr > accumulatedMarkdown.length); i++)
   {
     filename = keys[i];
     file = files[filename];
@@ -255,8 +255,9 @@ function initBench(lengthStr: number = 50, times: number = 1): string
   }
 
   const lenAcumulatedFile = Math.round(accumulatedMarkdown.length / 1024);
-  console.log(`Test run ${times} times for one file ${lenAcumulatedFile} KB, with accumulated Markdown tests:`);
-  console.log(`:: ========================== ::`);
+  console.log('*'.repeat(40));
+  console.log(`Benchmark run ${times} times for one file ${lenAcumulatedFile} KB \nwith accumulated Markdown tests:`);
+  console.log('-'.repeat(40));
   return accumulatedMarkdown;
 }
 
@@ -273,7 +274,8 @@ function bench(name: string, accumulatedMarkdown: string, func: Function, times:
     func(accumulatedMarkdown);
   }
 
-  console.log('%s completed in %d ms.', name, Date.now() - start);
+  console.log('%s%s%d ms.', name, ' '.repeat(21 - name.length), Date.now() - start);
+  console.log('-'.repeat(40));
 }
 
 /**
@@ -342,8 +344,6 @@ function runBench(options: runTestsOptions)
     }
 
     bench('marked-ts (pedantic)', accumulatedMarkdown, Marked.parse.bind(Marked), times);
-
-    console.log(`----------------------------------------`);
   }
 
   const marked = require('../lib');
@@ -403,21 +403,6 @@ function runBench(options: runTestsOptions)
     }
 
     bench('marked (pedantic)', accumulatedMarkdown, marked, times);
-
-    console.log(`----------------------------------------`);
-  }
-
-  // markdown
-  try
-  {
-    bench('markdown', accumulatedMarkdown, require('markdown').parse, times);
-
-    if(options.extended)
-      console.log(`----------------------------------------`);
-  }
-  catch(e)
-  {
-    console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
   }
 
   // remarkable
@@ -445,8 +430,24 @@ function runBench(options: runTestsOptions)
     console.log(`Could not bench 'remarkable'. (Error: ${e.message})`);
   }
 
-  if(options.extended)
-    console.log(`----------------------------------------`);
+  // markdown-it
+  try
+  {
+    const MarkdownIt = require('markdown-it');
+    const md = new MarkdownIt
+    ({
+      html: true,
+      linkify: true,
+      typographer: false,
+    });
+    const render = md.render.bind(md);
+
+    bench('markdown-it', accumulatedMarkdown, render, times);
+  }
+  catch(e)
+  {
+    console.log(`Could not bench 'markdown-it'. (Error: ${e.message})`);
+  }
 
   // showdown
   try
@@ -461,28 +462,14 @@ function runBench(options: runTestsOptions)
     console.log(`Could not bench 'showdown'. (Error: ${e.message})`);
   }
 
-  if(options.extended)
-    console.log(`----------------------------------------`);
-
-  // markdown-it
+  // markdown
   try
   {
-    const MarkdownIt = require('markdown-it');
-    const md = new MarkdownIt
-    ({
-      html: true,
-      linkify: true,
-      typographer: false,
-    });
-    const render = md.render.bind(md);
-
-    bench('markdown-it', accumulatedMarkdown, render, times);
-    if(options.extended)
-      console.log(`----------------------------------------`);
+    bench('markdown', accumulatedMarkdown, require('markdown').parse, times);
   }
   catch(e)
   {
-    console.log(`Could not bench 'markdown-it'. (Error: ${e.message})`);
+    console.log(`Could not bench 'markdown'. (Error: ${e.message})`);
   }
 }
 

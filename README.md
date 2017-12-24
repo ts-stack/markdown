@@ -265,6 +265,8 @@ features][gfmf].
 node v8.9.x
 
 ``` bash
+git clone https://github.com/KostyaTretyak/marked-ts.git
+cd marked-ts
 npm install
 npm run compile
 npm run bench
