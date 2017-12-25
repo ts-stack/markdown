@@ -58,7 +58,7 @@ export class Parser
     return this.token = this.tokens.pop();
   }
 
-  private peek()
+  private getLastElement()
   {
     return this.tokens[this.tokens.length - 1];
   }
@@ -66,10 +66,12 @@ export class Parser
   private parseText()
   {
     let body = this.token.text;
+    let lastElement: ParamsToken;
 
-    while (this.peek().type == TokenType.text)
+    while (lastElement = this.getLastElement())
     {
-      body += '\n' + this.next().text;
+      if(lastElement && lastElement.type == TokenType.text)
+        body += '\n' + this.next().text;
     }
 
     return this.inlineLexer.output(body);
