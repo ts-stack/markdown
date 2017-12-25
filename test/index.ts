@@ -346,7 +346,7 @@ function runBench(options: runTestsOptions)
     bench('marked-ts (pedantic)', accumulatedMarkdown, Marked.parse.bind(Marked), times);
   }
 
-  const marked = require('../lib');
+  const marked = require('marked');
 
   // Non-GFM, Non-pedantic
   marked.setOptions
@@ -511,6 +511,7 @@ function parseArg(): runTestsOptions
     {
       value = argv[i + 1].split('-')[0];
 
+      // Skip next parameter.
       if(value) i++;
     }
 
