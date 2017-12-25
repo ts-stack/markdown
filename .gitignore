@@ -5,4 +5,3 @@ dist-test
 npm-debug.log
 *.tgz
 .vscode
-test/origin.js
