@@ -56,7 +56,15 @@ export class Marked
 
   protected static callBlockLexer(src: string, options?: MarkedOptions): LexerReturns
   {
-    return BlockLexer.lex(src, options);
+    // Preprocessing.
+    src = src
+    .replace(/\r\n|\r/g, '\n')
+    .replace(/\t/g, '    ')
+    .replace(/\u00a0/g, ' ')
+    .replace(/\u2424/g, '\n')
+    .replace(/^ +$/gm, '');
+
+    return BlockLexer.lex(src, options, true);
   }
 
   protected static callParser(tokens: ParamsToken[], links: Links, options?: MarkedOptions)

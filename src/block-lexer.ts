@@ -38,6 +38,8 @@ export class BlockLexer
   private options: MarkedOptions;
   private links: Links;
   private tokens: ParamsToken[];
+  private nextPart: string;
+  private isMatch: boolean;
 
   constructor(options?: MarkedOptions)
   {
@@ -62,7 +64,7 @@ export class BlockLexer
     }
   }
 
-  protected static getBlock(): BlockGrammar
+  static getBlock(): BlockGrammar
   {
     if(this.block)
       return this.block;
@@ -167,41 +169,55 @@ export class BlockLexer
    * @param src String of markdown source to be compiled.
    * @param options Hash of options.
    */
-  static lex(src: string, options?: MarkedOptions): LexerReturns
+  static lex(src: string, options?: MarkedOptions, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
     const lexer = new this(options);
-    return lexer.lex(src);
-  }
-
-  /**
-   * Preprocessing.
-   */
-  private lex(src: string): LexerReturns
-  {
-    src = src
-      .replace(/\r\n|\r/g, '\n')
-      .replace(/\t/g, '    ')
-      .replace(/\u00a0/g, ' ')
-      .replace(/\u2424/g, '\n');
-
-    return this.getTokens(src, true);
+    return lexer.getTokens(src, top, isBlockQuote);
   }
 
   /**
    * Lexing.
    */
-  protected getTokens(src: string, top: boolean, isBlockQuote?: boolean): LexerReturns
+  protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
-    // Removes all rows where there are only whitespaces.
-    let nextPart: string = src.replace(/^ +$/gm, '');
+    this.nextPart = src;
     let execArr: RegExpExecArray;
+    const checks =
+    [
+      // code
+      this.checkCode.bind(this),
+      // fences code (gfm)
+      this.checkFencesCode.bind(this),
+      // heading
+      this.checkHeading.bind(this),
+      // table no leading pipe (gfm)
+      this.checkTable.bind(this),
+      // lheading
+      this.checkLheading.bind(this),
+      // hr
+      this.checkHr.bind(this),
+      // blockquote
+      this.checkBlockquote.bind(this),
+      // list
+      this.checkList.bind(this),
+      // html
+      this.checkHtml.bind(this),
+      // def
+      this.checkDef.bind(this),
+      // table (gfm)
+      this.checkTableGfm.bind(this),
+      // top-level paragraph
+      this.checkParagraph.bind(this),
+      // text
+      this.checkText.bind(this)
+    ];
 
-    while(nextPart)
+    while(this.nextPart)
     {
       // newline
-      if( execArr = this.rules.newline.exec(nextPart) )
+      if( execArr = this.rules.newline.exec(this.nextPart) )
       {
-        nextPart = nextPart.substring(execArr[0].length);
+        this.nextPart = this.nextPart.substring(execArr[0].length);
 
         if(execArr[0].length > 1)
         {
@@ -209,249 +225,102 @@ export class BlockLexer
         }
       }
 
-      // code
-      if( execArr = this.rules.code.exec(nextPart) )
+      for(let i = 0; i < checks.length; i++)
       {
-        nextPart = nextPart.substring(execArr[0].length);
-        const code = execArr[0].replace(/^ {4}/gm, '');
+        checks[i](top, isBlockQuote);
 
-        this.tokens.push({
-          type: TokenType.code,
-          text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
-        });
-
-        continue;
-      }
-
-      // fences code (gfm)
-      if( this.isBlockGfm(this.rules) && (execArr = this.rules.fences.exec(nextPart)) )
-      {
-        nextPart = nextPart.substring(execArr[0].length);
-
-        this.tokens.push({
-          type: TokenType.code,
-          lang: execArr[2],
-          text: execArr[3] || ''
-        });
-
-        continue;
-      }
-
-      // heading
-      if( execArr = this.rules.heading.exec(nextPart) )
-      {
-        nextPart = nextPart.substring(execArr[0].length);
-
-        this.tokens.push({
-          type: TokenType.heading,
-          depth: execArr[1].length,
-          text: execArr[2]
-        });
-
-        continue;
-      }
-
-      // table no leading pipe (gfm)
-      if
-      (
-        top
-        && this.isBlockTables(this.rules)
-        && (execArr = this.rules.nptable.exec(nextPart))
-      )
-      {
-        nextPart = this.pushTable(nextPart, execArr);
-        continue;
-      }
-
-      // lheading
-      if(execArr = this.rules.lheading.exec(nextPart))
-      {
-        nextPart = nextPart.substring(execArr[0].length);
-
-        this.tokens.push({
-          type: TokenType.heading,
-          depth: execArr[2] === '=' ? 1 : 2,
-          text: execArr[1]
-        });
-
-        continue;
-      }
-
-      // hr
-      if(execArr = this.rules.hr.exec(nextPart))
-      {
-        nextPart = nextPart.substring(execArr[0].length);
-        this.tokens.push({type: TokenType.hr});
-
-        continue;
-      }
-
-      // blockquote
-      if(execArr = this.rules.blockquote.exec(nextPart))
-      {
-        nextPart = nextPart.substring(execArr[0].length);
-
-        this.tokens.push({type: TokenType.blockquoteStart});
-
-        const str = execArr[0].replace(/^ *> ?/gm, '');
-
-        // Pass `top` to keep the current
-        // "toplevel" state. This is exactly
-        // how markdown.pl works.
-        this.getTokens(str, top, true);
-
-        this.tokens.push({type: TokenType.blockquoteEnd});
-
-        continue;
-      }
-
-      // list
-      if(execArr = this.rules.list.exec(nextPart))
-      {
-        nextPart = this.pushList(nextPart, execArr, isBlockQuote);
-        continue;
-      }
-
-      // html
-      if(execArr = this.rules.html.exec(nextPart))
-      {
-        nextPart = nextPart.substring(execArr[0].length);
-        const attr = execArr[1];
-        const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
-
-        this.tokens.push
-        ({
-          type: this.options.sanitize ? TokenType.paragraph : TokenType.html,
-          pre: !this.options.sanitizer && isPre,
-          text: execArr[0]
-        });
-
-        continue;
-      }
-
-      // def
-      if( (!isBlockQuote && top) && (execArr = this.rules.def.exec(nextPart)) )
-      {
-        nextPart = nextPart.substring(execArr[0].length);
-
-        this.links[execArr[1].toLowerCase()] =
+        if(this.isMatch)
         {
-          href: execArr[2],
-          title: execArr[3]
-        };
-
-        continue;
-      }
-
-      // table (gfm)
-      if( top && this.isBlockTables(this.rules) && (execArr = this.rules.table.exec(nextPart)) )
-      {
-        nextPart = this.pushTableGfm(nextPart, execArr);
-        continue;
-      }
-
-      // top-level paragraph
-      if( top && (execArr = this.rules.paragraph.exec(nextPart)) )
-      {
-        nextPart = nextPart.substring(execArr[0].length);
-
-        if(execArr[1].charAt(execArr[1].length - 1) === '\n')
-        {
-          this.tokens.push({
-            type: TokenType.paragraph,
-            text: execArr[1].slice(0, -1),
-          });
+          break;
         }
-        else
-        {
-          this.tokens.push({
-            type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.html,
-            text: execArr[1],
-          });
-        }
-
-        continue;
       }
 
-      // text
-      if(execArr = this.rules.text.exec(nextPart))
+      if(this.isMatch)
       {
-        // Top-level should never reach here.
-        nextPart = nextPart.substring(execArr[0].length);
-        this.tokens.push({type: TokenType.text, text: execArr[0]});
-
-        continue;
+        this.isMatch = false;
       }
-
-      if(nextPart)
+      else if(this.nextPart)
       {
-        throw new Error('Infinite loop on byte: ' + nextPart.charCodeAt(0));
+        throw new Error('Infinite loop on byte: ' + this.nextPart.charCodeAt(0) + `, near text '${this.nextPart.slice(0, 30)}...'`);
       }
     }
 
     return {tokens: this.tokens, links: this.links};
   }
 
-  protected isBlockGfm(block: BlockGrammar | BlockGfm | BlockTables): block is BlockGfm
+  protected checkCode(): void
   {
-    return (<BlockGfm>block).fences !== undefined;
+    const execArr = this.rules.code.exec(this.nextPart);
+
+    if(!execArr)
+      return;
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+    const code = execArr[0].replace(/^ {4}/gm, '');
+
+    this.tokens.push({
+      type: TokenType.code,
+      text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
+    });
+    this.isMatch = true;
   }
 
-  protected isBlockTables(block: BlockGrammar | BlockGfm | BlockTables): block is BlockTables
+  protected checkFencesCode(): void
   {
-    return (<BlockTables>block).table !== undefined;
+    let execArr: RegExpExecArray;
+
+    if
+    (
+      !this.isBlockGfm(this.rules)
+      || !(execArr = this.rules.fences.exec(this.nextPart))
+    )
+    {
+      return;
+    }
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+
+    this.tokens.push({
+      type: TokenType.code,
+      lang: execArr[2],
+      text: execArr[3] || ''
+    });
+    this.isMatch = true;
   }
 
-  protected pushTableGfm(nextPart: string, execArr: RegExpExecArray): string
+  protected checkHeading(): void
   {
-    nextPart = nextPart.substring(execArr[0].length);
+    const execArr = this.rules.heading.exec(this.nextPart);
 
-    let item: ParamsToken =
-    {
-      type: TokenType.table,
-      header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-      align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
-      cells: []
-    };
+    if(!execArr)
+      return;
 
-    for(let i = 0; i < item.align.length; i++)
-    {
-      if( /^ *-+: *$/.test(item.align[i]) )
-      {
-        item.align[i] = 'right';
-      }
-      else if( /^ *:-+: *$/.test(item.align[i]) )
-      {
-        item.align[i] = 'center';
-      }
-      else if( /^ *:-+ *$/.test(item.align[i]) )
-      {
-        item.align[i] = 'left';
-      }
-      else
-      {
-        item.align[i] = null;
-      }
-    }
+    this.nextPart = this.nextPart.substring(execArr[0].length);
 
-    const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
-
-    for(let i = 0; i < td.length; i++)
-    {
-      item.cells[i] = td[i]
-        .replace(/^ *\| *| *\| *$/g, '')
-        .split(/ *\| */);
-    }
-
-    this.tokens.push(item);
-
-    return nextPart;
+    this.tokens.push({
+      type: TokenType.heading,
+      depth: execArr[1].length,
+      text: execArr[2]
+    });
+    this.isMatch = true;
   }
 
   // table no leading pipe (gfm).
-  protected pushTable(nextPart: string, execArr: RegExpExecArray): string
+  protected checkTable(top: boolean): void
   {
-    nextPart = nextPart.substring(execArr[0].length);
+    let execArr: RegExpExecArray;
+
+    if
+    (
+      !top
+      || !this.isBlockTables(this.rules)
+      || !(execArr = this.rules.nptable.exec(this.nextPart))
+    )
+    {
+      return;
+    }
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
 
     const item: ParamsToken =
     {
@@ -489,16 +358,73 @@ export class BlockLexer
     }
 
     this.tokens.push(item);
+    this.isMatch = true;
+  }
 
-    return nextPart;
+  protected checkLheading(): void
+  {
+    const execArr = this.rules.lheading.exec(this.nextPart);
+
+    if(!execArr)
+      return;
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+
+    this.tokens.push({
+      type: TokenType.heading,
+      depth: execArr[2] === '=' ? 1 : 2,
+      text: execArr[1]
+    });
+    this.isMatch = true;
+  }
+
+  protected checkHr(): void
+  {
+    const execArr = this.rules.hr.exec(this.nextPart);
+
+    if(!execArr)
+      return;
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+    this.tokens.push({type: TokenType.hr});
+    this.isMatch = true;
+  }
+
+  protected checkBlockquote(top: boolean): void
+  {
+    const execArr = this.rules.blockquote.exec(this.nextPart);
+
+    if(!execArr)
+      return;
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+
+    this.tokens.push({type: TokenType.blockquoteStart});
+
+    const str = execArr[0].replace(/^ *> ?/gm, '');
+
+    // Pass `top` to keep the current
+    // "toplevel" state. This is exactly
+    // how markdown.pl works.
+    const {tokens, links} = BlockLexer.lex(str, this.options, top, true);
+    this.tokens.push(...tokens);
+    this.links = {...this.links, ...links};
+
+    this.tokens.push({type: TokenType.blockquoteEnd});
+    this.isMatch = true;
   }
 
   /**
    * @todo Improve performance.
    */
-  protected pushList(nextPart: string, execArr: RegExpExecArray, isBlockQuote: boolean): string
+  protected checkList(top: boolean, isBlockQuote: boolean): void
   {
-    nextPart = nextPart.substring(execArr[0].length);
+    const execArr = this.rules.list.exec(this.nextPart);
+
+    if(!execArr)
+      return;
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
     const bull: string = execArr[2];
 
     this.tokens.push({type: TokenType.listStart, ordered: bull.length > 1});
@@ -539,7 +465,7 @@ export class BlockLexer
 
         if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
         {
-          nextPart = str.slice(i + 1).join('\n') + nextPart;
+          this.nextPart = str.slice(i + 1).join('\n') + this.nextPart;
           i = length - 1;
         }
       }
@@ -560,12 +486,165 @@ export class BlockLexer
       this.tokens.push({type: loose ? TokenType.looseItemStart : TokenType.listItemStart});
 
       // Recurse.
-      this.getTokens(item, false, isBlockQuote);
+      const {tokens, links} = BlockLexer.lex(item, this.options, false, isBlockQuote);
+      // console.log(`**** local tokens`, tokens);
+      // console.log(`**** global tokens`, this.tokens);
+      this.tokens.push(...tokens);
+      this.links = {...this.links, ...links};
       this.tokens.push({type: TokenType.listItemEnd});
     }
 
     this.tokens.push({type: TokenType.listEnd});
+    this.isMatch = true;
+  }
 
-    return nextPart;
+  protected checkHtml(): void
+  {
+    const execArr = this.rules.html.exec(this.nextPart);
+
+    if(!execArr)
+      return;
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+    const attr = execArr[1];
+    const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
+
+    this.tokens.push
+    ({
+      type: this.options.sanitize ? TokenType.paragraph : TokenType.html,
+      pre: !this.options.sanitizer && isPre,
+      text: execArr[0]
+    });
+    this.isMatch = true;
+  }
+
+  protected checkDef(top: boolean, isBlockQuote: boolean): void
+  {
+    if(isBlockQuote || !top)
+    {
+      return;
+    }
+
+    const execArr = this.rules.def.exec(this.nextPart);
+
+    if(!execArr)
+      return;
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+
+    this.links[execArr[1].toLowerCase()] =
+    {
+      href: execArr[2],
+      title: execArr[3]
+    };
+    this.isMatch = true;
+  }
+
+  protected checkTableGfm(top: boolean): void
+  {
+    let execArr: RegExpExecArray;
+
+    if
+    (
+      !top
+      || !this.isBlockTables(this.rules)
+      || !(execArr = this.rules.table.exec(this.nextPart))
+    )
+    {
+      return;
+    }
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+
+    const item: ParamsToken =
+    {
+      type: TokenType.table,
+      header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+      align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
+      cells: []
+    };
+
+    for(let i = 0; i < item.align.length; i++)
+    {
+      if( /^ *-+: *$/.test(item.align[i]) )
+      {
+        item.align[i] = 'right';
+      }
+      else if( /^ *:-+: *$/.test(item.align[i]) )
+      {
+        item.align[i] = 'center';
+      }
+      else if( /^ *:-+ *$/.test(item.align[i]) )
+      {
+        item.align[i] = 'left';
+      }
+      else
+      {
+        item.align[i] = null;
+      }
+    }
+
+    const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
+
+    for(let i = 0; i < td.length; i++)
+    {
+      item.cells[i] = td[i]
+        .replace(/^ *\| *| *\| *$/g, '')
+        .split(/ *\| */);
+    }
+
+    this.tokens.push(item);
+    this.isMatch = true;
+  }
+
+  protected checkParagraph(top: boolean): void
+  {
+    let execArr: RegExpExecArray;
+
+    if( !top || !(execArr = this.rules.paragraph.exec(this.nextPart)) )
+    {
+      return;
+    }
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+
+    if(execArr[1].charAt(execArr[1].length - 1) === '\n')
+    {
+      this.tokens.push({
+        type: TokenType.paragraph,
+        text: execArr[1].slice(0, -1),
+      });
+    }
+    else
+    {
+      this.tokens.push({
+        type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.html,
+        text: execArr[1],
+      });
+    }
+
+    this.isMatch = true;
+  }
+
+  protected checkText(): void
+  {
+    // Top-level should never reach here.
+    const execArr = this.rules.text.exec(this.nextPart);
+    if(!execArr)
+      return;
+
+    this.nextPart = this.nextPart.substring(execArr[0].length);
+    this.tokens.push({type: TokenType.text, text: execArr[0]});
+    this.isMatch = true;
+  }
+
+  protected isBlockGfm(block: BlockGrammar | BlockGfm | BlockTables): block is BlockGfm
+  {
+    return (<BlockGfm>block).fences !== undefined;
+  }
+
+  protected isBlockTables(block: BlockGrammar | BlockGfm | BlockTables): block is BlockTables
+  {
+    return (<BlockTables>block).table !== undefined;
   }
 }

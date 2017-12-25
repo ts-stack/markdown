@@ -68,10 +68,9 @@ export class Parser
     let body = this.token.text;
     let lastElement: ParamsToken;
 
-    while (lastElement = this.getLastElement())
+    while ((lastElement = this.getLastElement()) && lastElement.type == TokenType.text)
     {
-      if(lastElement && lastElement.type == TokenType.text)
-        body += '\n' + this.next().text;
+      body += '\n' + this.next().text;
     }
 
     return this.inlineLexer.output(body);
