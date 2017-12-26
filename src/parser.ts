@@ -9,7 +9,7 @@
  */
 
 import { Marked } from './marked';
-import { MarkedOptions, ParamsToken, Align, Links, TokenType } from './interfaces';
+import { MarkedOptions, Token, Align, Links, TokenType } from './interfaces';
 import { Renderer } from './renderer';
 import { InlineLexer } from './inline-lexer';
 
@@ -18,8 +18,8 @@ import { InlineLexer } from './inline-lexer';
  */
 export class Parser
 {
-  private tokens: ParamsToken[];
-  private token: ParamsToken;
+  private tokens: Token[];
+  private token: Token;
   private inlineLexer: InlineLexer;
   private options: MarkedOptions;
   private renderer: Renderer;
@@ -32,13 +32,13 @@ export class Parser
     this.renderer = this.options.renderer || new Renderer(this.options);
   }
 
-  static parse(tokens: ParamsToken[], links: Links, options?: MarkedOptions): string
+  static parse(tokens: Token[], links: Links, options?: MarkedOptions): string
   {
     const parser = new this(options);
     return parser.parse(links, tokens);
   }
 
-  private parse(links: Links, tokens: ParamsToken[])
+  private parse(links: Links, tokens: Token[])
   {
     this.inlineLexer = new InlineLexer(links, this.options, this.renderer);
     this.tokens = tokens.reverse();
@@ -66,7 +66,7 @@ export class Parser
   private parseText()
   {
     let body = this.token.text;
-    let lastElement: ParamsToken;
+    let lastElement: Token;
 
     while ((lastElement = this.getLastElement()) && lastElement.type == TokenType.text)
     {

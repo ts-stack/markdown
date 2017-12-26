@@ -13,7 +13,7 @@ import { BlockLexer } from './block-lexer';
 import {
   ParseCallback,
   MarkedOptions,
-  ParamsToken,
+  Token,
   Links,
   TokenType,
   LexerReturns
@@ -67,7 +67,7 @@ export class Marked
     return BlockLexer.lex(src, options, true);
   }
 
-  protected static callParser(tokens: ParamsToken[], links: Links, options?: MarkedOptions)
+  protected static callParser(tokens: Token[], links: Links, options?: MarkedOptions)
   {
     return Parser.parse(tokens, links, options);
   }

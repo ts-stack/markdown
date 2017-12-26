@@ -14,32 +14,33 @@ import { Noop } from './helpers';
 import {
   BlockGrammar,
   MarkedOptions,
-  ParamsToken,
+  Token,
   Links,
   Align,
   LexerReturns,
   TokenType,
   BlockGfm,
-  BlockTables
+  BlockTables,
+  RuleFunction
 } from './interfaces';
 
 export class BlockLexer
 {
-  private static block: BlockGrammar;
+  protected static block: BlockGrammar;
   /**
    * GFM Block Grammar.
    */
-  private static blockGfm: BlockGfm;
+  protected static blockGfm: BlockGfm;
   /**
    * GFM + Tables Block Grammar.
    */
-  private static blockTables: BlockTables;
-  private rules: BlockGrammar | BlockGfm | BlockTables;
-  private options: MarkedOptions;
-  private links: Links;
-  private tokens: ParamsToken[];
-  private nextPart: string;
-  private isMatch: boolean;
+  protected static blockTables: BlockTables;
+  protected rules: BlockGrammar | BlockGfm | BlockTables;
+  protected options: MarkedOptions;
+  protected links: Links;
+  protected tokens: Token[];
+  protected nextPart: string;
+  protected isMatch: boolean;
 
   constructor(options?: MarkedOptions)
   {
@@ -64,7 +65,7 @@ export class BlockLexer
     }
   }
 
-  static getBlock(): BlockGrammar
+  protected static getBlock(): BlockGrammar
   {
     if(this.block)
       return this.block;
@@ -175,45 +176,48 @@ export class BlockLexer
     return lexer.getTokens(src, top, isBlockQuote);
   }
 
+  protected ruleFunctions: RuleFunction[] =
+  [
+    // code
+    this.checkCode.bind(this),
+    // fences code (gfm)
+    this.checkFencesCode.bind(this),
+    // heading
+    this.checkHeading.bind(this),
+    // table no leading pipe (gfm)
+    this.checkTable.bind(this),
+    // lheading
+    this.checkLheading.bind(this),
+    // hr
+    this.checkHr.bind(this),
+    // blockquote
+    this.checkBlockquote.bind(this),
+    // list
+    this.checkList.bind(this),
+    // html
+    this.checkHtml.bind(this),
+    // def
+    this.checkDef.bind(this),
+    // table (gfm)
+    this.checkTableGfm.bind(this),
+    // top-level paragraph
+    this.checkParagraph.bind(this),
+    // text
+    this.checkText.bind(this)
+  ];
+
   /**
    * Lexing.
    */
   protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
     this.nextPart = src;
-    let execArr: RegExpExecArray;
-    const checks =
-    [
-      // code
-      this.checkCode.bind(this),
-      // fences code (gfm)
-      this.checkFencesCode.bind(this),
-      // heading
-      this.checkHeading.bind(this),
-      // table no leading pipe (gfm)
-      this.checkTable.bind(this),
-      // lheading
-      this.checkLheading.bind(this),
-      // hr
-      this.checkHr.bind(this),
-      // blockquote
-      this.checkBlockquote.bind(this),
-      // list
-      this.checkList.bind(this),
-      // html
-      this.checkHtml.bind(this),
-      // def
-      this.checkDef.bind(this),
-      // table (gfm)
-      this.checkTableGfm.bind(this),
-      // top-level paragraph
-      this.checkParagraph.bind(this),
-      // text
-      this.checkText.bind(this)
-    ];
 
+    nextPart:
     while(this.nextPart)
     {
+      let execArr: RegExpExecArray;
+
       // newline
       if( execArr = this.rules.newline.exec(this.nextPart) )
       {
@@ -225,21 +229,18 @@ export class BlockLexer
         }
       }
 
-      for(let i = 0; i < checks.length; i++)
+      for(let i = 0; i < this.ruleFunctions.length; i++)
       {
-        checks[i](top, isBlockQuote);
+        this.ruleFunctions[i](top, isBlockQuote);
 
         if(this.isMatch)
         {
-          break;
+          this.isMatch = false;
+          continue nextPart;
         }
       }
 
-      if(this.isMatch)
-      {
-        this.isMatch = false;
-      }
-      else if(this.nextPart)
+      if(this.nextPart)
       {
         throw new Error('Infinite loop on byte: ' + this.nextPart.charCodeAt(0) + `, near text '${this.nextPart.slice(0, 30)}...'`);
       }
@@ -255,6 +256,7 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
     const code = execArr[0].replace(/^ {4}/gm, '');
 
@@ -262,7 +264,6 @@ export class BlockLexer
       type: TokenType.code,
       text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
     });
-    this.isMatch = true;
   }
 
   protected checkFencesCode(): void
@@ -278,6 +279,7 @@ export class BlockLexer
       return;
     }
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
 
     this.tokens.push({
@@ -285,7 +287,6 @@ export class BlockLexer
       lang: execArr[2],
       text: execArr[3] || ''
     });
-    this.isMatch = true;
   }
 
   protected checkHeading(): void
@@ -295,14 +296,13 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
-
     this.tokens.push({
       type: TokenType.heading,
       depth: execArr[1].length,
       text: execArr[2]
     });
-    this.isMatch = true;
   }
 
   // table no leading pipe (gfm).
@@ -320,9 +320,10 @@ export class BlockLexer
       return;
     }
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
 
-    const item: ParamsToken =
+    const item: Token =
     {
       type: TokenType.table,
       header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
@@ -358,7 +359,6 @@ export class BlockLexer
     }
 
     this.tokens.push(item);
-    this.isMatch = true;
   }
 
   protected checkLheading(): void
@@ -368,6 +368,7 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
 
     this.tokens.push({
@@ -375,7 +376,6 @@ export class BlockLexer
       depth: execArr[2] === '=' ? 1 : 2,
       text: execArr[1]
     });
-    this.isMatch = true;
   }
 
   protected checkHr(): void
@@ -385,9 +385,9 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
     this.tokens.push({type: TokenType.hr});
-    this.isMatch = true;
   }
 
   protected checkBlockquote(top: boolean): void
@@ -397,10 +397,9 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
-
     this.tokens.push({type: TokenType.blockquoteStart});
-
     const str = execArr[0].replace(/^ *> ?/gm, '');
 
     // Pass `top` to keep the current
@@ -411,7 +410,6 @@ export class BlockLexer
     this.links = {...this.links, ...links};
 
     this.tokens.push({type: TokenType.blockquoteEnd});
-    this.isMatch = true;
   }
 
   /**
@@ -424,6 +422,7 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
     const bull: string = execArr[2];
 
@@ -495,7 +494,6 @@ export class BlockLexer
     }
 
     this.tokens.push({type: TokenType.listEnd});
-    this.isMatch = true;
   }
 
   protected checkHtml(): void
@@ -505,6 +503,7 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
     const attr = execArr[1];
     const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
@@ -515,7 +514,6 @@ export class BlockLexer
       pre: !this.options.sanitizer && isPre,
       text: execArr[0]
     });
-    this.isMatch = true;
   }
 
   protected checkDef(top: boolean, isBlockQuote: boolean): void
@@ -530,6 +528,7 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
 
     this.links[execArr[1].toLowerCase()] =
@@ -537,7 +536,6 @@ export class BlockLexer
       href: execArr[2],
       title: execArr[3]
     };
-    this.isMatch = true;
   }
 
   protected checkTableGfm(top: boolean): void
@@ -554,9 +552,10 @@ export class BlockLexer
       return;
     }
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
 
-    const item: ParamsToken =
+    const item: Token =
     {
       type: TokenType.table,
       header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
@@ -594,7 +593,6 @@ export class BlockLexer
     }
 
     this.tokens.push(item);
-    this.isMatch = true;
   }
 
   protected checkParagraph(top: boolean): void
@@ -606,6 +604,7 @@ export class BlockLexer
       return;
     }
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
 
     if(execArr[1].charAt(execArr[1].length - 1) === '\n')
@@ -623,7 +622,6 @@ export class BlockLexer
       });
     }
 
-    this.isMatch = true;
   }
 
   protected checkText(): void
@@ -633,9 +631,9 @@ export class BlockLexer
     if(!execArr)
       return;
 
+    this.isMatch = true;
     this.nextPart = this.nextPart.substring(execArr[0].length);
     this.tokens.push({type: TokenType.text, text: execArr[0]});
-    this.isMatch = true;
   }
 
   protected isBlockGfm(block: BlockGrammar | BlockGfm | BlockTables): block is BlockGfm

@@ -3,7 +3,7 @@
     "target": "es2015",
     "module": "commonjs",
     "outDir": "../dist-test",
-    "sourceMap": true,
+    "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,

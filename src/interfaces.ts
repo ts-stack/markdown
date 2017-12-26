@@ -75,7 +75,7 @@ export enum TokenType
 
 export type Align = 'center' | 'left' | 'right';
 
-export interface ParamsToken
+export interface Token
 {
   type?: TokenType;
   text?: string;
@@ -177,7 +177,7 @@ export class MarkedOptions
 
 export interface LexerReturns
 {
-  tokens: ParamsToken[],
+  tokens: Token[],
   links: Links
 }
 
@@ -185,3 +185,5 @@ export interface Replacements
 {
   [key: string]: string;
 }
+
+export type RuleFunction = (top?: boolean, isBlockQuote?: boolean) => void;
