@@ -146,10 +146,6 @@ function runBench(options: runTestsOptions)
     {
       loadFrom = '../';
     }
-    else if(lib.name == 'marked')
-    {
-      loadFrom = '../lib';
-    }
 
     try
     {
