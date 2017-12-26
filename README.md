@@ -11,10 +11,8 @@ For now - work in progress (there is only alpha.4 version).
 
 ## Install
 
-If you want to use `marked-ts` without TypeScript functionality, you can install it with `--no-optional` switch:
-
 ``` bash
-npm install marked-ts --no-optional --save
+npm install marked-ts --save
 ```
 
 ## Usage
@@ -138,15 +136,6 @@ import { highlightAuto } from 'highlight.js';
 
 let md = '```js\n console.log("hello"); \n```';
 
-// Using async version of `Marked.parse()`
-Marked.parse(md, (err, output) =>
-{
-  if(err)
-    throw err;
-
-  console.log(output);
-});
-
 // Synchronous highlighting with highlight.js
 Marked.setOptions({ highlight: code => highlightAuto(code).value });
 
@@ -223,7 +212,7 @@ table(header: string, body: string): string;
 
 tablerow(content: string): string;
 
-tablecell(content: string, flags: {header?: boolean, align?: Align}): string;
+tablecell(content: string, flags: {header?: boolean, align?: 'center' | 'left' | 'right'}): string;
 
 //*** Inline level renderer methods. ***
 
@@ -242,6 +231,7 @@ link(href: string, title: string, text: string): string;
 image(href: string, title: string, text: string): string;
 
 text(text: string): string;
+
 ```
 
 ## Philosophy behind marked
@@ -275,26 +265,26 @@ npm run bench
 By default, these benchmarks run the entire markdown test suite once. The test suite includes every markdown feature,
 it doesn't cater to specific aspects.
 
-Test files are accumulated in one file. If you specify, for example, `--length 100`
-the first file will be taken, checked whether it is longer than 100 kilobytes,
-and if no - it will be attached to the next one and checked its length, and so on.
+| Lib                   | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
+| ----------------------|--------------|--------------|----------------|-----------|------------------
+| marked-ts alpha.4     | 7            | 6            | 126            | 139       | 7 443
+| marked v0.3.9         | 3            | 2            | 92             | 97        | 7 542
+| remarkable v1.7.1     | 34           | 6            | 190            | 230       | 13 122
+| markdown-it v8.4.0    | 29           | 9            | 223            | 261       | 17 427
+| markdown v0.5.0       | 4            | 3            | 290            | 297       | 21 760
+| showdown v1.8.6       | 10           | 15           | 342            | 367       | 34 036
 
-|            engine            | completed in ms
-| ---------------------------- | ---------
-| marked-ts alpha.4            | 93
-| marked v0.3.9                | 104
-| remarkable v1.7.1            | 208
-| markdown-it v8.4.0           | 347
-| showdown v1.8.6              | 352
-| markdown v0.5.0              | 288
 
 ### Options for benchmarks
 
 ```text
 -l, --length       Approximate string length in kilobytes. Default ~ 300 KB.
 -t, --times        Number of runs this bench. Default - 1 times.
--e, --ext          Extended bench for `marked-ts` and `marked`. Default - false.
 ```
+
+Test files are accumulated in one file. If you specify, for example, `--length 100`
+the first file will be taken, checked whether it is longer than 100 kilobytes,
+and if no - it will be attached to the next one and checked its length, and so on.
 
 ### Example of usage bench options
 
