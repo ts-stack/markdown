@@ -13,7 +13,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-interface runTestsOptions
+interface RunBenchOptions
 {
   first?: boolean,
   stop?: boolean,
@@ -112,7 +112,7 @@ function bench
  * Benchmark all engines
  */
 
-function runBench(options: runTestsOptions)
+function runBench(options: RunBenchOptions)
 {
   interface Libs
   {
@@ -172,10 +172,10 @@ function runBench(options: runTestsOptions)
  * Argument Parsing
  */
 
-function parseArg(): runTestsOptions
+function parseArg(): RunBenchOptions
 {
   const argv = process.argv.slice(2);
-  const options: runTestsOptions = {};
+  const options: RunBenchOptions = {};
 
   for(let i = 0; i < argv.length; i++)
   {

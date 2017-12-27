@@ -14,7 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Marked, MarkedOptions, BlockLexer, InlineLexer, Obj } from '../';
 
-interface runTestsOptions
+interface RunTestsOptions
 {
   files?: {[key: string]: any},
   marked?: MarkedOptions,
@@ -32,9 +32,9 @@ function main()
   return runTests(opt);
 }
 
-function runTests(options?: runTestsOptions): boolean;
-function runTests(engine: Function, options?: runTestsOptions): boolean;
-function runTests(functionOrEngine?: Function | runTestsOptions, options?: runTestsOptions): boolean
+function runTests(options?: RunTestsOptions): boolean;
+function runTests(engine: Function, options?: RunTestsOptions): boolean;
+function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTestsOptions): boolean
 {
   if(typeof functionOrEngine != 'function')
   {
@@ -210,10 +210,10 @@ function load()
  * Argument Parsing
  */
 
-function parseArg(): runTestsOptions
+function parseArg(): RunTestsOptions
 {
   const argv = process.argv.slice(2);
-  const options: runTestsOptions = {};
+  const options: RunTestsOptions = {};
 
   for(let i = 0; i < argv.length; i++)
   {
