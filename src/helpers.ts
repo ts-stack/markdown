@@ -64,5 +64,3 @@ export function unescape(html: string)
     return '';
   });
 }
-
-export class Noop { static exec = function(){} };

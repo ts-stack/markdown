@@ -18,11 +18,11 @@ import { InlineLexer } from './inline-lexer';
  */
 export class Parser
 {
-  private tokens: Token[];
-  private token: Token;
-  private inlineLexer: InlineLexer;
-  private options: MarkedOptions;
-  private renderer: Renderer;
+  protected tokens: Token[];
+  protected token: Token;
+  protected inlineLexer: InlineLexer;
+  protected options: MarkedOptions;
+  protected renderer: Renderer;
 
   constructor(options?: MarkedOptions)
   {
@@ -38,7 +38,7 @@ export class Parser
     return parser.parse(links, tokens);
   }
 
-  private parse(links: Links, tokens: Token[])
+  protected parse(links: Links, tokens: Token[])
   {
     this.inlineLexer = new InlineLexer(links, this.options, this.renderer);
     this.tokens = tokens.reverse();
@@ -53,17 +53,17 @@ export class Parser
     return out;
   }
 
-  private next()
+  protected next()
   {
     return this.token = this.tokens.pop();
   }
 
-  private getLastElement()
+  protected getLastElement()
   {
     return this.tokens[this.tokens.length - 1];
   }
 
-  private parseText()
+  protected parseText()
   {
     let body = this.token.text;
     let lastElement: Token;
@@ -76,7 +76,7 @@ export class Parser
     return this.inlineLexer.output(body);
   }
 
-  private tok()
+  protected tok()
   {
     switch(this.token.type)
     {

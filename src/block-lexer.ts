@@ -10,7 +10,6 @@
 
 import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
-import { Noop } from './helpers';
 import {
   BlockGrammar,
   MarkedOptions,
@@ -21,10 +20,11 @@ import {
   TokenType,
   BlockGfm,
   BlockTables,
-  RuleFunction
+  BlockRuleFunction
 } from './interfaces';
 
-export class BlockLexer
+
+export class BlockLexer<T extends typeof BlockLexer>
 {
   protected static block: BlockGrammar;
   /**
@@ -42,7 +42,7 @@ export class BlockLexer
   protected nextPart: string;
   protected isMatch: boolean;
 
-  constructor(options?: MarkedOptions)
+  constructor(private staticThis: T, options?: MarkedOptions)
   {
     this.options = options || Marked.defaults;
     this.links = {};
@@ -52,16 +52,16 @@ export class BlockLexer
     {
       if(this.options.tables)
       {
-        this.rules = BlockLexer.getBlockTables();
+        this.rules = staticThis.getBlockTables();
       }
       else
       {
-        this.rules = BlockLexer.getBlockGfm();
+        this.rules = staticThis.getBlockGfm();
       }
     }
     else
     {
-      this.rules = BlockLexer.getBlock();
+      this.rules = staticThis.getBlock();
     }
   }
 
@@ -172,11 +172,11 @@ export class BlockLexer
    */
   static lex(src: string, options?: MarkedOptions, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
-    const lexer = new this(options);
+    const lexer = new this(this, options);
     return lexer.getTokens(src, top, isBlockQuote);
   }
 
-  protected ruleFunctions: RuleFunction[] =
+  protected ruleFunctions: BlockRuleFunction[] =
   [
     // code
     this.checkCode.bind(this),
@@ -185,7 +185,7 @@ export class BlockLexer
     // heading
     this.checkHeading.bind(this),
     // table no leading pipe (gfm)
-    this.checkTable.bind(this),
+    this.checkNptable.bind(this),
     // lheading
     this.checkLheading.bind(this),
     // hr
@@ -212,12 +212,11 @@ export class BlockLexer
   protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
     this.nextPart = src;
+    let execArr: RegExpExecArray;
 
     nextPart:
     while(this.nextPart)
     {
-      let execArr: RegExpExecArray;
-
       // newline
       if( execArr = this.rules.newline.exec(this.nextPart) )
       {
@@ -306,7 +305,7 @@ export class BlockLexer
   }
 
   // table no leading pipe (gfm).
-  protected checkTable(top: boolean): void
+  protected checkNptable(top: boolean): void
   {
     let execArr: RegExpExecArray;
 
@@ -405,7 +404,7 @@ export class BlockLexer
     // Pass `top` to keep the current
     // "toplevel" state. This is exactly
     // how markdown.pl works.
-    const {tokens, links} = BlockLexer.lex(str, this.options, top, true);
+    const {tokens, links} = this.staticThis.lex(str, this.options, top, true);
     this.tokens.push(...tokens);
     this.links = {...this.links, ...links};
 
@@ -460,7 +459,7 @@ export class BlockLexer
       // Backpedal if it does not belong in this list.
       if(this.options.smartLists && i !== length - 1)
       {
-        blockBullet = BlockLexer.getBlock().bullet.exec(str[i + 1])[0];
+        blockBullet = this.staticThis.getBlock().bullet.exec(str[i + 1])[0];
 
         if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
         {
@@ -485,7 +484,7 @@ export class BlockLexer
       this.tokens.push({type: loose ? TokenType.looseItemStart : TokenType.listItemStart});
 
       // Recurse.
-      const {tokens, links} = BlockLexer.lex(item, this.options, false, isBlockQuote);
+      const {tokens, links} = this.staticThis.lex(item, this.options, false, isBlockQuote);
       // console.log(`**** local tokens`, tokens);
       // console.log(`**** global tokens`, this.tokens);
       this.tokens.push(...tokens);
@@ -641,8 +640,8 @@ export class BlockLexer
     return (<BlockGfm>block).fences !== undefined;
   }
 
-  protected isBlockTables(block: BlockGrammar | BlockGfm | BlockTables): block is BlockTables
+  protected isBlockTables(rules: BlockGrammar | BlockGfm | BlockTables): rules is BlockTables
   {
-    return (<BlockTables>block).table !== undefined;
+    return (<BlockTables>rules).table !== undefined;
   }
 }

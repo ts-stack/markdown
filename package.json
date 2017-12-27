@@ -28,6 +28,7 @@
     "typescript": "^2.6.2"
   },
   "devDependencies": {
+    "typescript": "^2.6.2",
     "@types/highlight.js": "^9.12.2",
     "@types/markdown-it": "^0.0.4",
     "@types/node": "^8.5.2",
@@ -43,6 +44,6 @@
     "test": "node dist-test/index.js",
     "compile": "./node_modules/.bin/tsc && ./node_modules/.bin/tsc --project test",
     "bench": "node --expose-gc dist-test/benchmarks.js",
-    "watch": "concurrently './node_modules/.bin/tsc -w' './node_modules/.bin/tsc -w --project test'"
+    "watch": "npm run compile && concurrently './node_modules/.bin/tsc -w' './node_modules/.bin/tsc -w --project test'"
   }
 }

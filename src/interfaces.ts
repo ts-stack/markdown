@@ -91,37 +91,38 @@ export interface Token
 
 export interface InlineGrammar
 {
-  escape?: RegExp,
-  autolink?: RegExp,
-  url?: any,
-  tag?: RegExp,
-  link?: RegExp,
-  reflink?: RegExp,
-  nolink?: RegExp,
-  strong?: RegExp,
-  em?: RegExp,
-  code?: RegExp,
-  br?: RegExp,
-  del?: any,
-  text?: RegExp,
-  _inside?: RegExp,
-  _href?: RegExp,
-  /**
-   * Normal Inline Grammar
-   */
-  normal?: this,
-  /**
-   * GFM Inline Grammar
-   */
-  gfm?: this,
-  /**
-   * Pedantic Inline Grammar.
-   */
-  pedantic?: this,
-  /**
-   * GFM + Line Breaks Inline Grammar.
-   */
-  breaks?: this,
+  escape: RegExp,
+  autolink: RegExp,
+  tag: RegExp,
+  link: RegExp,
+  reflink: RegExp,
+  nolink: RegExp,
+  strong: RegExp,
+  em: RegExp,
+  code: RegExp,
+  br: RegExp,
+  text: RegExp,
+  _inside: RegExp,
+  _href: RegExp
+}
+
+export interface InlinePedantic extends InlineGrammar
+{
+  
+}
+
+/**
+ * GFM Inline Grammar
+ */
+export interface InlineGfm extends InlineGrammar
+{
+  url: RegExp,
+  del: RegExp,
+}
+
+export interface InlineBreaks extends InlineGfm
+{
+  
 }
 
 export type ParseCallback<T=string> = (err: Error, output?: string) => T;
@@ -186,4 +187,5 @@ export interface Replacements
   [key: string]: string;
 }
 
-export type RuleFunction = (top?: boolean, isBlockQuote?: boolean) => void;
+export type BlockRuleFunction = (top?: boolean, isBlockQuote?: boolean) => void;
+export type InlineRuleFunction = (top?: boolean, isBlockQuote?: boolean) => void;

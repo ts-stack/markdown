@@ -23,7 +23,7 @@ interface RunBenchOptions
   length?: number
 }
 
-const widthTable = 100;
+const widthTable = 90;
 
 /**
  * Execute
@@ -62,7 +62,7 @@ function initBench(benchStrLen: number = 300, times: number = 1): string
   console.log(`Benchmark run ${times} times for one file ${lenAcumulatedFile} KB with accumulated Markdown tests:`);
   console.log('='.repeat(widthTable));
 
-  const marginFromName = ' '.repeat(17);
+  const marginFromName = ' '.repeat(7);
   console.log(`Lib ${marginFromName} | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB`);
 
   console.log('='.repeat(widthTable));
@@ -95,7 +95,7 @@ function bench
   const heapUsed = Math.round(process.memoryUsage().heapUsed / 1024);
   const benchTime = Date.now() - startBench;
   const total =  loadTime + initTime + benchTime;
-  const marginFromName = ' '.repeat(21 - name.length);
+  const marginFromName = ' '.repeat(11 - name.length);
   const marginFromLoad = ' '.repeat(12 - loadTime.toString().length);
   const marginFromInit = ' '.repeat(12 - initTime.toString().length);
   const marginFromBench = ' '.repeat(14 - benchTime.toString().length);
@@ -114,7 +114,7 @@ function bench
 
 function runBench(options: RunBenchOptions)
 {
-  interface Libs
+  interface Lib
   {
     name: string,
     parserName: string,
@@ -122,14 +122,14 @@ function runBench(options: RunBenchOptions)
     className?: string
   }
 
-  let libs: Libs[] =
+  let libs: Lib[] =
   [
     {name: 'marked-ts', className: 'Marked', parserName: 'parse', static: true},
     {name: 'marked', parserName: 'parse', static: true},
     {name: 'remarkable', parserName: 'render', static: false},
     {name: 'markdown-it', parserName: 'render', static: false},
-    {name: 'markdown', parserName: 'parse', static: true},
     {name: 'showdown', className: 'Converter', parserName: 'makeHtml', static: false},
+    {name: 'markdown', parserName: 'parse', static: true},
   ];
 
   options = options || {};
@@ -145,6 +145,10 @@ function runBench(options: RunBenchOptions)
     if(lib.name == 'marked-ts')
     {
       loadFrom = '../';
+    }
+    else if(lib.name == 'marked')
+    {
+      loadFrom = '../lib';
     }
 
     try

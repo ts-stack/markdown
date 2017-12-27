@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Marked, MarkedOptions, BlockLexer, InlineLexer, Obj } from '../';
+import { Marked, MarkedOptions } from '../';
 
 interface RunTestsOptions
 {
