@@ -39,29 +39,31 @@ export class BlockLexer<T extends typeof BlockLexer>
   protected options: MarkedOptions;
   protected links: Links;
   protected tokens: Token[];
-  protected nextPart: string;
-  protected isMatch: boolean;
 
   constructor(private staticThis: T, options?: MarkedOptions)
   {
     this.options = options || Marked.defaults;
     this.links = {};
     this.tokens = [];
+    this.setRules();
+  }
 
+  protected setRules()
+  {
     if(this.options.gfm)
     {
       if(this.options.tables)
       {
-        this.rules = staticThis.getBlockTables();
+        this.rules = this.staticThis.getBlockTables();
       }
       else
       {
-        this.rules = staticThis.getBlockGfm();
+        this.rules = this.staticThis.getBlockGfm();
       }
     }
     else
     {
-      this.rules = staticThis.getBlock();
+      this.rules = this.staticThis.getBlock();
     }
   }
 
@@ -176,51 +178,20 @@ export class BlockLexer<T extends typeof BlockLexer>
     return lexer.getTokens(src, top, isBlockQuote);
   }
 
-  protected ruleFunctions: BlockRuleFunction[] =
-  [
-    // code
-    this.checkCode.bind(this),
-    // fences code (gfm)
-    this.checkFencesCode.bind(this),
-    // heading
-    this.checkHeading.bind(this),
-    // table no leading pipe (gfm)
-    this.checkNptable.bind(this),
-    // lheading
-    this.checkLheading.bind(this),
-    // hr
-    this.checkHr.bind(this),
-    // blockquote
-    this.checkBlockquote.bind(this),
-    // list
-    this.checkList.bind(this),
-    // html
-    this.checkHtml.bind(this),
-    // def
-    this.checkDef.bind(this),
-    // table (gfm)
-    this.checkTableGfm.bind(this),
-    // top-level paragraph
-    this.checkParagraph.bind(this),
-    // text
-    this.checkText.bind(this)
-  ];
-
   /**
    * Lexing.
    */
   protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
-    this.nextPart = src;
+    let nextPart = src;
     let execArr: RegExpExecArray;
 
-    nextPart:
-    while(this.nextPart)
+    while(nextPart)
     {
       // newline
-      if( execArr = this.rules.newline.exec(this.nextPart) )
+      if( execArr = this.rules.newline.exec(nextPart) )
       {
-        this.nextPart = this.nextPart.substring(execArr[0].length);
+        nextPart = nextPart.substring(execArr[0].length);
 
         if(execArr[0].length > 1)
         {
@@ -228,411 +199,324 @@ export class BlockLexer<T extends typeof BlockLexer>
         }
       }
 
-      for(let i = 0; i < this.ruleFunctions.length; i++)
+      // code
+      if(execArr = this.rules.code.exec(nextPart))
       {
-        this.ruleFunctions[i](top, isBlockQuote);
+        nextPart = nextPart.substring(execArr[0].length);
+        const code = execArr[0].replace(/^ {4}/gm, '');
 
-        if(this.isMatch)
-        {
-          this.isMatch = false;
-          continue nextPart;
-        }
+        this.tokens.push({
+          type: TokenType.code,
+          text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
+        });
+        continue;
       }
 
-      if(this.nextPart)
+      // fences code (gfm)
+      if
+      (
+        this.isBlockGfm(this.rules)
+        && (execArr = this.rules.fences.exec(nextPart))
+      )
       {
-        throw new Error('Infinite loop on byte: ' + this.nextPart.charCodeAt(0) + `, near text '${this.nextPart.slice(0, 30)}...'`);
+        nextPart = nextPart.substring(execArr[0].length);
+
+        this.tokens.push({
+          type: TokenType.code,
+          lang: execArr[2],
+          text: execArr[3] || ''
+        });
+        continue;
+      }
+
+      // heading
+      if(execArr = this.rules.heading.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({
+          type: TokenType.heading,
+          depth: execArr[1].length,
+          text: execArr[2]
+        });
+        continue;
+      }
+
+      // table no leading pipe (gfm)
+      if
+      (
+        top
+        && this.isBlockTables(this.rules)
+        && (execArr = this.rules.nptable.exec(nextPart))
+      )
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+
+        const item: Token =
+        {
+          type: TokenType.table,
+          header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
+          cells: []
+        };
+
+        for(let i = 0; i < item.align.length; i++)
+        {
+          if(/^ *-+: *$/.test(item.align[i]))
+          {
+            item.align[i] = 'right';
+          }
+          else if (/^ *:-+: *$/.test(item.align[i]))
+          {
+            item.align[i] = 'center';
+          }
+          else if (/^ *:-+ *$/.test(item.align[i]))
+          {
+            item.align[i] = 'left';
+          }
+          else
+          {
+            item.align[i] = null;
+          }
+        }
+
+        let td: string[] = execArr[3].replace(/\n$/, '').split('\n');
+
+        for(let i = 0; i < td.length; i++)
+        {
+          item.cells[i] = td[i].split(/ *\| */);
+        }
+
+        this.tokens.push(item);
+        continue;
+      }
+
+      // lheading
+      if(execArr = this.rules.lheading.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+
+        this.tokens.push({
+          type: TokenType.heading,
+          depth: execArr[2] === '=' ? 1 : 2,
+          text: execArr[1]
+        });
+        continue;
+      }
+
+      // hr
+      if(execArr = this.rules.hr.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({type: TokenType.hr});
+        continue;
+      }
+
+      // blockquote
+      if(execArr = this.rules.blockquote.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({type: TokenType.blockquoteStart});
+        const str = execArr[0].replace(/^ *> ?/gm, '');
+
+        // Pass `top` to keep the current
+        // "toplevel" state. This is exactly
+        // how markdown.pl works.
+        this.getTokens(str);
+        this.tokens.push({type: TokenType.blockquoteEnd});
+        continue;
+      }
+
+      // list
+      if(execArr = this.rules.list.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        const bull: string = execArr[2];
+
+        this.tokens.push({type: TokenType.listStart, ordered: bull.length > 1});
+
+        // Get each top-level item.
+        const str = execArr[0].match(this.rules.item);
+        const length = str.length;
+
+        let
+        next: boolean = false,
+        space: number,
+        blockBullet: string,
+        loose: boolean
+        ;
+
+        for(let i = 0; i < length; i++)
+        {
+          let item = str[i];
+
+          // Remove the list item's bullet so it is seen as the next token.
+          space = item.length;
+          item = item.replace(/^ *([*+-]|\d+\.) +/, '');
+
+          // Outdent whatever the list item contains. Hacky.
+          if(item.includes('\n '))
+          {
+            space -= item.length;
+            item = !this.options.pedantic
+              ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
+              : item.replace(/^ {1,4}/gm, '');
+          }
+
+          // Determine whether the next list item belongs here.
+          // Backpedal if it does not belong in this list.
+          if(this.options.smartLists && i !== length - 1)
+          {
+            blockBullet = this.staticThis.getBlock().bullet.exec(str[i + 1])[0];
+
+            if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
+            {
+              nextPart = str.slice(i + 1).join('\n') + nextPart;
+              i = length - 1;
+            }
+          }
+
+          // Determine whether item is loose or not.
+          // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
+          // for discount behavior.
+          loose = next || /\n\n(?!\s*$)/.test(item);
+
+          if(i !== length - 1)
+          {
+            next = item.charAt(item.length - 1) === '\n';
+
+            if(!loose)
+              loose = next;
+          }
+
+          this.tokens.push({type: loose ? TokenType.looseItemStart : TokenType.listItemStart});
+
+          // Recurse.
+          this.getTokens(item, false, isBlockQuote);
+          this.tokens.push({type: TokenType.listItemEnd});
+        }
+
+        this.tokens.push({type: TokenType.listEnd});
+        continue;
+      }
+
+      // html
+      if(execArr = this.rules.html.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        const attr = execArr[1];
+        const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
+
+        this.tokens.push
+        ({
+          type: this.options.sanitize ? TokenType.paragraph : TokenType.html,
+          pre: !this.options.sanitizer && isPre,
+          text: execArr[0]
+        });
+        continue;
+      }
+
+      // def
+      if(!isBlockQuote && top && (execArr = this.rules.def.exec(nextPart)))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+
+        this.links[execArr[1].toLowerCase()] =
+        {
+          href: execArr[2],
+          title: execArr[3]
+        };
+        continue;
+      }
+
+      // table (gfm)
+      if
+      (
+        top
+        && this.isBlockTables(this.rules)
+        && (execArr = this.rules.table.exec(nextPart))
+      )
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+
+        const item: Token =
+        {
+          type: TokenType.table,
+          header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
+          cells: []
+        };
+
+        for(let i = 0; i < item.align.length; i++)
+        {
+          if( /^ *-+: *$/.test(item.align[i]) )
+          {
+            item.align[i] = 'right';
+          }
+          else if( /^ *:-+: *$/.test(item.align[i]) )
+          {
+            item.align[i] = 'center';
+          }
+          else if( /^ *:-+ *$/.test(item.align[i]) )
+          {
+            item.align[i] = 'left';
+          }
+          else
+          {
+            item.align[i] = null;
+          }
+        }
+
+        const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
+
+        for(let i = 0; i < td.length; i++)
+        {
+          item.cells[i] = td[i]
+            .replace(/^ *\| *| *\| *$/g, '')
+            .split(/ *\| */);
+        }
+
+        this.tokens.push(item);
+        continue;
+      }
+
+      // top-level paragraph
+      if( top && (execArr = this.rules.paragraph.exec(nextPart)) )
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+
+        if(execArr[1].charAt(execArr[1].length - 1) === '\n')
+        {
+          this.tokens.push({
+            type: TokenType.paragraph,
+            text: execArr[1].slice(0, -1),
+          });
+        }
+        else
+        {
+          this.tokens.push({
+            type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.html,
+            text: execArr[1],
+          });
+        }
+        continue;
+      }
+
+      // text
+      // Top-level should never reach here.
+      if(execArr = this.rules.text.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({type: TokenType.text, text: execArr[0]});
+        continue;
+      }
+
+      if(nextPart)
+      {
+        throw new Error('Infinite loop on byte: ' + nextPart.charCodeAt(0) + `, near text '${nextPart.slice(0, 30)}...'`);
       }
     }
 
     return {tokens: this.tokens, links: this.links};
-  }
-
-  protected checkCode(): void
-  {
-    const execArr = this.rules.code.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    const code = execArr[0].replace(/^ {4}/gm, '');
-
-    this.tokens.push({
-      type: TokenType.code,
-      text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
-    });
-  }
-
-  protected checkFencesCode(): void
-  {
-    let execArr: RegExpExecArray;
-
-    if
-    (
-      !this.isBlockGfm(this.rules)
-      || !(execArr = this.rules.fences.exec(this.nextPart))
-    )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
-    this.tokens.push({
-      type: TokenType.code,
-      lang: execArr[2],
-      text: execArr[3] || ''
-    });
-  }
-
-  protected checkHeading(): void
-  {
-    const execArr = this.rules.heading.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.tokens.push({
-      type: TokenType.heading,
-      depth: execArr[1].length,
-      text: execArr[2]
-    });
-  }
-
-  // table no leading pipe (gfm).
-  protected checkNptable(top: boolean): void
-  {
-    let execArr: RegExpExecArray;
-
-    if
-    (
-      !top
-      || !this.isBlockTables(this.rules)
-      || !(execArr = this.rules.nptable.exec(this.nextPart))
-    )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
-    const item: Token =
-    {
-      type: TokenType.table,
-      header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-      align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
-      cells: []
-    };
-
-    for(let i = 0; i < item.align.length; i++)
-    {
-      if(/^ *-+: *$/.test(item.align[i]))
-      {
-        item.align[i] = 'right';
-      }
-      else if (/^ *:-+: *$/.test(item.align[i]))
-      {
-        item.align[i] = 'center';
-      }
-      else if (/^ *:-+ *$/.test(item.align[i]))
-      {
-        item.align[i] = 'left';
-      }
-      else
-      {
-        item.align[i] = null;
-      }
-    }
-
-    let td: string[] = execArr[3].replace(/\n$/, '').split('\n');
-
-    for(let i = 0; i < td.length; i++)
-    {
-      item.cells[i] = td[i].split(/ *\| */);
-    }
-
-    this.tokens.push(item);
-  }
-
-  protected checkLheading(): void
-  {
-    const execArr = this.rules.lheading.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
-    this.tokens.push({
-      type: TokenType.heading,
-      depth: execArr[2] === '=' ? 1 : 2,
-      text: execArr[1]
-    });
-  }
-
-  protected checkHr(): void
-  {
-    const execArr = this.rules.hr.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.tokens.push({type: TokenType.hr});
-  }
-
-  protected checkBlockquote(top: boolean): void
-  {
-    const execArr = this.rules.blockquote.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.tokens.push({type: TokenType.blockquoteStart});
-    const str = execArr[0].replace(/^ *> ?/gm, '');
-
-    // Pass `top` to keep the current
-    // "toplevel" state. This is exactly
-    // how markdown.pl works.
-    const {tokens, links} = this.staticThis.lex(str, this.options, top, true);
-    this.tokens.push(...tokens);
-    this.links = {...this.links, ...links};
-
-    this.tokens.push({type: TokenType.blockquoteEnd});
-  }
-
-  /**
-   * @todo Improve performance.
-   */
-  protected checkList(top: boolean, isBlockQuote: boolean): void
-  {
-    const execArr = this.rules.list.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    const bull: string = execArr[2];
-
-    this.tokens.push({type: TokenType.listStart, ordered: bull.length > 1});
-
-    // Get each top-level item.
-    const str = execArr[0].match(this.rules.item);
-    const length = str.length;
-
-    let
-    next: boolean = false,
-    space: number,
-    blockBullet: string,
-    loose: boolean
-    ;
-
-    for(let i = 0; i < length; i++)
-    {
-      let item = str[i];
-
-      // Remove the list item's bullet so it is seen as the next token.
-      space = item.length;
-      item = item.replace(/^ *([*+-]|\d+\.) +/, '');
-
-      // Outdent whatever the list item contains. Hacky.
-      if(item.includes('\n '))
-      {
-        space -= item.length;
-        item = !this.options.pedantic
-          ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
-          : item.replace(/^ {1,4}/gm, '');
-      }
-
-      // Determine whether the next list item belongs here.
-      // Backpedal if it does not belong in this list.
-      if(this.options.smartLists && i !== length - 1)
-      {
-        blockBullet = this.staticThis.getBlock().bullet.exec(str[i + 1])[0];
-
-        if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
-        {
-          this.nextPart = str.slice(i + 1).join('\n') + this.nextPart;
-          i = length - 1;
-        }
-      }
-
-      // Determine whether item is loose or not.
-      // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-      // for discount behavior.
-      loose = next || /\n\n(?!\s*$)/.test(item);
-
-      if(i !== length - 1)
-      {
-        next = item.charAt(item.length - 1) === '\n';
-
-        if(!loose)
-          loose = next;
-      }
-
-      this.tokens.push({type: loose ? TokenType.looseItemStart : TokenType.listItemStart});
-
-      // Recurse.
-      const {tokens, links} = this.staticThis.lex(item, this.options, false, isBlockQuote);
-      // console.log(`**** local tokens`, tokens);
-      // console.log(`**** global tokens`, this.tokens);
-      this.tokens.push(...tokens);
-      this.links = {...this.links, ...links};
-      this.tokens.push({type: TokenType.listItemEnd});
-    }
-
-    this.tokens.push({type: TokenType.listEnd});
-  }
-
-  protected checkHtml(): void
-  {
-    const execArr = this.rules.html.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    const attr = execArr[1];
-    const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
-
-    this.tokens.push
-    ({
-      type: this.options.sanitize ? TokenType.paragraph : TokenType.html,
-      pre: !this.options.sanitizer && isPre,
-      text: execArr[0]
-    });
-  }
-
-  protected checkDef(top: boolean, isBlockQuote: boolean): void
-  {
-    if(isBlockQuote || !top)
-    {
-      return;
-    }
-
-    const execArr = this.rules.def.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
-    this.links[execArr[1].toLowerCase()] =
-    {
-      href: execArr[2],
-      title: execArr[3]
-    };
-  }
-
-  protected checkTableGfm(top: boolean): void
-  {
-    let execArr: RegExpExecArray;
-
-    if
-    (
-      !top
-      || !this.isBlockTables(this.rules)
-      || !(execArr = this.rules.table.exec(this.nextPart))
-    )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
-    const item: Token =
-    {
-      type: TokenType.table,
-      header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-      align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
-      cells: []
-    };
-
-    for(let i = 0; i < item.align.length; i++)
-    {
-      if( /^ *-+: *$/.test(item.align[i]) )
-      {
-        item.align[i] = 'right';
-      }
-      else if( /^ *:-+: *$/.test(item.align[i]) )
-      {
-        item.align[i] = 'center';
-      }
-      else if( /^ *:-+ *$/.test(item.align[i]) )
-      {
-        item.align[i] = 'left';
-      }
-      else
-      {
-        item.align[i] = null;
-      }
-    }
-
-    const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
-
-    for(let i = 0; i < td.length; i++)
-    {
-      item.cells[i] = td[i]
-        .replace(/^ *\| *| *\| *$/g, '')
-        .split(/ *\| */);
-    }
-
-    this.tokens.push(item);
-  }
-
-  protected checkParagraph(top: boolean): void
-  {
-    let execArr: RegExpExecArray;
-
-    if( !top || !(execArr = this.rules.paragraph.exec(this.nextPart)) )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
-    if(execArr[1].charAt(execArr[1].length - 1) === '\n')
-    {
-      this.tokens.push({
-        type: TokenType.paragraph,
-        text: execArr[1].slice(0, -1),
-      });
-    }
-    else
-    {
-      this.tokens.push({
-        type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.html,
-        text: execArr[1],
-      });
-    }
-
-  }
-
-  protected checkText(): void
-  {
-    // Top-level should never reach here.
-    const execArr = this.rules.text.exec(this.nextPart);
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.tokens.push({type: TokenType.text, text: execArr[0]});
   }
 
   protected isBlockGfm(block: BlockGrammar | BlockGfm | BlockTables): block is BlockGfm

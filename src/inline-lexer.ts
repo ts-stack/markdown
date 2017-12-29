@@ -28,7 +28,7 @@ import {
  * 
  * @todo Remove from constructor reference to current class.
  */
-export class InlineLexer
+export class InlineLexer<T extends typeof InlineLexer>
 {
   protected static inline: InlineGrammar;
   /**
@@ -43,16 +43,13 @@ export class InlineLexer
    * GFM + Line Breaks Inline Grammar.
    */
   protected static inlineBreaks: InlineBreaks;
-  protected out = '';
-  protected nextPart = '';
-  protected isMatch: boolean;
   protected links: Links;
   protected rules: InlineGrammar;
   protected options: MarkedOptions;
   protected renderer: Renderer;
   protected inLink: boolean;
 
-  constructor(links: Links, options?: MarkedOptions, renderer?: Renderer)
+  constructor(private staticThis: T, links: Links, options?: MarkedOptions, renderer?: Renderer)
   {
     this.options = options || Marked.defaults;
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
@@ -61,24 +58,29 @@ export class InlineLexer
     if(!this.links)
       throw new Error(`InlineLexer requires 'links' parameter.`);
 
+    this.setRules();
+  }
+
+  protected setRules()
+  {
     if(this.options.gfm)
     {
       if(this.options.breaks)
       {
-        this.rules = InlineLexer.getInlineBreaks();
+        this.rules = this.staticThis.getInlineBreaks();
       }
       else
       {
-        this.rules = InlineLexer.getInlineGfm();
+        this.rules = this.staticThis.getInlineGfm();
       }
     }
     else if(this.options.pedantic)
     {
-      this.rules = InlineLexer.getInlinePedantic()
+      this.rules = this.staticThis.getInlinePedantic()
     }
     else
     {
-      this.rules = InlineLexer.getInline()
+      this.rules = this.staticThis.getInline()
     }
   }
 
@@ -185,283 +187,189 @@ export class InlineLexer
    */
   static output(src: string, links: Links, options: MarkedOptions): string
   {
-    const inlineLexer = new this(links, options);
+    const inlineLexer = new this(this, links, options);
     return inlineLexer.output(src);
   }
-
-  protected ruleFunctions: InlineRuleFunction[] =
-  [
-    // escape
-    this.checkEscape.bind(this),
-    // autolink
-    this.checkAutolink.bind(this),
-    // url (gfm)
-    this.checkUrl.bind(this),
-    // tag
-    this.checkTag.bind(this),
-    // link
-    this.checkLink.bind(this),
-    // reflink, nolink
-    this.checkReflink.bind(this),
-    // strong
-    this.checkStrong.bind(this),
-    // em
-    this.checkEm.bind(this),
-    // code
-    this.checkCode.bind(this),
-    // br
-    this.checkBr.bind(this),
-    // del (gfm)
-    this.checkDel.bind(this),
-    // text
-    this.checkText.bind(this),
-  ];
 
   /**
    * Lexing/Compiling.
    */
   output(nextPart: string): string
   {
-    this.nextPart = nextPart;
+    nextPart = nextPart;
+    let execArr: RegExpExecArray;
+    let out = '';
 
-    nextPart:
-    while(this.nextPart)
+    while(nextPart)
     {
-      for(let i = 0; i < this.ruleFunctions.length; i++)
+      // escape
+      if(execArr = this.rules.escape.exec(nextPart))
       {
-        this.ruleFunctions[i]();
-
-        if(this.isMatch)
-        {
-          this.isMatch = false;
-          continue nextPart;
-        }
+        nextPart = nextPart.substring(execArr[0].length);
+        out += execArr[1];
+        continue;
       }
 
-      if(this.nextPart)
-        throw new Error('Infinite loop on byte: ' + this.nextPart.charCodeAt(0));
-    }
+      // autolink
+      if(execArr = this.rules.autolink.exec(nextPart))
+      {
+        let text: string, href: string;
+        nextPart = nextPart.substring(execArr[0].length);
 
-    const out = this.out;
-    this.out = '';
-    return out;
-  }
+        if(execArr[2] === '@')
+        {
+          text = this.options.escape
+          (
+            execArr[1].charAt(6) === ':'
+            ? this.mangle(execArr[1].substring(7))
+            : this.mangle(execArr[1])
+          );
+          href = this.mangle('mailto:') + text;
+        }
+        else
+        {
+          text = this.options.escape(execArr[1]);
+          href = text;
+        }
 
-  protected checkEscape(): void
-  {
-    const execArr = this.rules.escape.exec(this.nextPart);
+        out += this.renderer.link(href, null, text);
+        continue;
+      }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += execArr[1];
-  }
-
-  protected checkAutolink(): void
-  {
-    const execArr = this.rules.autolink.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    let text: string, href: string;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
-    if(execArr[2] === '@')
-    {
-      text = this.options.escape
+      // url (gfm)
+      if
       (
-        execArr[1].charAt(6) === ':'
-        ? this.mangle(execArr[1].substring(7))
-        : this.mangle(execArr[1])
-      );
-      href = this.mangle('mailto:') + text;
-    }
-    else
-    {
-      text = this.options.escape(execArr[1]);
-      href = text;
-    }
+        !this.inLink
+        && this.isInlineGfm(this.rules)
+        && (execArr = this.rules.url.exec(nextPart))
+      )
+      {
+        let text: string, href: string;
+        nextPart = nextPart.substring(execArr[0].length);
+        text = this.options.escape(execArr[1]);
+        href = text;
+        out += this.renderer.link(href, null, text);
+        continue;
+      }
 
-    this.out += this.renderer.link(href, null, text);
-  }
+      // tag
+      if(execArr = this.rules.tag.exec(nextPart))
+      {
+        if(!this.inLink && /^<a /i.test(execArr[0]))
+        {
+          this.inLink = true;
+        }
+        else if(this.inLink && /^<\/a>/i.test(execArr[0]))
+        {
+          this.inLink = false;
+        }
 
-  protected checkUrl(): void
-  {
-    let execArr: RegExpExecArray;
+        nextPart = nextPart.substring(execArr[0].length);
 
-    if
-    (
-      this.inLink
-      || !this.isInlineGfm(this.rules)
-      || !(execArr = this.rules.url.exec(this.nextPart))
-    )
-    {
-      return;
-    }
+        out += this.options.sanitize
+          ? this.options.sanitizer
+            ? this.options.sanitizer(execArr[0])
+            : this.options.escape(execArr[0])
+          : execArr[0];
+        continue;
+      }
 
-    this.isMatch = true;
-    let text: string, href: string;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    text = this.options.escape(execArr[1]);
-    href = text;
-    this.out += this.renderer.link(href, null, text);
-  }
+      // link
+      if(execArr = this.rules.link.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        this.inLink = true;
 
-  protected checkTag(): void
-  {
-    const execArr = this.rules.tag.exec(this.nextPart);
+        out += this.outputLink(execArr, {
+          href: execArr[2],
+          title: execArr[3]
+        });
 
-    if(!execArr)
-      return;
+        this.inLink = false;
+        continue;
+      }
 
-    this.isMatch = true;
+      // reflink, nolink
+      if
+      (
+        (execArr = this.rules.reflink.exec(nextPart))
+        || (execArr = this.rules.nolink.exec(nextPart))
+      )
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        const keyLink = (execArr[2] || execArr[1]).replace(/\s+/g, ' ');
+        const link = this.links[keyLink.toLowerCase()];
 
-    if(!this.inLink && /^<a /i.test(execArr[0]))
-    {
-      this.inLink = true;
-    }
-    else if(this.inLink && /^<\/a>/i.test(execArr[0]))
-    {
-      this.inLink = false;
-    }
+        if(!link || !link.href)
+        {
+          out += execArr[0].charAt(0);
+          nextPart = execArr[0].substring(1) + nextPart;
+          continue;
+        }
 
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+        this.inLink = true;
+        out += this.outputLink(execArr, link);
+        this.inLink = false;
+        continue;
+      }
 
-    this.out += this.options.sanitize
-      ? this.options.sanitizer
-        ? this.options.sanitizer(execArr[0])
-        : this.options.escape(execArr[0])
-      : execArr[0];
-  }
+      // strong
+      if(execArr = this.rules.strong.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.strong(this.output(execArr[2] || execArr[1]));
+        continue;
+      }
 
-  protected checkLink(): void
-  {
-    const execArr = this.rules.link.exec(this.nextPart);
+      // em
+      if(execArr = this.rules.em.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.em(this.output(execArr[2] || execArr[1]));
+        continue;
+      }
 
-    if(!execArr)
-      return;
+      // code
+      if(execArr = this.rules.code.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.codespan(this.options.escape(execArr[2].trim(), true));
+        continue;
+      }
 
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.inLink = true;
+      // br
+      if(execArr = this.rules.br.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.br();
+        continue;
+      }
 
-    this.out += this.outputLink(execArr, {
-      href: execArr[2],
-      title: execArr[3]
-    });
+      // del (gfm)
+      if
+      (
+        this.isInlineGfm(this.rules)
+        && (execArr = this.rules.del.exec(nextPart))
+      )
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.del(this.output(execArr[1]));
+        continue;
+      }
 
-    this.inLink = false;
-  }
+      // text
+      if(execArr = this.rules.text.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        out += this.renderer.text( this.options.escape(this.smartypants(execArr[0])) );
+        continue;
+      }
 
-  protected checkReflink(): void
-  {
-    let execArr: RegExpExecArray;
-    if
-    (
-      !(execArr = this.rules.reflink.exec(this.nextPart))
-      && !(execArr = this.rules.nolink.exec(this.nextPart))
-    )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    const keyLink = (execArr[2] || execArr[1]).replace(/\s+/g, ' ');
-    const link = this.links[keyLink.toLowerCase()];
-
-    if(!link || !link.href)
-    {
-      this.out += execArr[0].charAt(0);
-      this.nextPart = execArr[0].substring(1) + this.nextPart;
-      return;
-    }
-
-    this.inLink = true;
-    this.out += this.outputLink(execArr, link);
-    this.inLink = false;
-  }
-
-  protected checkStrong(): void
-  {
-    const execArr = this.rules.strong.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.strong(InlineLexer.output(execArr[2] || execArr[1], this.links, this.options));
-  }
-
-  protected checkEm(): void
-  {
-    const execArr = this.rules.em.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.em(InlineLexer.output(execArr[2] || execArr[1], this.links, this.options));
-  }
-
-  protected checkCode(): void
-  {
-    const execArr = this.rules.code.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.codespan(this.options.escape(execArr[2].trim(), true));
-  }
-
-  protected checkBr(): void
-  {
-    const execArr = this.rules.br.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.br();
-  }
-
-  protected checkDel(): void
-  {
-    let execArr: RegExpExecArray;
-
-    if
-    (
-      !this.isInlineGfm(this.rules)
-      || !(execArr = this.rules.del.exec(this.nextPart)))
-    {
-      return;
+      if(nextPart)
+        throw new Error('Infinite loop on byte: ' + nextPart.charCodeAt(0));
     }
 
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.del(InlineLexer.output(execArr[1], this.links, this.options));
-  }
-
-  protected checkText(): void
-  {
-    const execArr = this.rules.text.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.text( this.options.escape(this.smartypants(execArr[0])) );
+    return out;
   }
 
   /**
@@ -473,7 +381,7 @@ export class InlineLexer
       ,title = link.title ? this.options.escape(link.title) : null;
 
     return execArr[0].charAt(0) !== '!'
-      ? this.renderer.link(href, title, InlineLexer.output(execArr[1], this.links, this.options))
+      ? this.renderer.link(href, title, this.output(execArr[1]))
       : this.renderer.image(href, title, this.options.escape(execArr[1]));
   }
 

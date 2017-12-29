@@ -20,7 +20,7 @@ export class Parser
 {
   protected tokens: Token[];
   protected token: Token;
-  protected inlineLexer: InlineLexer;
+  protected inlineLexer: InlineLexer<any>;
   protected options: MarkedOptions;
   protected renderer: Renderer;
 
@@ -40,7 +40,7 @@ export class Parser
 
   protected parse(links: Links, tokens: Token[])
   {
-    this.inlineLexer = new InlineLexer(links, this.options, this.renderer);
+    this.inlineLexer = new InlineLexer(InlineLexer, links, this.options, this.renderer);
     this.tokens = tokens.reverse();
 
     let out = '';
@@ -58,7 +58,7 @@ export class Parser
     return this.token = this.tokens.pop();
   }
 
-  protected getLastElement()
+  protected getNextElement()
   {
     return this.tokens[this.tokens.length - 1];
   }
@@ -66,9 +66,9 @@ export class Parser
   protected parseText()
   {
     let body = this.token.text;
-    let lastElement: Token;
+    let nextElement: Token;
 
-    while ((lastElement = this.getLastElement()) && lastElement.type == TokenType.text)
+    while ((nextElement = this.getNextElement()) && nextElement.type == TokenType.text)
     {
       body += '\n' + this.next().text;
     }
