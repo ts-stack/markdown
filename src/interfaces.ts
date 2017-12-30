@@ -187,5 +187,14 @@ export interface Replacements
   [key: string]: string;
 }
 
-export type BlockRuleFunction = (top?: boolean, isBlockQuote?: boolean) => void;
-export type InlineRuleFunction = (top?: boolean, isBlockQuote?: boolean) => void;
+export interface BlockRuleCallback
+{
+  condition(top?: boolean, isBlockQuote?: boolean): RegExp,
+  action(execArr: RegExpExecArray, top?: boolean, isBlockQuote?: boolean): void
+}
+
+export interface InlineRuleFunction
+{
+  condition(): RegExp,
+  action(execArr: RegExpExecArray): void
+}

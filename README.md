@@ -58,16 +58,8 @@ console.log(Marked.parse('I am using __markdown__.'));
  * 
  * @param options Hash of options. Can also be
  * set using the `Marked.setOptions` method as seen above.
- * 
- * @param callback Function called when the `src`
- * has been fully parsed when using async call. If
- * the `options` argument is omitted, this can be used as
- * the second argument.
  */
-static parse(src: string): string;
-static parse(src: string, options: MarkedOptions): string;
-static parse(src: string, callback: ParseCallback): any;
-static parse(src: string, options: MarkedOptions, callback: ParseCallback): any;
+static parse(src: string, options?: MarkedOptions): string;
 
 
 /**
@@ -96,7 +88,7 @@ class MarkedOptions
    * @param lang The programming language specified in the code block.
    * @param callback The callback function to call when using an async highlighter.
    */
-  highlight?: (code: string, lang: string, callback?: ParseCallback) => any;
+  highlight?: (code: string, lang: string) => any;
   langPrefix?: string = 'lang-';
   smartypants?: boolean = false;
   headerPrefix?: string = '';
@@ -136,7 +128,6 @@ import { highlightAuto } from 'highlight.js';
 
 let md = '```js\n console.log("hello"); \n```';
 
-// Synchronous highlighting with highlight.js
 Marked.setOptions({ highlight: code => highlightAuto(code).value });
 
 console.log(Marked.parse(md));
@@ -267,12 +258,12 @@ it doesn't cater to specific aspects.
 
 | Lib                   | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ----------------------|--------------|--------------|----------------|-----------|------------------
-| marked-ts alpha.4     | 7            | 6            | 126            | 139       | 7 443
-| marked v0.3.9         | 3            | 2            | 92             | 97        | 7 542
-| remarkable v1.7.1     | 34           | 6            | 190            | 230       | 13 122
-| markdown-it v8.4.0    | 29           | 9            | 223            | 261       | 17 427
-| markdown v0.5.0       | 4            | 3            | 290            | 297       | 21 760
-| showdown v1.8.6       | 10           | 15           | 342            | 367       | 34 036
+| marked-ts alpha.4     | 6            | 6            | 101            | 113       | 8 641
+| marked v0.3.9         | 4            | 2            | 106            | 112       | 9 323
+| remarkable v1.7.1     | 36           | 6            | 174            | 216       | 15 356
+| markdown-it v8.4.0    | 29           | 10           | 227            | 266       | 18 890
+| showdown v1.8.6       | 10           | 14           | 353            | 377       | 36 833
+| markdown v0.5.0       | 4            | 3            | 314            | 321       | 22 664
 
 
 ### Options for benchmarks

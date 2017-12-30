@@ -65,6 +65,15 @@ export class InlineLexer<T extends typeof InlineLexer>
     this.setRules();
   }
 
+  /**
+   * Static Lexing/Compiling Method.
+   */
+  static output(src: string, links: Links, options: MarkedOptions): string
+  {
+    const inlineLexer = new this(this, links, options);
+    return inlineLexer.output(src);
+  }
+
   protected setRules()
   {
     if(this.options.gfm)
@@ -90,29 +99,70 @@ export class InlineLexer<T extends typeof InlineLexer>
     this.ruleFunctions =
     [
       // escape
-      this.checkEscape,
+      {
+        condition: this.conditionEscape,
+        action: this.actionEscape
+      },
       // autolink
-      this.checkAutolink,
+      {
+        condition: this.conditionAutolink,
+        action: this.actionAutolink
+      },
       // url (gfm)
-      this.checkUrl,
+      {
+        condition: this.conditionUrl,
+        action: this.actionUrl
+      },
       // tag
-      this.checkTag,
+      {
+        condition: this.conditionTag,
+        action: this.actionTag
+      },
       // link
-      this.checkLink,
-      // reflink, nolink
-      this.checkReflink,
+      {
+        condition: this.conditionLink,
+        action: this.actionLink
+      },
+      // reflink
+      {
+        condition: this.conditionReflink,
+        action: this.actionReflink
+      },
+      // nolink
+      {
+        condition: this.conditionNolink,
+        action: this.actionNolink
+      },
       // strong
-      this.checkStrong,
+      {
+        condition: this.conditionStrong,
+        action: this.actionStrong
+      },
       // em
-      this.checkEm,
+      {
+        condition: this.conditionEm,
+        action: this.actionEm
+      },
       // code
-      this.checkCode,
+      {
+        condition: this.conditionCode,
+        action: this.actionCode
+      },
       // br
-      this.checkBr,
+      {
+        condition: this.conditionBr,
+        action: this.actionBr
+      },
       // del (gfm)
-      this.checkDel,
+      {
+        condition: this.conditionDel,
+        action: this.actionDel
+      },
       // text
-      this.checkText,
+      {
+        condition: this.conditionText,
+        action: this.actionText
+      }
     ];
   }
 
@@ -215,15 +265,6 @@ export class InlineLexer<T extends typeof InlineLexer>
   }
 
   /**
-   * Static Lexing/Compiling Method.
-   */
-  static output(src: string, links: Links, options: MarkedOptions): string
-  {
-    const inlineLexer = new this(this, links, options);
-    return inlineLexer.output(src);
-  }
-
-  /**
    * Lexing/Compiling.
    */
   output(nextPart: string): string
@@ -236,17 +277,22 @@ export class InlineLexer<T extends typeof InlineLexer>
     {
       for(let i = 0; i < lengthFn; i++)
       {
-        this.ruleFunctions[i].call(this);
+        const callbacks = this.ruleFunctions[i];
+        const regexp: RegExp = callbacks.condition.call(this);
+        let execArr: RegExpExecArray;
 
-        if(this.isMatch)
+        if( regexp && (execArr = regexp.exec(this.nextPart)) )
         {
-          this.isMatch = false;
+          this.nextPart = this.nextPart.substring(execArr[0].length);
+          callbacks.action.call(this, execArr);
           continue nextPart;
         }
       }
 
       if(this.nextPart)
-        throw new Error('Infinite loop on byte: ' + this.nextPart.charCodeAt(0));
+      {
+        throw new Error('Infinite loop on byte: ' + this.nextPart.charCodeAt(0) + `, near text '${this.nextPart.slice(0, 30)}...'`);
+      }
     }
 
     const out = this.out;
@@ -254,28 +300,24 @@ export class InlineLexer<T extends typeof InlineLexer>
     return out;
   }
 
-  protected checkEscape(): void
+  protected conditionEscape(): RegExp
   {
-    const execArr = this.rules.escape.exec(this.nextPart);
+    return this.rules.escape;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+  protected actionEscape(execArr: RegExpExecArray): void
+  {
     this.out += execArr[1];
   }
 
-  protected checkAutolink(): void
+  protected conditionAutolink(): RegExp
   {
-    const execArr = this.rules.autolink.exec(this.nextPart);
+    return this.rules.autolink;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
+  protected actionAutolink(execArr: RegExpExecArray): void
+  {
     let text: string, href: string;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
 
     if(execArr[2] === '@')
     {
@@ -296,37 +338,29 @@ export class InlineLexer<T extends typeof InlineLexer>
     this.out += this.renderer.link(href, null, text);
   }
 
-  protected checkUrl(): void
+  protected conditionUrl(): RegExp
   {
-    let execArr: RegExpExecArray;
-
-    if
-    (
-      this.inLink
-      || !this.isInlineGfm(this.rules)
-      || !(execArr = this.rules.url.exec(this.nextPart))
-    )
+    if( !this.inLink && this.isInlineGfm(this.rules) )
     {
-      return;
+      return this.rules.url;
     }
+  }
 
-    this.isMatch = true;
+  protected actionUrl(execArr: RegExpExecArray): void
+  {
     let text: string, href: string;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
     text = this.options.escape(execArr[1]);
     href = text;
     this.out += this.renderer.link(href, null, text);
   }
 
-  protected checkTag(): void
+  protected conditionTag(): RegExp
   {
-    const execArr = this.rules.tag.exec(this.nextPart);
+    return this.rules.tag;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-
+  protected actionTag(execArr: RegExpExecArray): void
+  {
     if(!this.inLink && /^<a /i.test(execArr[0]))
     {
       this.inLink = true;
@@ -336,8 +370,6 @@ export class InlineLexer<T extends typeof InlineLexer>
       this.inLink = false;
     }
 
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
     this.out += this.options.sanitize
       ? this.options.sanitizer
         ? this.options.sanitizer(execArr[0])
@@ -345,15 +377,13 @@ export class InlineLexer<T extends typeof InlineLexer>
       : execArr[0];
   }
 
-  protected checkLink(): void
+  protected conditionLink(): RegExp
   {
-    const execArr = this.rules.link.exec(this.nextPart);
+    return this.rules.link;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+  protected actionLink(execArr: RegExpExecArray): void
+  {
     this.inLink = true;
 
     this.out += this.outputLink(execArr, {
@@ -364,21 +394,16 @@ export class InlineLexer<T extends typeof InlineLexer>
     this.inLink = false;
   }
 
-  protected checkReflink(): void
+  protected conditionReflink(): RegExp
   {
-    let execArr: RegExpExecArray;
-    if
-    (
-      !(execArr = this.rules.reflink.exec(this.nextPart))
-      && !(execArr = this.rules.nolink.exec(this.nextPart))
-    )
-    {
-      return;
-    }
+    return this.rules.reflink
+  }
 
-    this.isMatch = true;
-
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+  /**
+   * @todo Improve this (it's duplicate of actionNolink())
+   */
+  protected actionReflink(execArr: RegExpExecArray): void
+  {
     const keyLink = (execArr[2] || execArr[1]).replace(/\s+/g, ' ');
     const link = this.links[keyLink.toLowerCase()];
 
@@ -394,81 +419,95 @@ export class InlineLexer<T extends typeof InlineLexer>
     this.inLink = false;
   }
 
-  protected checkStrong(): void
+  protected conditionNolink(): RegExp
   {
-    const execArr = this.rules.strong.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.strong(this.staticThis.output(execArr[2] || execArr[1], this.links, this.options));
+    return this.rules.nolink;
   }
 
-  protected checkEm(): void
+  /**
+   * @todo Improve this (it's duplicate of actionReflink())
+   */
+  protected actionNolink(execArr: RegExpExecArray): void
   {
-    const execArr = this.rules.em.exec(this.nextPart);
+    const keyLink = (execArr[2] || execArr[1]).replace(/\s+/g, ' ');
+    const link = this.links[keyLink.toLowerCase()];
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.em(this.staticThis.output(execArr[2] || execArr[1], this.links, this.options));
-  }
-
-  protected checkCode(): void
-  {
-    const execArr = this.rules.code.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.codespan(this.options.escape(execArr[2].trim(), true));
-  }
-
-  protected checkBr(): void
-  {
-    const execArr = this.rules.br.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.br();
-  }
-
-  protected checkDel(): void
-  {
-    let execArr: RegExpExecArray;
-
-    if
-    (
-      !this.isInlineGfm(this.rules)
-      || !(execArr = this.rules.del.exec(this.nextPart)))
+    if(!link || !link.href)
     {
+      this.out += execArr[0].charAt(0);
+      this.nextPart = execArr[0].substring(1) + this.nextPart;
       return;
     }
 
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.del(this.staticThis.output(execArr[1], this.links, this.options));
+    this.inLink = true;
+    this.out += this.outputLink(execArr, link);
+    this.inLink = false;
   }
 
-  protected checkText(): void
+  protected conditionStrong(): RegExp
   {
-    const execArr = this.rules.text.exec(this.nextPart);
+    return this.rules.strong;
+  }
 
-    if(!execArr)
-      return;
+  protected actionStrong(execArr: RegExpExecArray): void
+  {
+    const output = this.staticThis.output(execArr[2] || execArr[1], this.links, this.options);
+    this.out += this.renderer.strong(output);
+  }
 
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-    this.out += this.renderer.text( this.options.escape(this.smartypants(execArr[0])) );
+  protected conditionEm(): RegExp
+  {
+    return this.rules.em;
+  }
+
+  protected actionEm(execArr: RegExpExecArray): void
+  {
+    const output = this.staticThis.output(execArr[2] || execArr[1], this.links, this.options);
+    this.out += this.renderer.em(output);
+  }
+
+  protected conditionCode(): RegExp
+  {
+    return this.rules.code;
+  }
+
+  protected actionCode(execArr: RegExpExecArray): void
+  {
+    const output = this.options.escape(execArr[2].trim(), true);
+    this.out += this.renderer.codespan(output);
+  }
+
+  protected conditionBr(): RegExp
+  {
+    return this.rules.br;
+  }
+
+  protected actionBr(): void
+  {
+    this.out += this.renderer.br();
+  }
+
+  protected conditionDel(): RegExp
+  {
+    if(this.isInlineGfm(this.rules))
+      return this.rules.del;
+  }
+
+  protected actionDel(execArr: RegExpExecArray): void
+  {
+    const output = this.staticThis.output(execArr[1], this.links, this.options);
+    this.out += this.renderer.del(output);
+  }
+
+  protected conditionText(): RegExp
+  {
+    return this.rules.text;
+  }
+
+  protected actionText(execArr: RegExpExecArray): void
+  {
+    const output = this.options.escape(this.smartypants(execArr[0]));
+    this.out += this.renderer.text(output);
   }
 
   /**

@@ -20,7 +20,7 @@ import {
   TokenType,
   RulesBlockGfm,
   RulesBlockTables,
-  BlockRuleFunction
+  BlockRuleCallback
 } from './interfaces';
 
 
@@ -41,7 +41,7 @@ export class BlockLexer<T extends typeof BlockLexer>
   protected tokens: Token[];
   protected nextPart: string;
   protected isMatch: boolean;
-  protected ruleFunctions: BlockRuleFunction[];
+  protected ruleFunctions: BlockRuleCallback[];
 
   constructor(private staticThis: T, options?: MarkedOptions)
   {
@@ -49,6 +49,18 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.links = {};
     this.tokens = [];
     this.setRules();
+  }
+
+  /**
+   * Accepts Markdown text and returns object with tokens and links.
+   * 
+   * @param src String of markdown source to be compiled.
+   * @param options Hash of options.
+   */
+  static lex(src: string, options?: MarkedOptions, top?: boolean, isBlockQuote?: boolean): LexerReturns
+  {
+    const lexer = new this(this, options);
+    return lexer.getTokens(src, top, isBlockQuote);
   }
 
   protected setRules()
@@ -72,31 +84,70 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.ruleFunctions =
     [
       // code
-      this.checkCode,
+      {
+        condition: this.conditionCode,
+        action: this.actionCode
+      },
       // fences code (gfm)
-      this.checkFencesCode,
+      {
+        condition: this.conditionFencesCode,
+        action: this.actionFencesCode
+      },
       // heading
-      this.checkHeading,
+      {
+        condition: this.conditionHeading,
+        action: this.actionHeading
+      },
       // table no leading pipe (gfm)
-      this.checkNptable,
+      {
+        condition: this.conditionNptable,
+        action: this.actionNptable
+      },
       // lheading
-      this.checkLheading,
+      {
+        condition: this.conditionLheading,
+        action: this.actionLheading
+      },
       // hr
-      this.checkHr,
+      {
+        condition: this.conditionkHr,
+        action: this.actionHr
+      },
       // blockquote
-      this.checkBlockquote,
+      {
+        condition: this.conditionBlockquote,
+        action: this.actionBlockquote
+      },
       // list
-      this.checkList,
+      {
+        condition: this.conditionList,
+        action: this.actionList
+      },
       // html
-      this.checkHtml,
+      {
+        condition: this.conditionHtml,
+        action: this.actionHtml
+      },
       // def
-      this.checkDef,
+      {
+        condition: this.conditionDef,
+        action: this.actionDef
+      },
       // table (gfm)
-      this.checkTableGfm,
+      {
+        condition: this.conditionTableGfm,
+        action: this.actionTableGfm
+      },
       // top-level paragraph
-      this.checkParagraph,
+      {
+        condition: this.conditionParagraph,
+        action: this.actionParagraph
+      },
       // text
-      this.checkText
+      {
+        condition: this.conditionText,
+        action: this.actionText
+      },
     ];
   }
 
@@ -200,18 +251,6 @@ export class BlockLexer<T extends typeof BlockLexer>
   }
 
   /**
-   * Accepts Markdown text and returns object with tokens and links.
-   * 
-   * @param src String of markdown source to be compiled.
-   * @param options Hash of options.
-   */
-  static lex(src: string, options?: MarkedOptions, top?: boolean, isBlockQuote?: boolean): LexerReturns
-  {
-    const lexer = new this(this, options);
-    return lexer.getTokens(src, top, isBlockQuote);
-  }
-
-  /**
    * Lexing.
    */
   protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
@@ -236,11 +275,14 @@ export class BlockLexer<T extends typeof BlockLexer>
 
       for(let i = 0; i < lengthFn; i++)
       {
-        this.ruleFunctions[i].call(this, top, isBlockQuote);
+        const callbacks = this.ruleFunctions[i];
+        const regexp: RegExp = callbacks.condition.call(this, top, isBlockQuote);
+        let execArr: RegExpExecArray;
 
-        if(this.isMatch)
+        if( regexp && (execArr = regexp.exec(this.nextPart)) )
         {
-          this.isMatch = false;
+          this.nextPart = this.nextPart.substring(execArr[0].length);
+          callbacks.action.call(this, execArr, top, isBlockQuote);
           continue nextPart;
         }
       }
@@ -254,15 +296,13 @@ export class BlockLexer<T extends typeof BlockLexer>
     return {tokens: this.tokens, links: this.links};
   }
 
-  protected checkCode(): void
+  protected conditionCode(): RegExp
   {
-    const execArr = this.rules.code.exec(this.nextPart);
+    return this.rules.code;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+  protected actionCode(execArr: RegExpExecArray): void
+  {
     const code = execArr[0].replace(/^ {4}/gm, '');
 
     this.tokens.push({
@@ -271,22 +311,14 @@ export class BlockLexer<T extends typeof BlockLexer>
     });
   }
 
-  protected checkFencesCode(): void
+  protected conditionFencesCode(): RegExp
   {
-    let execArr: RegExpExecArray;
+    if(this.isBlockGfm(this.rules))
+      return this.rules.fences;
+  }
 
-    if
-    (
-      !this.isBlockGfm(this.rules)
-      || !(execArr = this.rules.fences.exec(this.nextPart))
-    )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
+  protected actionFencesCode(execArr: RegExpExecArray): void
+  {
     this.tokens.push({
       type: TokenType.code,
       lang: execArr[2],
@@ -294,15 +326,13 @@ export class BlockLexer<T extends typeof BlockLexer>
     });
   }
 
-  protected checkHeading(): void
+  protected conditionHeading(): RegExp
   {
-    const execArr = this.rules.heading.exec(this.nextPart);
+    return this.rules.heading;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+  protected actionHeading(execArr: RegExpExecArray): void
+  {
     this.tokens.push({
       type: TokenType.heading,
       depth: execArr[1].length,
@@ -311,23 +341,14 @@ export class BlockLexer<T extends typeof BlockLexer>
   }
 
   // table no leading pipe (gfm).
-  protected checkNptable(top: boolean): void
+  protected conditionNptable(top: boolean): RegExp
   {
-    let execArr: RegExpExecArray;
+    if(top && this.isBlockTables(this.rules))
+      return this.rules.nptable;
+  }
 
-    if
-    (
-      !top
-      || !this.isBlockTables(this.rules)
-      || !(execArr = this.rules.nptable.exec(this.nextPart))
-    )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
+  protected actionNptable(execArr: RegExpExecArray): void
+  {
     const item: Token =
     {
       type: TokenType.table,
@@ -366,16 +387,13 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.tokens.push(item);
   }
 
-  protected checkLheading(): void
+  protected conditionLheading(): RegExp
   {
-    const execArr = this.rules.lheading.exec(this.nextPart);
+    return this.rules.lheading;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
+  protected actionLheading(execArr: RegExpExecArray): void
+  {
     this.tokens.push({
       type: TokenType.heading,
       depth: execArr[2] === '=' ? 1 : 2,
@@ -383,27 +401,23 @@ export class BlockLexer<T extends typeof BlockLexer>
     });
   }
 
-  protected checkHr(): void
+  protected conditionkHr(): RegExp
   {
-    const execArr = this.rules.hr.exec(this.nextPart);
+    return this.rules.hr;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+  protected actionHr(): void
+  {
     this.tokens.push({type: TokenType.hr});
   }
 
-  protected checkBlockquote(): void
+  protected conditionBlockquote(): RegExp
   {
-    const execArr = this.rules.blockquote.exec(this.nextPart);
+    return this.rules.blockquote;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+  protected actionBlockquote(execArr: RegExpExecArray): void
+  {
     this.tokens.push({type: TokenType.blockquoteStart});
     const str = execArr[0].replace(/^ *> ?/gm, '');
 
@@ -417,20 +431,18 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.tokens.push({type: TokenType.blockquoteEnd});
   }
 
+  protected conditionList(): RegExp
+  {
+    return this.rules.list;
+  }
+
   /**
    * @param top Used for compatibility with other methods `check...()`.
    * 
    * @todo Improve performance.
    */
-  protected checkList(top: boolean, isBlockQuote: boolean): void
+  protected actionList(execArr: RegExpExecArray, top: boolean, isBlockQuote: boolean): void
   {
-    const execArr = this.rules.list.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
     const bull: string = execArr[2];
 
     this.tokens.push({type: TokenType.listStart, ordered: bull.length > 1});
@@ -503,15 +515,13 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.tokens.push({type: TokenType.listEnd});
   }
 
-  protected checkHtml(): void
+  protected conditionHtml(): RegExp
   {
-    const execArr = this.rules.html.exec(this.nextPart);
+    return this.rules.html;
+  }
 
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
+  protected actionHtml(execArr: RegExpExecArray): void
+  {
     const attr = execArr[1];
     const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
 
@@ -523,21 +533,14 @@ export class BlockLexer<T extends typeof BlockLexer>
     });
   }
 
-  protected checkDef(top: boolean, isBlockQuote: boolean): void
+  protected conditionDef(top: boolean, isBlockQuote: boolean): RegExp
   {
-    if(isBlockQuote || !top)
-    {
-      return;
-    }
+    if(top && !isBlockQuote)
+      return this.rules.def;
+  }
 
-    const execArr = this.rules.def.exec(this.nextPart);
-
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
+  protected actionDef(execArr: RegExpExecArray): void
+  {
     this.links[execArr[1].toLowerCase()] =
     {
       href: execArr[2],
@@ -545,23 +548,14 @@ export class BlockLexer<T extends typeof BlockLexer>
     };
   }
 
-  protected checkTableGfm(top: boolean): void
+  protected conditionTableGfm(top: boolean): RegExp
   {
-    let execArr: RegExpExecArray;
+    if(top && this.isBlockTables(this.rules))
+      return this.rules.table;
+  }
 
-    if
-    (
-      !top
-      || !this.isBlockTables(this.rules)
-      || !(execArr = this.rules.table.exec(this.nextPart))
-    )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
+  protected actionTableGfm(execArr: RegExpExecArray): void
+  {
     const item: Token =
     {
       type: TokenType.table,
@@ -602,18 +596,14 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.tokens.push(item);
   }
 
-  protected checkParagraph(top: boolean): void
+  protected conditionParagraph(top: boolean): RegExp
   {
-    let execArr: RegExpExecArray;
+    if(top)
+      return this.rules.paragraph;
+  }
 
-    if( !top || !(execArr = this.rules.paragraph.exec(this.nextPart)) )
-    {
-      return;
-    }
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
-
+  protected actionParagraph(execArr: RegExpExecArray): void
+  {
     if(execArr[1].charAt(execArr[1].length - 1) === '\n')
     {
       this.tokens.push({
@@ -631,15 +621,14 @@ export class BlockLexer<T extends typeof BlockLexer>
 
   }
 
-  protected checkText(): void
+  protected conditionText(): RegExp
+  {
+    return this.rules.text;
+  }
+
+  protected actionText(execArr: RegExpExecArray): void
   {
     // Top-level should never reach here.
-    const execArr = this.rules.text.exec(this.nextPart);
-    if(!execArr)
-      return;
-
-    this.isMatch = true;
-    this.nextPart = this.nextPart.substring(execArr[0].length);
     this.tokens.push({type: TokenType.text, text: execArr[0]});
   }
 
