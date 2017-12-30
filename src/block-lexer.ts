@@ -10,67 +10,71 @@
 
 import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
-import { Noop } from './helpers';
 import {
-  BlockGrammar,
+  RulesBlockMain,
   MarkedOptions,
   Token,
   Links,
   Align,
   LexerReturns,
   TokenType,
-  BlockGfm,
-  BlockTables,
-  RuleFunction
+  RulesBlockGfm,
+  RulesBlockTables,
+  BlockRuleFunction
 } from './interfaces';
 
-export class BlockLexer
+
+export class BlockLexer<T extends typeof BlockLexer>
 {
-  protected static block: BlockGrammar;
+  protected static block: RulesBlockMain;
   /**
    * GFM Block Grammar.
    */
-  protected static blockGfm: BlockGfm;
+  protected static blockGfm: RulesBlockGfm;
   /**
    * GFM + Tables Block Grammar.
    */
-  protected static blockTables: BlockTables;
-  protected rules: BlockGrammar | BlockGfm | BlockTables;
+  protected static blockTables: RulesBlockTables;
+  protected rules: RulesBlockMain | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
   protected links: Links;
   protected tokens: Token[];
   protected nextPart: string;
   protected isMatch: boolean;
 
-  constructor(options?: MarkedOptions)
+  constructor(private staticThis: T, options?: MarkedOptions)
   {
     this.options = options || Marked.defaults;
     this.links = {};
     this.tokens = [];
+    this.setRules();
+  }
 
+  protected setRules()
+  {
     if(this.options.gfm)
     {
       if(this.options.tables)
       {
-        this.rules = BlockLexer.getBlockTables();
+        this.rules = this.staticThis.getRulesTable();
       }
       else
       {
-        this.rules = BlockLexer.getBlockGfm();
+        this.rules = this.staticThis.getRulesGfm();
       }
     }
     else
     {
-      this.rules = BlockLexer.getBlock();
+      this.rules = this.staticThis.getRulesMain();
     }
   }
 
-  protected static getBlock(): BlockGrammar
+  protected static getRulesMain(): RulesBlockMain
   {
     if(this.block)
       return this.block;
 
-    const block: BlockGrammar =
+    const block: RulesBlockMain =
     {
       newline: /^\n+/,
       code: /^( {4}[^\n]+\n*)+/,
@@ -122,14 +126,14 @@ export class BlockLexer
     return this.block = block;
   }
 
-  protected static getBlockGfm(): BlockGfm
+  protected static getRulesGfm(): RulesBlockGfm
   {
     if(this.blockGfm)
       return this.blockGfm;
 
-    const block = this.getBlock();
+    const block = this.getRulesMain();
 
-    const gfm: BlockGfm =
+    const gfm: RulesBlockGfm =
     {
       ...block,
       ...{
@@ -149,14 +153,14 @@ export class BlockLexer
     return this.blockGfm = gfm;
   }
 
-  protected static getBlockTables(): BlockTables
+  protected static getRulesTable(): RulesBlockTables
   {
     if(this.blockTables)
       return this.blockTables;
 
     return this.blockTables =
     {
-      ...this.getBlockGfm(),
+      ...this.getRulesGfm(),
       ...{
         nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
         table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
@@ -172,11 +176,11 @@ export class BlockLexer
    */
   static lex(src: string, options?: MarkedOptions, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
-    const lexer = new this(options);
+    const lexer = new this(this, options);
     return lexer.getTokens(src, top, isBlockQuote);
   }
 
-  protected ruleFunctions: RuleFunction[] =
+  protected ruleFunctions: BlockRuleFunction[] =
   [
     // code
     this.checkCode.bind(this),
@@ -185,7 +189,7 @@ export class BlockLexer
     // heading
     this.checkHeading.bind(this),
     // table no leading pipe (gfm)
-    this.checkTable.bind(this),
+    this.checkNptable.bind(this),
     // lheading
     this.checkLheading.bind(this),
     // hr
@@ -212,12 +216,11 @@ export class BlockLexer
   protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
     this.nextPart = src;
+    let execArr: RegExpExecArray;
 
     nextPart:
     while(this.nextPart)
     {
-      let execArr: RegExpExecArray;
-
       // newline
       if( execArr = this.rules.newline.exec(this.nextPart) )
       {
@@ -306,7 +309,7 @@ export class BlockLexer
   }
 
   // table no leading pipe (gfm).
-  protected checkTable(top: boolean): void
+  protected checkNptable(top: boolean): void
   {
     let execArr: RegExpExecArray;
 
@@ -390,7 +393,7 @@ export class BlockLexer
     this.tokens.push({type: TokenType.hr});
   }
 
-  protected checkBlockquote(top: boolean): void
+  protected checkBlockquote(): void
   {
     const execArr = this.rules.blockquote.exec(this.nextPart);
 
@@ -405,7 +408,7 @@ export class BlockLexer
     // Pass `top` to keep the current
     // "toplevel" state. This is exactly
     // how markdown.pl works.
-    const {tokens, links} = BlockLexer.lex(str, this.options, top, true);
+    const {tokens, links} = this.staticThis.lex(str, this.options, false, true);
     this.tokens.push(...tokens);
     this.links = {...this.links, ...links};
 
@@ -413,6 +416,8 @@ export class BlockLexer
   }
 
   /**
+   * @param top Used for compatibility with other methods `check...()`.
+   * 
    * @todo Improve performance.
    */
   protected checkList(top: boolean, isBlockQuote: boolean): void
@@ -460,7 +465,7 @@ export class BlockLexer
       // Backpedal if it does not belong in this list.
       if(this.options.smartLists && i !== length - 1)
       {
-        blockBullet = BlockLexer.getBlock().bullet.exec(str[i + 1])[0];
+        blockBullet = this.staticThis.getRulesMain().bullet.exec(str[i + 1])[0];
 
         if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
         {
@@ -485,7 +490,7 @@ export class BlockLexer
       this.tokens.push({type: loose ? TokenType.looseItemStart : TokenType.listItemStart});
 
       // Recurse.
-      const {tokens, links} = BlockLexer.lex(item, this.options, false, isBlockQuote);
+      const {tokens, links} = this.staticThis.lex(item, this.options, false, isBlockQuote);
       // console.log(`**** local tokens`, tokens);
       // console.log(`**** global tokens`, this.tokens);
       this.tokens.push(...tokens);
@@ -636,13 +641,13 @@ export class BlockLexer
     this.tokens.push({type: TokenType.text, text: execArr[0]});
   }
 
-  protected isBlockGfm(block: BlockGrammar | BlockGfm | BlockTables): block is BlockGfm
+  protected isBlockGfm(block: RulesBlockMain | RulesBlockGfm | RulesBlockTables): block is RulesBlockGfm
   {
-    return (<BlockGfm>block).fences !== undefined;
+    return (<RulesBlockGfm>block).fences !== undefined;
   }
 
-  protected isBlockTables(block: BlockGrammar | BlockGfm | BlockTables): block is BlockTables
+  protected isBlockTables(rules: RulesBlockMain | RulesBlockGfm | RulesBlockTables): rules is RulesBlockTables
   {
-    return (<BlockTables>block).table !== undefined;
+    return (<RulesBlockTables>rules).table !== undefined;
   }
 }

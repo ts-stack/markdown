@@ -291,7 +291,7 @@ and if no - it will be attached to the next one and checked its length, and so o
 In order for npm passing the parameters, they need to be separated via ` -- `:
 
 ```text
-npm run bench -- --length 500 --times 1
+npm run bench -- -l 500 -t 1
 ```
 
 ### Contribution and License Agreement

@@ -41,7 +41,7 @@ export class Marked
    * @param options Hash of options. They replace, but do not merge with the default options.
    * If you want the merging, you can to do this via `Marked.setOptions()`.
    */
-  static parse(src: string, options: MarkedOptions = this.defaults): any
+  static parse(src: string, options: MarkedOptions = this.defaults): string
   {
     try
     {
@@ -67,7 +67,7 @@ export class Marked
     return BlockLexer.lex(src, options, true);
   }
 
-  protected static callParser(tokens: Token[], links: Links, options?: MarkedOptions)
+  protected static callParser(tokens: Token[], links: Links, options?: MarkedOptions): string
   {
     return Parser.parse(tokens, links, options);
   }
