@@ -41,6 +41,7 @@ export class BlockLexer<T extends typeof BlockLexer>
   protected tokens: Token[];
   protected nextPart: string;
   protected isMatch: boolean;
+  protected ruleFunctions: BlockRuleFunction[];
 
   constructor(private staticThis: T, options?: MarkedOptions)
   {
@@ -67,6 +68,36 @@ export class BlockLexer<T extends typeof BlockLexer>
     {
       this.rules = this.staticThis.getRulesMain();
     }
+
+    this.ruleFunctions =
+    [
+      // code
+      this.checkCode,
+      // fences code (gfm)
+      this.checkFencesCode,
+      // heading
+      this.checkHeading,
+      // table no leading pipe (gfm)
+      this.checkNptable,
+      // lheading
+      this.checkLheading,
+      // hr
+      this.checkHr,
+      // blockquote
+      this.checkBlockquote,
+      // list
+      this.checkList,
+      // html
+      this.checkHtml,
+      // def
+      this.checkDef,
+      // table (gfm)
+      this.checkTableGfm,
+      // top-level paragraph
+      this.checkParagraph,
+      // text
+      this.checkText
+    ];
   }
 
   protected static getRulesMain(): RulesBlockMain
@@ -180,36 +211,6 @@ export class BlockLexer<T extends typeof BlockLexer>
     return lexer.getTokens(src, top, isBlockQuote);
   }
 
-  protected ruleFunctions: BlockRuleFunction[] =
-  [
-    // code
-    this.checkCode.bind(this),
-    // fences code (gfm)
-    this.checkFencesCode.bind(this),
-    // heading
-    this.checkHeading.bind(this),
-    // table no leading pipe (gfm)
-    this.checkNptable.bind(this),
-    // lheading
-    this.checkLheading.bind(this),
-    // hr
-    this.checkHr.bind(this),
-    // blockquote
-    this.checkBlockquote.bind(this),
-    // list
-    this.checkList.bind(this),
-    // html
-    this.checkHtml.bind(this),
-    // def
-    this.checkDef.bind(this),
-    // table (gfm)
-    this.checkTableGfm.bind(this),
-    // top-level paragraph
-    this.checkParagraph.bind(this),
-    // text
-    this.checkText.bind(this)
-  ];
-
   /**
    * Lexing.
    */
@@ -217,6 +218,7 @@ export class BlockLexer<T extends typeof BlockLexer>
   {
     this.nextPart = src;
     let execArr: RegExpExecArray;
+    const lengthFn = this.ruleFunctions.length;
 
     nextPart:
     while(this.nextPart)
@@ -232,9 +234,9 @@ export class BlockLexer<T extends typeof BlockLexer>
         }
       }
 
-      for(let i = 0; i < this.ruleFunctions.length; i++)
+      for(let i = 0; i < lengthFn; i++)
       {
-        this.ruleFunctions[i](top, isBlockQuote);
+        this.ruleFunctions[i].call(this, top, isBlockQuote);
 
         if(this.isMatch)
         {

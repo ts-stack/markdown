@@ -51,6 +51,7 @@ export class InlineLexer<T extends typeof InlineLexer>
   protected options: MarkedOptions;
   protected renderer: Renderer;
   protected inLink: boolean;
+  protected ruleFunctions: InlineRuleFunction[];
 
   constructor(private staticThis: T, links: Links, options?: MarkedOptions, renderer?: Renderer)
   {
@@ -85,6 +86,34 @@ export class InlineLexer<T extends typeof InlineLexer>
     {
       this.rules = this.staticThis.getRulesMain()
     }
+
+    this.ruleFunctions =
+    [
+      // escape
+      this.checkEscape,
+      // autolink
+      this.checkAutolink,
+      // url (gfm)
+      this.checkUrl,
+      // tag
+      this.checkTag,
+      // link
+      this.checkLink,
+      // reflink, nolink
+      this.checkReflink,
+      // strong
+      this.checkStrong,
+      // em
+      this.checkEm,
+      // code
+      this.checkCode,
+      // br
+      this.checkBr,
+      // del (gfm)
+      this.checkDel,
+      // text
+      this.checkText,
+    ];
   }
 
   protected static getRulesMain(): RulesInlineMain
@@ -194,47 +223,20 @@ export class InlineLexer<T extends typeof InlineLexer>
     return inlineLexer.output(src);
   }
 
-  protected ruleFunctions: InlineRuleFunction[] =
-  [
-    // escape
-    this.checkEscape.bind(this),
-    // autolink
-    this.checkAutolink.bind(this),
-    // url (gfm)
-    this.checkUrl.bind(this),
-    // tag
-    this.checkTag.bind(this),
-    // link
-    this.checkLink.bind(this),
-    // reflink, nolink
-    this.checkReflink.bind(this),
-    // strong
-    this.checkStrong.bind(this),
-    // em
-    this.checkEm.bind(this),
-    // code
-    this.checkCode.bind(this),
-    // br
-    this.checkBr.bind(this),
-    // del (gfm)
-    this.checkDel.bind(this),
-    // text
-    this.checkText.bind(this),
-  ];
-
   /**
    * Lexing/Compiling.
    */
   output(nextPart: string): string
   {
     this.nextPart = nextPart;
+    const lengthFn = this.ruleFunctions.length;
 
     nextPart:
     while(this.nextPart)
     {
-      for(let i = 0; i < this.ruleFunctions.length; i++)
+      for(let i = 0; i < lengthFn; i++)
       {
-        this.ruleFunctions[i]();
+        this.ruleFunctions[i].call(this);
 
         if(this.isMatch)
         {
