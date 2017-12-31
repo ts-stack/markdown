@@ -12,13 +12,13 @@ import { ExtendRegexp } from './extend-regexp';
 import { Renderer } from './renderer';
 import { Marked } from './marked';
 import {
-  InlineGrammar,
+  RulesInlineMain,
   MarkedOptions,
   Links,
   Link,
-  InlineGfm,
-  InlineBreaks,
-  InlinePedantic,
+  RulesInlineGfm,
+  RulesInlineBreaks,
+  RulesInlinePedantic,
   InlineRuleFunction
 } from './interfaces';
 
@@ -30,26 +30,27 @@ import {
  */
 export class InlineLexer<T extends typeof InlineLexer>
 {
-  protected static inline: InlineGrammar;
+  protected static inline: RulesInlineMain;
   /**
    * Pedantic Inline Grammar.
    */
-  protected static inlinePedantic: InlinePedantic;
+  protected static inlinePedantic: RulesInlinePedantic;
   /**
    * GFM Inline Grammar
    */
-  protected static inlineGfm: InlineGfm;
+  protected static inlineGfm: RulesInlineGfm;
   /**
    * GFM + Line Breaks Inline Grammar.
    */
-  protected static inlineBreaks: InlineBreaks;
+  protected static inlineBreaks: RulesInlineBreaks;
   protected links: Links;
-  protected rules: InlineGrammar;
+  protected rules: RulesInlineMain;
   protected options: MarkedOptions;
   protected renderer: Renderer;
   protected inLink: boolean;
+  protected hasRulesGfm: boolean;
 
-  constructor(private staticThis: T, links: Links, options?: MarkedOptions, renderer?: Renderer)
+  constructor (private staticThis: T, links: Links, options?: MarkedOptions, renderer?: Renderer)
   {
     this.options = options || Marked.defaults;
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
@@ -67,24 +68,26 @@ export class InlineLexer<T extends typeof InlineLexer>
     {
       if(this.options.breaks)
       {
-        this.rules = this.staticThis.getInlineBreaks();
+        this.rules = this.staticThis.getRulesBreaks();
       }
       else
       {
-        this.rules = this.staticThis.getInlineGfm();
+        this.rules = this.staticThis.getRulesGfm();
       }
     }
     else if(this.options.pedantic)
     {
-      this.rules = this.staticThis.getInlinePedantic()
+      this.rules = this.staticThis.getRulesPedantic()
     }
     else
     {
-      this.rules = this.staticThis.getInline()
+      this.rules = this.staticThis.getRulesMain()
     }
+
+    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
   }
 
-  protected static getInline(): InlineGrammar
+  protected static getRulesMain(): RulesInlineMain
   {
     if(this.inline)
       return this.inline;
@@ -92,7 +95,7 @@ export class InlineLexer<T extends typeof InlineLexer>
     /**
      * Inline-Level Grammar.
      */
-    const inline: InlineGrammar =
+    const inline: RulesInlineMain =
     {
       escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
       autolink: /^<([^ <>]+(@|:\/)[^ <>]+)>/,
@@ -121,14 +124,14 @@ export class InlineLexer<T extends typeof InlineLexer>
     return this.inline = inline;
   }
 
-  protected static getInlinePedantic(): InlinePedantic
+  protected static getRulesPedantic(): RulesInlinePedantic
   {
     if(this.inlinePedantic)
       return this.inlinePedantic;
 
     return this.inlinePedantic =
     {
-      ...this.getInline(),
+      ...this.getRulesMain(),
       ...{
         strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
         em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
@@ -136,12 +139,12 @@ export class InlineLexer<T extends typeof InlineLexer>
     };
   }
 
-  protected static getInlineGfm(): InlineGfm
+  protected static getRulesGfm(): RulesInlineGfm
   {
     if(this.inlineGfm)
       return this.inlineGfm;
     
-    const inline = this.getInline();
+    const inline = this.getRulesMain();
 
     const escape = new ExtendRegexp(inline.escape)
     .setGroup('])', '~|])')
@@ -164,13 +167,13 @@ export class InlineLexer<T extends typeof InlineLexer>
     };
   }
 
-  protected static getInlineBreaks(): InlineBreaks
+  protected static getRulesBreaks(): RulesInlineBreaks
   {
     if(this.inlineBreaks)
       return this.inlineBreaks;
     
-    const inline = this.getInlineGfm();
-    const gfm = this.getInlineGfm();
+    const inline = this.getRulesGfm();
+    const gfm = this.getRulesGfm();
 
     return this.inlineBreaks =
     {
@@ -240,8 +243,8 @@ export class InlineLexer<T extends typeof InlineLexer>
       if
       (
         !this.inLink
-        && this.isInlineGfm(this.rules)
-        && (execArr = this.rules.url.exec(nextPart))
+        && this.hasRulesGfm
+        && (execArr = (<RulesInlineGfm>this.rules).url.exec(nextPart))
       )
       {
         let text: string, href: string;
@@ -348,8 +351,8 @@ export class InlineLexer<T extends typeof InlineLexer>
       // del (gfm)
       if
       (
-        this.isInlineGfm(this.rules)
-        && (execArr = this.rules.del.exec(nextPart))
+        this.hasRulesGfm
+        && (execArr = (<RulesInlineGfm>this.rules).del.exec(nextPart))
       )
       {
         nextPart = nextPart.substring(execArr[0].length);
@@ -433,10 +436,5 @@ export class InlineLexer<T extends typeof InlineLexer>
     }
 
     return out;
-  }
-
-  protected isInlineGfm(rules: InlineGrammar | InlineBreaks | InlineGfm | InlineGrammar): rules is InlineGfm
-  {
-    return (<InlineGfm>rules).url !== undefined;
   }
 }

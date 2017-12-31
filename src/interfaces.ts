@@ -10,7 +10,7 @@ import { escape, unescape } from './helpers';
 
 export type Obj = {[key: string]: any};
 
-export interface BlockGrammar
+export interface RulesBlockMain
 {
   newline: RegExp,
   code: RegExp,
@@ -31,12 +31,12 @@ export interface BlockGrammar
   _tag: string
 }
 
-export interface BlockGfm extends BlockGrammar
+export interface RulesBlockGfm extends RulesBlockMain
 {
   fences: RegExp
 }
 
-export interface BlockTables extends BlockGfm
+export interface RulesBlockTables extends RulesBlockGfm
 {
   nptable: RegExp,
   table: RegExp
@@ -89,7 +89,7 @@ export interface Token
   escaped?: boolean;
 }
 
-export interface InlineGrammar
+export interface RulesInlineMain
 {
   escape: RegExp,
   autolink: RegExp,
@@ -106,7 +106,7 @@ export interface InlineGrammar
   _href: RegExp
 }
 
-export interface InlinePedantic extends InlineGrammar
+export interface RulesInlinePedantic extends RulesInlineMain
 {
   
 }
@@ -114,13 +114,13 @@ export interface InlinePedantic extends InlineGrammar
 /**
  * GFM Inline Grammar
  */
-export interface InlineGfm extends InlineGrammar
+export interface RulesInlineGfm extends RulesInlineMain
 {
   url: RegExp,
   del: RegExp,
 }
 
-export interface InlineBreaks extends InlineGfm
+export interface RulesInlineBreaks extends RulesInlineGfm
 {
   
 }

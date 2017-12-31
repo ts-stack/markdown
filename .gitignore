@@ -1,7 +1,6 @@
 node_modules
 lib
-dist
-dist-test
+dist*
 npm-debug.log
 *.tgz
 .vscode

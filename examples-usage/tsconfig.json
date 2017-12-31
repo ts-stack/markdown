@@ -2,18 +2,12 @@
   "compilerOptions": {
     "target": "es2015",
     "module": "commonjs",
-    "outDir": "dist",
+    "outDir": "../dist-examples",
     "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": true,
     "declaration": true
-  },
-  "exclude": [
-    "node_modules",
-    "dist*",
-    "test",
-    "examples-usage"
-  ]
+  }
 }

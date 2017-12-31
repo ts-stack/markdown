@@ -11,36 +11,38 @@
 import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
 import {
-  BlockGrammar,
+  RulesBlockMain,
   MarkedOptions,
   Token,
   Links,
   Align,
   LexerReturns,
   TokenType,
-  BlockGfm,
-  BlockTables,
+  RulesBlockGfm,
+  RulesBlockTables,
   BlockRuleFunction
 } from './interfaces';
 
 
 export class BlockLexer<T extends typeof BlockLexer>
 {
-  protected static block: BlockGrammar;
+  protected static block: RulesBlockMain;
   /**
    * GFM Block Grammar.
    */
-  protected static blockGfm: BlockGfm;
+  protected static blockGfm: RulesBlockGfm;
   /**
    * GFM + Tables Block Grammar.
    */
-  protected static blockTables: BlockTables;
-  protected rules: BlockGrammar | BlockGfm | BlockTables;
+  protected static blockTables: RulesBlockTables;
+  protected rules: RulesBlockMain | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
   protected links: Links;
   protected tokens: Token[];
+  protected hasRulesGfm: boolean;
+  protected hasRulesTables: boolean;
 
-  constructor(private staticThis: T, options?: MarkedOptions)
+  constructor (private staticThis: T, options?: MarkedOptions)
   {
     this.options = options || Marked.defaults;
     this.links = {};
@@ -54,25 +56,28 @@ export class BlockLexer<T extends typeof BlockLexer>
     {
       if(this.options.tables)
       {
-        this.rules = this.staticThis.getBlockTables();
+        this.rules = this.staticThis.getRulesTables();
       }
       else
       {
-        this.rules = this.staticThis.getBlockGfm();
+        this.rules = this.staticThis.getRulesGfm();
       }
     }
     else
     {
-      this.rules = this.staticThis.getBlock();
+      this.rules = this.staticThis.getRulesMain();
     }
+
+    this.hasRulesGfm = (<RulesBlockGfm>this.rules).fences !== undefined;
+    this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
   }
 
-  protected static getBlock(): BlockGrammar
+  protected static getRulesMain(): RulesBlockMain
   {
     if(this.block)
       return this.block;
 
-    const block: BlockGrammar =
+    const block: RulesBlockMain =
     {
       newline: /^\n+/,
       code: /^( {4}[^\n]+\n*)+/,
@@ -124,14 +129,14 @@ export class BlockLexer<T extends typeof BlockLexer>
     return this.block = block;
   }
 
-  protected static getBlockGfm(): BlockGfm
+  protected static getRulesGfm(): RulesBlockGfm
   {
     if(this.blockGfm)
       return this.blockGfm;
 
-    const block = this.getBlock();
+    const block = this.getRulesMain();
 
-    const gfm: BlockGfm =
+    const gfm: RulesBlockGfm =
     {
       ...block,
       ...{
@@ -151,14 +156,14 @@ export class BlockLexer<T extends typeof BlockLexer>
     return this.blockGfm = gfm;
   }
 
-  protected static getBlockTables(): BlockTables
+  protected static getRulesTables(): RulesBlockTables
   {
     if(this.blockTables)
       return this.blockTables;
 
     return this.blockTables =
     {
-      ...this.getBlockGfm(),
+      ...this.getRulesGfm(),
       ...{
         nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
         table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
@@ -215,8 +220,8 @@ export class BlockLexer<T extends typeof BlockLexer>
       // fences code (gfm)
       if
       (
-        this.isBlockGfm(this.rules)
-        && (execArr = this.rules.fences.exec(nextPart))
+        this.hasRulesGfm
+        && (execArr = (<RulesBlockGfm>this.rules).fences.exec(nextPart))
       )
       {
         nextPart = nextPart.substring(execArr[0].length);
@@ -245,8 +250,8 @@ export class BlockLexer<T extends typeof BlockLexer>
       if
       (
         top
-        && this.isBlockTables(this.rules)
-        && (execArr = this.rules.nptable.exec(nextPart))
+        && this.hasRulesTables
+        && (execArr = (<RulesBlockTables>this.rules).nptable.exec(nextPart))
       )
       {
         nextPart = nextPart.substring(execArr[0].length);
@@ -366,7 +371,7 @@ export class BlockLexer<T extends typeof BlockLexer>
           // Backpedal if it does not belong in this list.
           if(this.options.smartLists && i !== length - 1)
           {
-            blockBullet = this.staticThis.getBlock().bullet.exec(str[i + 1])[0];
+            blockBullet = this.staticThis.getRulesMain().bullet.exec(str[i + 1])[0];
 
             if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
             {
@@ -432,8 +437,8 @@ export class BlockLexer<T extends typeof BlockLexer>
       if
       (
         top
-        && this.isBlockTables(this.rules)
-        && (execArr = this.rules.table.exec(nextPart))
+        && this.hasRulesTables
+        && (execArr = (<RulesBlockTables>this.rules).table.exec(nextPart))
       )
       {
         nextPart = nextPart.substring(execArr[0].length);
@@ -517,15 +522,5 @@ export class BlockLexer<T extends typeof BlockLexer>
     }
 
     return {tokens: this.tokens, links: this.links};
-  }
-
-  protected isBlockGfm(block: BlockGrammar | BlockGfm | BlockTables): block is BlockGfm
-  {
-    return (<BlockGfm>block).fences !== undefined;
-  }
-
-  protected isBlockTables(rules: BlockGrammar | BlockGfm | BlockTables): rules is BlockTables
-  {
-    return (<BlockTables>rules).table !== undefined;
   }
 }
