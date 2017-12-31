@@ -58,11 +58,6 @@ console.log(Marked.parse('I am using __markdown__.'));
  * 
  * @param options Hash of options. Can also be
  * set using the `Marked.setOptions` method as seen above.
- * 
- * @param callback Function called when the `src`
- * has been fully parsed when using async call. If
- * the `options` argument is omitted, this can be used as
- * the second argument.
  */
 static parse(src: string, options?: MarkedOptions): string;
 
