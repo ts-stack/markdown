@@ -7,7 +7,7 @@
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
-For now - work in progress (there is only alpha.4 version).
+For now - work in progress (there is only alpha.5 version).
 
 ## Install
 
@@ -69,8 +69,6 @@ static parse(src: string, options?: MarkedOptions): string;
  */
 static setOptions(options: MarkedOptions): this;
 
-type ParseCallback<T=string> = (err: Error, output?: string) => T;
-
 // This class also using as a type.
 class MarkedOptions
 {
@@ -86,9 +84,8 @@ class MarkedOptions
   /**
    * @param code The section of code to pass to the highlighter.
    * @param lang The programming language specified in the code block.
-   * @param callback The callback function to call when using an async highlighter.
    */
-  highlight?: (code: string, lang: string) => any;
+  highlight?: (code: string, lang?: string) => string;
   langPrefix?: string = 'lang-';
   smartypants?: boolean = false;
   headerPrefix?: string = '';
@@ -110,7 +107,7 @@ class MarkedOptions
    * The function that will be using to unescape HTML entities.
    * By default using inner helper.
    */
-  unescape: (html: string) => string = unescape;
+  unescape?: (html: string) => string = unescape;
 }
 ```
 
@@ -258,7 +255,7 @@ it doesn't cater to specific aspects.
 
 | Lib                   | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ----------------------|--------------|--------------|----------------|-----------|------------------
-| marked-ts alpha.4     | 6            | 6            | 101            | 113       | 8 641
+| marked-ts alpha.5     | 6            | 6            | 101            | 113       | 8 641
 | marked v0.3.9         | 4            | 2            | 106            | 112       | 9 323
 | remarkable v1.7.1     | 36           | 6            | 174            | 216       | 15 356
 | markdown-it v8.4.0    | 29           | 10           | 227            | 266       | 18 890
