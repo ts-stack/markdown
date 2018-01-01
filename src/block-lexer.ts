@@ -42,8 +42,10 @@ export class BlockLexer<T extends typeof BlockLexer>
   protected nextPart: string;
   protected isMatch: boolean;
   protected ruleFunctions: BlockRuleCallback[];
+  protected hasRulesGfm: boolean;
+  protected hasRulesTables: boolean;
 
-  constructor(private staticThis: T, options?: MarkedOptions)
+  constructor (private staticThis: T, options?: MarkedOptions)
   {
     this.options = options || Marked.defaults;
     this.links = {};
@@ -149,6 +151,9 @@ export class BlockLexer<T extends typeof BlockLexer>
         action: this.actionText
       },
     ];
+
+    this.hasRulesGfm = (<RulesBlockGfm>this.rules).fences !== undefined;
+    this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
   }
 
   protected static getRulesMain(): RulesBlockMain
@@ -313,8 +318,8 @@ export class BlockLexer<T extends typeof BlockLexer>
 
   protected conditionFencesCode(): RegExp
   {
-    if(this.isBlockGfm(this.rules))
-      return this.rules.fences;
+    if(this.hasRulesGfm)
+      return (<RulesBlockGfm>this.rules).fences;
   }
 
   protected actionFencesCode(execArr: RegExpExecArray): void
@@ -343,8 +348,8 @@ export class BlockLexer<T extends typeof BlockLexer>
   // table no leading pipe (gfm).
   protected conditionNptable(top: boolean): RegExp
   {
-    if(top && this.isBlockTables(this.rules))
-      return this.rules.nptable;
+    if(top && this.hasRulesTables)
+      return (<RulesBlockTables>this.rules).nptable;
   }
 
   protected actionNptable(execArr: RegExpExecArray): void
@@ -550,8 +555,8 @@ export class BlockLexer<T extends typeof BlockLexer>
 
   protected conditionTableGfm(top: boolean): RegExp
   {
-    if(top && this.isBlockTables(this.rules))
-      return this.rules.table;
+    if(top && this.hasRulesTables)
+      return (<RulesBlockTables>this.rules).table;
   }
 
   protected actionTableGfm(execArr: RegExpExecArray): void
@@ -630,15 +635,5 @@ export class BlockLexer<T extends typeof BlockLexer>
   {
     // Top-level should never reach here.
     this.tokens.push({type: TokenType.text, text: execArr[0]});
-  }
-
-  protected isBlockGfm(block: RulesBlockMain | RulesBlockGfm | RulesBlockTables): block is RulesBlockGfm
-  {
-    return (<RulesBlockGfm>block).fences !== undefined;
-  }
-
-  protected isBlockTables(rules: RulesBlockMain | RulesBlockGfm | RulesBlockTables): rules is RulesBlockTables
-  {
-    return (<RulesBlockTables>rules).table !== undefined;
   }
 }

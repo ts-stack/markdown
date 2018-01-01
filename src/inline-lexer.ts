@@ -52,8 +52,9 @@ export class InlineLexer<T extends typeof InlineLexer>
   protected renderer: Renderer;
   protected inLink: boolean;
   protected ruleFunctions: InlineRuleFunction[];
+  protected hasRulesGfm: boolean;
 
-  constructor(private staticThis: T, links: Links, options?: MarkedOptions, renderer?: Renderer)
+  constructor (private staticThis: T, links: Links, options?: MarkedOptions, renderer?: Renderer)
   {
     this.options = options || Marked.defaults;
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
@@ -164,6 +165,8 @@ export class InlineLexer<T extends typeof InlineLexer>
         action: this.actionText
       }
     ];
+
+    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined
   }
 
   protected static getRulesMain(): RulesInlineMain
@@ -340,9 +343,9 @@ export class InlineLexer<T extends typeof InlineLexer>
 
   protected conditionUrl(): RegExp
   {
-    if( !this.inLink && this.isInlineGfm(this.rules) )
+    if(!this.inLink && this.hasRulesGfm)
     {
-      return this.rules.url;
+      return (<RulesInlineGfm>this.rules).url;
     }
   }
 
@@ -489,8 +492,8 @@ export class InlineLexer<T extends typeof InlineLexer>
 
   protected conditionDel(): RegExp
   {
-    if(this.isInlineGfm(this.rules))
-      return this.rules.del;
+    if(this.hasRulesGfm)
+      return (<RulesInlineGfm>this.rules).del;
   }
 
   protected actionDel(execArr: RegExpExecArray): void
@@ -571,10 +574,5 @@ export class InlineLexer<T extends typeof InlineLexer>
     }
 
     return out;
-  }
-
-  protected isInlineGfm(rules: RulesInlineMain | RulesInlineBreaks | RulesInlineGfm | RulesInlineMain): rules is RulesInlineGfm
-  {
-    return (<RulesInlineGfm>rules).url !== undefined;
   }
 }
