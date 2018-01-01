@@ -45,7 +45,6 @@ export class InlineLexer<T extends typeof InlineLexer>
   protected static inlineBreaks: RulesInlineBreaks;
   protected out = '';
   protected nextPart = '';
-  protected isMatch: boolean;
   protected links: Links;
   protected rules: RulesInlineMain;
   protected options: MarkedOptions;

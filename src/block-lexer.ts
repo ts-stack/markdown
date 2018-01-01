@@ -40,7 +40,6 @@ export class BlockLexer<T extends typeof BlockLexer>
   protected links: Links;
   protected tokens: Token[];
   protected nextPart: string;
-  protected isMatch: boolean;
   protected ruleFunctions: BlockRuleCallback[];
   protected hasRulesGfm: boolean;
   protected hasRulesTables: boolean;
