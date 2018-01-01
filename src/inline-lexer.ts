@@ -63,6 +63,11 @@ export class InlineLexer<T extends typeof InlineLexer>
     if(!this.links)
       throw new Error(`InlineLexer requires 'links' parameter.`);
 
+    this.init();
+  }
+
+  protected init()
+  {
     this.setRules();
     this.setRulesFunctions();
   }

@@ -50,6 +50,11 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.options = options || Marked.defaults;
     this.links = {};
     this.tokens = [];
+    this.init();
+  }
+
+  protected init()
+  {
     this.setRules();
     this.setRulesFunctions();
   }
