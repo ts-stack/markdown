@@ -64,6 +64,7 @@ export class InlineLexer<T extends typeof InlineLexer>
       throw new Error(`InlineLexer requires 'links' parameter.`);
 
     this.setRules();
+    this.setRulesFunctions();
   }
 
   /**
@@ -97,6 +98,11 @@ export class InlineLexer<T extends typeof InlineLexer>
       this.rules = this.staticThis.getRulesMain()
     }
 
+    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
+  }
+
+  protected setRulesFunctions()
+  {
     this.ruleFunctions =
     [
       // escape
@@ -165,8 +171,6 @@ export class InlineLexer<T extends typeof InlineLexer>
         action: this.actionText
       }
     ];
-
-    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined
   }
 
   protected static getRulesMain(): RulesInlineMain

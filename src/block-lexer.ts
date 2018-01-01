@@ -51,6 +51,7 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.links = {};
     this.tokens = [];
     this.setRules();
+    this.setRulesFunctions();
   }
 
   /**
@@ -83,6 +84,12 @@ export class BlockLexer<T extends typeof BlockLexer>
       this.rules = this.staticThis.getRulesMain();
     }
 
+    this.hasRulesGfm = (<RulesBlockGfm>this.rules).fences !== undefined;
+    this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
+  }
+
+  protected setRulesFunctions()
+  {
     this.ruleFunctions =
     [
       // code
@@ -151,9 +158,6 @@ export class BlockLexer<T extends typeof BlockLexer>
         action: this.actionText
       },
     ];
-
-    this.hasRulesGfm = (<RulesBlockGfm>this.rules).fences !== undefined;
-    this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
   }
 
   protected static getRulesMain(): RulesBlockMain
