@@ -11,7 +11,6 @@
 import { Parser } from './parser';
 import { BlockLexer } from './block-lexer';
 import {
-  ParseCallback,
   MarkedOptions,
   Token,
   Links,

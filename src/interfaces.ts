@@ -125,16 +125,6 @@ export interface RulesInlineBreaks extends RulesInlineGfm
   
 }
 
-export type ParseCallback<T=string> = (err: Error, output?: string) => T;
-
-export interface HighlightOverloading
-{
-  fn(code: string, lang?: string): string;
-  fn<T>(code: string, lang?: string, callback?: ParseCallback<T>): T;
-}
-
-export type HighlightType = HighlightOverloading['fn'];
-
 export class MarkedOptions
 {
   gfm?: boolean = true;
@@ -151,7 +141,7 @@ export class MarkedOptions
    * @param lang The programming language specified in the code block.
    * @param callback The callback function to call when using an async highlighter.
    */
-  highlight?: HighlightType;
+  highlight?: (code: string, lang?: string) => string;
   langPrefix?: string = 'lang-';
   smartypants?: boolean = false;
   headerPrefix?: string = '';
