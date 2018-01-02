@@ -180,11 +180,13 @@ export interface Replacements
 export interface BlockRuleCallback
 {
   condition(top?: boolean, isBlockQuote?: boolean): RegExp,
-  action(execArr: RegExpExecArray, top?: boolean, isBlockQuote?: boolean): void
+  action(execArr: RegExpExecArray, top?: boolean, isBlockQuote?: boolean): void,
+  regexp?: RegExp
 }
 
 export interface InlineRuleFunction
 {
   condition(): RegExp,
-  action(execArr: RegExpExecArray): void
+  action(execArr: RegExpExecArray): void,
+  regexp?: RegExp
 }

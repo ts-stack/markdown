@@ -289,10 +289,10 @@ export class BlockLexer<T extends typeof BlockLexer>
       for(let i = 0; i < lengthFn; i++)
       {
         const callbacks = this.ruleFunctions[i];
-        const regexp: RegExp = callbacks.condition.call(this, top, isBlockQuote);
+        callbacks.regexp = callbacks.regexp || callbacks.condition.call(this, top, isBlockQuote);
         let execArr: RegExpExecArray;
 
-        if( regexp && (execArr = regexp.exec(this.nextPart)) )
+        if( callbacks.regexp && (execArr = callbacks.regexp.exec(this.nextPart)) )
         {
           this.nextPart = this.nextPart.substring(execArr[0].length);
           callbacks.action.call(this, execArr, top, isBlockQuote);

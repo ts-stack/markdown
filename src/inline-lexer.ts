@@ -289,10 +289,10 @@ export class InlineLexer<T extends typeof InlineLexer>
       for(let i = 0; i < lengthFn; i++)
       {
         const callbacks = this.ruleFunctions[i];
-        const regexp: RegExp = callbacks.condition.call(this);
+        callbacks.regexp = callbacks.regexp || callbacks.condition.call(this);
         let execArr: RegExpExecArray;
 
-        if( regexp && (execArr = regexp.exec(this.nextPart)) )
+        if( callbacks.regexp && (execArr = callbacks.regexp.exec(this.nextPart)) )
         {
           this.nextPart = this.nextPart.substring(execArr[0].length);
           callbacks.action.call(this, execArr);
