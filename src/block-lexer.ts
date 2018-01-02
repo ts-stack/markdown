@@ -55,7 +55,7 @@ export class BlockLexer<T extends typeof BlockLexer>
   protected init()
   {
     this.setRules();
-    this.setRulesFunctions();
+    this.setRulesMethods();
   }
 
   /**
@@ -92,7 +92,7 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
   }
 
-  protected setRulesFunctions()
+  protected setRulesMethods()
   {
     this.ruleFunctions =
     [

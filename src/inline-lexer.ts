@@ -46,7 +46,7 @@ export class InlineLexer<T extends typeof InlineLexer>
   protected out = '';
   protected nextPart = '';
   protected links: Links;
-  protected rules: RulesInlineBase;
+  protected rules: RulesInlineBase | RulesInlinePedantic | RulesInlineGfm | RulesInlineBreaks;
   protected options: MarkedOptions;
   protected renderer: Renderer;
   protected inLink: boolean;
@@ -68,7 +68,7 @@ export class InlineLexer<T extends typeof InlineLexer>
   protected init()
   {
     this.setRules();
-    this.setRulesFunctions();
+    this.setRulesMethods();
   }
 
   /**
@@ -105,7 +105,7 @@ export class InlineLexer<T extends typeof InlineLexer>
     this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
   }
 
-  protected setRulesFunctions()
+  protected setRulesMethods()
   {
     this.ruleFunctions =
     [
