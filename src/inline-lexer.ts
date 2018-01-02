@@ -12,7 +12,7 @@ import { ExtendRegexp } from './extend-regexp';
 import { Renderer } from './renderer';
 import { Marked } from './marked';
 import {
-  RulesInlineMain,
+  RulesInlineBase,
   MarkedOptions,
   Links,
   Link,
@@ -30,7 +30,7 @@ import {
  */
 export class InlineLexer<T extends typeof InlineLexer>
 {
-  protected static inline: RulesInlineMain;
+  protected static inline: RulesInlineBase;
   /**
    * Pedantic Inline Grammar.
    */
@@ -44,7 +44,7 @@ export class InlineLexer<T extends typeof InlineLexer>
    */
   protected static inlineBreaks: RulesInlineBreaks;
   protected links: Links;
-  protected rules: RulesInlineMain;
+  protected rules: RulesInlineBase;
   protected options: MarkedOptions;
   protected renderer: Renderer;
   protected inLink: boolean;
@@ -81,13 +81,13 @@ export class InlineLexer<T extends typeof InlineLexer>
     }
     else
     {
-      this.rules = this.staticThis.getRulesMain()
+      this.rules = this.staticThis.getRulesBase()
     }
 
     this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
   }
 
-  protected static getRulesMain(): RulesInlineMain
+  protected static getRulesBase(): RulesInlineBase
   {
     if(this.inline)
       return this.inline;
@@ -95,7 +95,7 @@ export class InlineLexer<T extends typeof InlineLexer>
     /**
      * Inline-Level Grammar.
      */
-    const inline: RulesInlineMain =
+    const inline: RulesInlineBase =
     {
       escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
       autolink: /^<([^ <>]+(@|:\/)[^ <>]+)>/,
@@ -131,7 +131,7 @@ export class InlineLexer<T extends typeof InlineLexer>
 
     return this.inlinePedantic =
     {
-      ...this.getRulesMain(),
+      ...this.getRulesBase(),
       ...{
         strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
         em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
@@ -144,7 +144,7 @@ export class InlineLexer<T extends typeof InlineLexer>
     if(this.inlineGfm)
       return this.inlineGfm;
     
-    const inline = this.getRulesMain();
+    const inline = this.getRulesBase();
 
     const escape = new ExtendRegexp(inline.escape)
     .setGroup('])', '~|])')

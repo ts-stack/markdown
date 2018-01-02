@@ -4,18 +4,18 @@ import {
   LexerReturns,
   Marked,
   RulesBlockGfm,
-  RulesBlockMain,
+  RulesBlockBase,
   RulesBlockTables
 } from '../';
 
-export interface RulesMyBlockMain extends RulesBlockMain
+export interface RulesMyBlockBase extends RulesBlockBase
 {
   someAdditionalProperty: string;
 }
 
 export class MyBlockLexer<T extends typeof BlockLexer> extends BlockLexer<T>
 {
-  protected rules: RulesMyBlockMain | RulesBlockGfm | RulesBlockTables;
+  protected rules: RulesMyBlockBase | RulesBlockGfm | RulesBlockTables;
 
   static lex(src: string, options?: MarkedOptions, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
@@ -29,9 +29,9 @@ export class MyBlockLexer<T extends typeof BlockLexer> extends BlockLexer<T>
     return super.getRulesGfm();
   }
 
-  protected isMyBlockGrammar(block: RulesMyBlockMain | RulesBlockGfm | RulesBlockTables): block is RulesMyBlockMain
+  protected isMyBlockGrammar(block: RulesMyBlockBase | RulesBlockGfm | RulesBlockTables): block is RulesMyBlockBase
   {
-    return (<RulesMyBlockMain>block).someAdditionalProperty !== undefined;
+    return (<RulesMyBlockBase>block).someAdditionalProperty !== undefined;
   }
 }
 
