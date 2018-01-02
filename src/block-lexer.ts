@@ -26,15 +26,15 @@ import {
 
 export class BlockLexer<T extends typeof BlockLexer>
 {
-  protected static block: RulesBlockBase;
+  protected static rulesBase: RulesBlockBase;
   /**
    * GFM Block Grammar.
    */
-  protected static blockGfm: RulesBlockGfm;
+  protected static rulesGfm: RulesBlockGfm;
   /**
    * GFM + Tables Block Grammar.
    */
-  protected static blockTables: RulesBlockTables;
+  protected static rulesTables: RulesBlockTables;
   protected rules: RulesBlockBase | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
   protected links: Links;
@@ -166,8 +166,8 @@ export class BlockLexer<T extends typeof BlockLexer>
 
   protected static getRulesBase(): RulesBlockBase
   {
-    if(this.block)
-      return this.block;
+    if(this.rulesBase)
+      return this.rulesBase;
 
     const block: RulesBlockBase =
     {
@@ -218,13 +218,13 @@ export class BlockLexer<T extends typeof BlockLexer>
     .setGroup('def', block.def)
     .getRegexp();
 
-    return this.block = block;
+    return this.rulesBase = block;
   }
 
   protected static getRulesGfm(): RulesBlockGfm
   {
-    if(this.blockGfm)
-      return this.blockGfm;
+    if(this.rulesGfm)
+      return this.rulesGfm;
 
     const block = this.getRulesBase();
 
@@ -245,15 +245,15 @@ export class BlockLexer<T extends typeof BlockLexer>
     .setGroup('(?!', `(?!${group1}|${group2}|`)
     .getRegexp();
 
-    return this.blockGfm = gfm;
+    return this.rulesGfm = gfm;
   }
 
   protected static getRulesTable(): RulesBlockTables
   {
-    if(this.blockTables)
-      return this.blockTables;
+    if(this.rulesTables)
+      return this.rulesTables;
 
-    return this.blockTables =
+    return this.rulesTables =
     {
       ...this.getRulesGfm(),
       ...{
