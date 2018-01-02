@@ -77,7 +77,7 @@ export type Align = 'center' | 'left' | 'right';
 
 export interface Token
 {
-  type?: TokenType;
+  type: TokenType;
   text?: string;
   lang?: string;
   depth?: number;
@@ -181,12 +181,12 @@ export interface BlockRuleCallback
 {
   condition(top?: boolean, isBlockQuote?: boolean): RegExp,
   action(execArr: RegExpExecArray, top?: boolean, isBlockQuote?: boolean): void,
-  regexp?: RegExp
+  regexp?: RegExp | false
 }
 
 export interface InlineRuleFunction
 {
   condition(): RegExp,
   action(execArr: RegExpExecArray): void,
-  regexp?: RegExp
+  regexp?: RegExp | false
 }
