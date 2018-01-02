@@ -30,19 +30,19 @@ import {
  */
 export class InlineLexer<T extends typeof InlineLexer>
 {
-  protected static inline: RulesInlineBase;
+  protected static rulesBase: RulesInlineBase;
   /**
    * Pedantic Inline Grammar.
    */
-  protected static inlinePedantic: RulesInlinePedantic;
+  protected static rulesPedantic: RulesInlinePedantic;
   /**
    * GFM Inline Grammar
    */
-  protected static inlineGfm: RulesInlineGfm;
+  protected static rulesGfm: RulesInlineGfm;
   /**
    * GFM + Line Breaks Inline Grammar.
    */
-  protected static inlineBreaks: RulesInlineBreaks;
+  protected static rulesBreaks: RulesInlineBreaks;
   protected links: Links;
   protected rules: RulesInlineBase;
   protected options: MarkedOptions;
@@ -89,8 +89,8 @@ export class InlineLexer<T extends typeof InlineLexer>
 
   protected static getRulesBase(): RulesInlineBase
   {
-    if(this.inline)
-      return this.inline;
+    if(this.rulesBase)
+      return this.rulesBase;
 
     /**
      * Inline-Level Grammar.
@@ -121,15 +121,15 @@ export class InlineLexer<T extends typeof InlineLexer>
     .setGroup('inside', inline._inside)
     .getRegexp();
 
-    return this.inline = inline;
+    return this.rulesBase = inline;
   }
 
   protected static getRulesPedantic(): RulesInlinePedantic
   {
-    if(this.inlinePedantic)
-      return this.inlinePedantic;
+    if(this.rulesPedantic)
+      return this.rulesPedantic;
 
-    return this.inlinePedantic =
+    return this.rulesPedantic =
     {
       ...this.getRulesBase(),
       ...{
@@ -141,8 +141,8 @@ export class InlineLexer<T extends typeof InlineLexer>
 
   protected static getRulesGfm(): RulesInlineGfm
   {
-    if(this.inlineGfm)
-      return this.inlineGfm;
+    if(this.rulesGfm)
+      return this.rulesGfm;
     
     const inline = this.getRulesBase();
 
@@ -155,7 +155,7 @@ export class InlineLexer<T extends typeof InlineLexer>
     .setGroup('|', '|https?://|')
     .getRegexp();
 
-    return this.inlineGfm =
+    return this.rulesGfm =
     {
       ...inline,
       ...{
@@ -169,13 +169,13 @@ export class InlineLexer<T extends typeof InlineLexer>
 
   protected static getRulesBreaks(): RulesInlineBreaks
   {
-    if(this.inlineBreaks)
-      return this.inlineBreaks;
+    if(this.rulesBreaks)
+      return this.rulesBreaks;
     
     const inline = this.getRulesGfm();
     const gfm = this.getRulesGfm();
 
-    return this.inlineBreaks =
+    return this.rulesBreaks =
     {
       ...gfm,
       ...{
