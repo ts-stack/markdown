@@ -169,7 +169,7 @@ export class BlockLexer<T extends typeof BlockLexer>
     if(this.rulesBase)
       return this.rulesBase;
 
-    const block: RulesBlockBase =
+    const base: RulesBlockBase =
     {
       newline: /^\n+/,
       code: /^( {4}[^\n]+\n*)+/,
@@ -187,38 +187,38 @@ export class BlockLexer<T extends typeof BlockLexer>
       _tag: ''
     };
 
-    block.item = new ExtendRegexp(block.item, 'gm')
-    .setGroup(/bull/g, block.bullet)
+    base.item = new ExtendRegexp(base.item, 'gm')
+    .setGroup(/bull/g, base.bullet)
     .getRegexp();
 
-    block.list = new ExtendRegexp(block.list)
-    .setGroup(/bull/g, block.bullet)
+    base.list = new ExtendRegexp(base.list)
+    .setGroup(/bull/g, base.bullet)
     .setGroup('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
-    .setGroup('def', '\\n+(?=' + block.def.source + ')')
+    .setGroup('def', '\\n+(?=' + base.def.source + ')')
     .getRegexp();
 
-    block._tag = '(?!(?:'
+    base._tag = '(?!(?:'
       + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
       + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
       + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
 
-    block.html = new ExtendRegexp(block.html)
+    base.html = new ExtendRegexp(base.html)
     .setGroup('comment', /<!--[\s\S]*?-->/)
     .setGroup('closed', /<(tag)[\s\S]+?<\/\1>/)
     .setGroup('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
-    .setGroup(/tag/g, block._tag)
+    .setGroup(/tag/g, base._tag)
     .getRegexp();
 
-    block.paragraph = new ExtendRegexp(block.paragraph)
-    .setGroup('hr', block.hr)
-    .setGroup('heading', block.heading)
-    .setGroup('lheading', block.lheading)
-    .setGroup('blockquote', block.blockquote)
-    .setGroup('tag', '<' + block._tag)
-    .setGroup('def', block.def)
+    base.paragraph = new ExtendRegexp(base.paragraph)
+    .setGroup('hr', base.hr)
+    .setGroup('heading', base.heading)
+    .setGroup('lheading', base.lheading)
+    .setGroup('blockquote', base.blockquote)
+    .setGroup('tag', '<' + base._tag)
+    .setGroup('def', base.def)
     .getRegexp();
 
-    return this.rulesBase = block;
+    return this.rulesBase = base;
   }
 
   protected static getRulesGfm(): RulesBlockGfm
@@ -226,11 +226,11 @@ export class BlockLexer<T extends typeof BlockLexer>
     if(this.rulesGfm)
       return this.rulesGfm;
 
-    const block = this.getRulesBase();
+    const base = this.getRulesBase();
 
     const gfm: RulesBlockGfm =
     {
-      ...block,
+      ...base,
       ...{
         fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
         paragraph: /^/,
@@ -239,9 +239,9 @@ export class BlockLexer<T extends typeof BlockLexer>
     };
 
     const group1 = gfm.fences.source.replace('\\1', '\\2');
-    const group2 = block.list.source.replace('\\1', '\\3');
+    const group2 = base.list.source.replace('\\1', '\\3');
 
-    gfm.paragraph = new ExtendRegexp(block.paragraph)
+    gfm.paragraph = new ExtendRegexp(base.paragraph)
     .setGroup('(?!', `(?!${group1}|${group2}|`)
     .getRegexp();
 

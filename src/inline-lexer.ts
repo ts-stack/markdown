@@ -185,7 +185,7 @@ export class InlineLexer<T extends typeof InlineLexer>
     /**
      * Inline-Level Grammar.
      */
-    const inline: RulesInlineBase =
+    const base: RulesInlineBase =
     {
       escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
       autolink: /^<([^ <>]+(@|:\/)[^ <>]+)>/,
@@ -202,16 +202,16 @@ export class InlineLexer<T extends typeof InlineLexer>
       _href: /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/,
     };
 
-    inline.link = new ExtendRegexp(inline.link)
-    .setGroup('inside', inline._inside)
-    .setGroup('href', inline._href)
+    base.link = new ExtendRegexp(base.link)
+    .setGroup('inside', base._inside)
+    .setGroup('href', base._href)
     .getRegexp();
 
-    inline.reflink = new ExtendRegexp(inline.reflink)
-    .setGroup('inside', inline._inside)
+    base.reflink = new ExtendRegexp(base.reflink)
+    .setGroup('inside', base._inside)
     .getRegexp();
 
-    return this.rulesBase = inline;
+    return this.rulesBase = base;
   }
 
   protected static getRulesPedantic(): RulesInlinePedantic
@@ -234,20 +234,20 @@ export class InlineLexer<T extends typeof InlineLexer>
     if(this.rulesGfm)
       return this.rulesGfm;
     
-    const inline = this.getRulesBase();
+    const base = this.getRulesBase();
 
-    const escape = new ExtendRegexp(inline.escape)
+    const escape = new ExtendRegexp(base.escape)
     .setGroup('])', '~|])')
     .getRegexp();
 
-    const text = new ExtendRegexp(inline.text)
+    const text = new ExtendRegexp(base.text)
     .setGroup(']|', '~]|')
     .setGroup('|', '|https?://|')
     .getRegexp();
 
     return this.rulesGfm =
     {
-      ...inline,
+      ...base,
       ...{
         escape: escape,
         url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
