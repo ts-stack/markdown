@@ -11,7 +11,7 @@
 import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
 import {
-  RulesBlockMain,
+  RulesBlockBase,
   MarkedOptions,
   Token,
   Links,
@@ -26,7 +26,7 @@ import {
 
 export class BlockLexer<T extends typeof BlockLexer>
 {
-  protected static block: RulesBlockMain;
+  protected static block: RulesBlockBase;
   /**
    * GFM Block Grammar.
    */
@@ -35,7 +35,7 @@ export class BlockLexer<T extends typeof BlockLexer>
    * GFM + Tables Block Grammar.
    */
   protected static blockTables: RulesBlockTables;
-  protected rules: RulesBlockMain | RulesBlockGfm | RulesBlockTables;
+  protected rules: RulesBlockBase | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
   protected links: Links;
   protected tokens: Token[];
@@ -85,7 +85,7 @@ export class BlockLexer<T extends typeof BlockLexer>
     }
     else
     {
-      this.rules = this.staticThis.getRulesMain();
+      this.rules = this.staticThis.getRulesBase();
     }
 
     this.hasRulesGfm = (<RulesBlockGfm>this.rules).fences !== undefined;
@@ -164,12 +164,12 @@ export class BlockLexer<T extends typeof BlockLexer>
     ];
   }
 
-  protected static getRulesMain(): RulesBlockMain
+  protected static getRulesBase(): RulesBlockBase
   {
     if(this.block)
       return this.block;
 
-    const block: RulesBlockMain =
+    const block: RulesBlockBase =
     {
       newline: /^\n+/,
       code: /^( {4}[^\n]+\n*)+/,
@@ -226,7 +226,7 @@ export class BlockLexer<T extends typeof BlockLexer>
     if(this.blockGfm)
       return this.blockGfm;
 
-    const block = this.getRulesMain();
+    const block = this.getRulesBase();
 
     const gfm: RulesBlockGfm =
     {
@@ -492,7 +492,7 @@ export class BlockLexer<T extends typeof BlockLexer>
       // Backpedal if it does not belong in this list.
       if(this.options.smartLists && i !== length - 1)
       {
-        blockBullet = this.staticThis.getRulesMain().bullet.exec(str[i + 1])[0];
+        blockBullet = this.staticThis.getRulesBase().bullet.exec(str[i + 1])[0];
 
         if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
         {
