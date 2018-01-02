@@ -77,7 +77,7 @@ export type Align = 'center' | 'left' | 'right';
 
 export interface Token
 {
-  type?: TokenType;
+  type: TokenType;
   text?: string;
   lang?: string;
   depth?: number;
