@@ -20,7 +20,7 @@ export class Parser
 {
   protected tokens: Token[];
   protected token: Token;
-  protected inlineLexer: InlineLexer<any>;
+  protected inlineLexer: InlineLexer;
   protected options: MarkedOptions;
   protected renderer: Renderer;
 
