@@ -179,72 +179,72 @@ export class BlockLexer extends AbstractBlockLexer
       // new line
       {
         condition: this.conditionNewline,
-        action: this.actionNewline
+        tokenize: this.tokenizeNewline
       },
       // code
       {
         condition: this.conditionCode,
-        action: this.actionCode
+        tokenize: this.tokenizeCode
       },
       // fences code (gfm)
       {
         condition: this.conditionFencesCode,
-        action: this.actionFencesCode
+        tokenize: this.tokenizeFencesCode
       },
       // heading
       {
         condition: this.conditionHeading,
-        action: this.actionHeading
+        tokenize: this.tokenizeHeading
       },
       // table no leading pipe (gfm)
       {
         condition: this.conditionNptable,
-        action: this.actionNptable
+        tokenize: this.tokenizeNptable
       },
       // lheading
       {
         condition: this.conditionLheading,
-        action: this.actionLheading
+        tokenize: this.tokenizeLheading
       },
       // hr
       {
         condition: this.conditionkHr,
-        action: this.actionHr
+        tokenize: this.tokenizeHr
       },
       // blockquote
       {
         condition: this.conditionBlockquote,
-        action: this.actionBlockquote
+        tokenize: this.tokenizeBlockquote
       },
       // list
       {
         condition: this.conditionList,
-        action: this.actionList
+        tokenize: this.tokenizeList
       },
       // html
       {
         condition: this.conditionHtml,
-        action: this.actionHtml
+        tokenize: this.tokenizeHtml
       },
       // def
       {
         condition: this.conditionDef,
-        action: this.actionDef
+        tokenize: this.tokenizeDef
       },
       // table (gfm)
       {
         condition: this.conditionTableGfm,
-        action: this.actionTableGfm
+        tokenize: this.tokenizeTableGfm
       },
       // top-level paragraph
       {
         condition: this.conditionParagraph,
-        action: this.actionParagraph
+        tokenize: this.tokenizeParagraph
       },
       // text
       {
         condition: this.conditionText,
-        action: this.actionText
+        tokenize: this.tokenizeText
       },
     ];
   }
@@ -254,7 +254,7 @@ export class BlockLexer extends AbstractBlockLexer
     return this.rules.code;
   }
 
-  protected actionCode(execArr: RegExpExecArray): void
+  protected tokenizeCode(execArr: RegExpExecArray): void
   {
     const code = execArr[0].replace(/^ {4}/gm, '');
 
@@ -270,7 +270,7 @@ export class BlockLexer extends AbstractBlockLexer
       return (<RulesBlockGfm>this.rules).fences;
   }
 
-  protected actionFencesCode(execArr: RegExpExecArray): void
+  protected tokenizeFencesCode(execArr: RegExpExecArray): void
   {
     this.tokens.push({
       type: TokenType.code,
@@ -284,7 +284,7 @@ export class BlockLexer extends AbstractBlockLexer
     return this.rules.heading;
   }
 
-  protected actionHeading(execArr: RegExpExecArray): void
+  protected tokenizeHeading(execArr: RegExpExecArray): void
   {
     this.tokens.push({
       type: TokenType.heading,
@@ -300,7 +300,7 @@ export class BlockLexer extends AbstractBlockLexer
       return (<RulesBlockTables>this.rules).nptable;
   }
 
-  protected actionNptable(execArr: RegExpExecArray): void
+  protected tokenizeNptable(execArr: RegExpExecArray): void
   {
     const item: Token =
     {
@@ -345,7 +345,7 @@ export class BlockLexer extends AbstractBlockLexer
     return this.rules.lheading;
   }
 
-  protected actionLheading(execArr: RegExpExecArray): void
+  protected tokenizeLheading(execArr: RegExpExecArray): void
   {
     this.tokens.push({
       type: TokenType.heading,
@@ -359,7 +359,7 @@ export class BlockLexer extends AbstractBlockLexer
     return this.rules.hr;
   }
 
-  protected actionHr(): void
+  protected tokenizeHr(): void
   {
     this.tokens.push({type: TokenType.hr});
   }
@@ -369,7 +369,7 @@ export class BlockLexer extends AbstractBlockLexer
     return this.rules.blockquote;
   }
 
-  protected actionBlockquote(execArr: RegExpExecArray): void
+  protected tokenizeBlockquote(execArr: RegExpExecArray): void
   {
     this.tokens.push({type: TokenType.blockquoteStart});
     const str = execArr[0].replace(/^ *> ?/gm, '');
@@ -394,7 +394,7 @@ export class BlockLexer extends AbstractBlockLexer
    * 
    * @todo Improve performance.
    */
-  protected actionList(execArr: RegExpExecArray, top: boolean, isBlockQuote: boolean): void
+  protected tokenizeList(execArr: RegExpExecArray, top: boolean, isBlockQuote: boolean): void
   {
     const bull: string = execArr[2];
 
@@ -473,7 +473,7 @@ export class BlockLexer extends AbstractBlockLexer
     return this.rules.html;
   }
 
-  protected actionHtml(execArr: RegExpExecArray): void
+  protected tokenizeHtml(execArr: RegExpExecArray): void
   {
     const attr = execArr[1];
     const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
@@ -492,7 +492,7 @@ export class BlockLexer extends AbstractBlockLexer
       return this.rules.def;
   }
 
-  protected actionDef(execArr: RegExpExecArray): void
+  protected tokenizeDef(execArr: RegExpExecArray): void
   {
     this.links[execArr[1].toLowerCase()] =
     {
@@ -507,7 +507,7 @@ export class BlockLexer extends AbstractBlockLexer
       return (<RulesBlockTables>this.rules).table;
   }
 
-  protected actionTableGfm(execArr: RegExpExecArray): void
+  protected tokenizeTableGfm(execArr: RegExpExecArray): void
   {
     const item: Token =
     {
@@ -555,7 +555,7 @@ export class BlockLexer extends AbstractBlockLexer
       return this.rules.paragraph;
   }
 
-  protected actionParagraph(execArr: RegExpExecArray): void
+  protected tokenizeParagraph(execArr: RegExpExecArray): void
   {
     if(execArr[1].charAt(execArr[1].length - 1) === '\n')
     {
@@ -579,7 +579,7 @@ export class BlockLexer extends AbstractBlockLexer
     return this.rules.text;
   }
 
-  protected actionText(execArr: RegExpExecArray): void
+  protected tokenizeText(execArr: RegExpExecArray): void
   {
     // Top-level should never reach here.
     this.tokens.push({type: TokenType.text, text: execArr[0]});

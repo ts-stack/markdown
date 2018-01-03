@@ -85,7 +85,7 @@ export abstract class AbstractInlineLexer
         if( callbacks.regexp && (execArr = callbacks.regexp.exec(this.nextPart)) )
         {
           this.nextPart = this.nextPart.substring(execArr[0].length);
-          callbacks.action.call(this, execArr);
+          callbacks.tokenize.call(this, execArr);
           continue nextPart;
         }
       }

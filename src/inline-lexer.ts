@@ -187,67 +187,67 @@ export class InlineLexer extends AbstractInlineLexer
       // escape
       {
         condition: this.conditionEscape,
-        action: this.actionEscape
+        tokenize: this.tokenizeEscape
       },
       // autolink
       {
         condition: this.conditionAutolink,
-        action: this.actionAutolink
+        tokenize: this.tokenizeAutolink
       },
       // url (gfm)
       {
         condition: this.conditionUrl,
-        action: this.actionUrl
+        tokenize: this.tokenizeUrl
       },
       // tag
       {
         condition: this.conditionTag,
-        action: this.actionTag
+        tokenize: this.tokenizeTag
       },
       // link
       {
         condition: this.conditionLink,
-        action: this.actionLink
+        tokenize: this.tokenizeLink
       },
       // reflink
       {
         condition: this.conditionReflink,
-        action: this.actionReflink
+        tokenize: this.tokenizeReflink
       },
       // nolink
       {
         condition: this.conditionNolink,
-        action: this.actionNolink
+        tokenize: this.tokenizeNolink
       },
       // strong
       {
         condition: this.conditionStrong,
-        action: this.actionStrong
+        tokenize: this.tokenizeStrong
       },
       // em
       {
         condition: this.conditionEm,
-        action: this.actionEm
+        tokenize: this.tokenizeEm
       },
       // code
       {
         condition: this.conditionCode,
-        action: this.actionCode
+        tokenize: this.tokenizeCode
       },
       // br
       {
         condition: this.conditionBr,
-        action: this.actionBr
+        tokenize: this.tokenizeBr
       },
       // del (gfm)
       {
         condition: this.conditionDel,
-        action: this.actionDel
+        tokenize: this.tokenizeDel
       },
       // text
       {
         condition: this.conditionText,
-        action: this.actionText
+        tokenize: this.tokenizeText
       }
     ];
   }
@@ -257,7 +257,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.escape;
   }
 
-  protected actionEscape(execArr: RegExpExecArray): void
+  protected tokenizeEscape(execArr: RegExpExecArray): void
   {
     this.out += execArr[1];
   }
@@ -267,7 +267,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.autolink;
   }
 
-  protected actionAutolink(execArr: RegExpExecArray): void
+  protected tokenizeAutolink(execArr: RegExpExecArray): void
   {
     let text: string, href: string;
 
@@ -298,7 +298,7 @@ export class InlineLexer extends AbstractInlineLexer
     }
   }
 
-  protected actionUrl(execArr: RegExpExecArray): void
+  protected tokenizeUrl(execArr: RegExpExecArray): void
   {
     let text: string, href: string;
     text = this.options.escape(execArr[1]);
@@ -311,7 +311,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.tag;
   }
 
-  protected actionTag(execArr: RegExpExecArray): void
+  protected tokenizeTag(execArr: RegExpExecArray): void
   {
     if(!this.inLink && /^<a /i.test(execArr[0]))
     {
@@ -334,7 +334,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.link;
   }
 
-  protected actionLink(execArr: RegExpExecArray): void
+  protected tokenizeLink(execArr: RegExpExecArray): void
   {
     this.inLink = true;
 
@@ -352,9 +352,9 @@ export class InlineLexer extends AbstractInlineLexer
   }
 
   /**
-   * @todo Improve this (it's duplicate of actionNolink())
+   * @todo Improve this (it's duplicate of tokenizeNolink())
    */
-  protected actionReflink(execArr: RegExpExecArray): void
+  protected tokenizeReflink(execArr: RegExpExecArray): void
   {
     const keyLink = (execArr[2] || execArr[1]).replace(/\s+/g, ' ');
     const link = this.links[keyLink.toLowerCase()];
@@ -377,9 +377,9 @@ export class InlineLexer extends AbstractInlineLexer
   }
 
   /**
-   * @todo Improve this (it's duplicate of actionReflink())
+   * @todo Improve this (it's duplicate of tokenizeReflink())
    */
-  protected actionNolink(execArr: RegExpExecArray): void
+  protected tokenizeNolink(execArr: RegExpExecArray): void
   {
     const keyLink = (execArr[2] || execArr[1]).replace(/\s+/g, ' ');
     const link = this.links[keyLink.toLowerCase()];
@@ -401,7 +401,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.strong;
   }
 
-  protected actionStrong(execArr: RegExpExecArray): void
+  protected tokenizeStrong(execArr: RegExpExecArray): void
   {
     const output = this.staticThis.output(execArr[2] || execArr[1], this.links, this.options);
     this.out += this.renderer.strong(output);
@@ -412,7 +412,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.em;
   }
 
-  protected actionEm(execArr: RegExpExecArray): void
+  protected tokenizeEm(execArr: RegExpExecArray): void
   {
     const output = this.staticThis.output(execArr[2] || execArr[1], this.links, this.options);
     this.out += this.renderer.em(output);
@@ -423,7 +423,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.code;
   }
 
-  protected actionCode(execArr: RegExpExecArray): void
+  protected tokenizeCode(execArr: RegExpExecArray): void
   {
     const output = this.options.escape(execArr[2].trim(), true);
     this.out += this.renderer.codespan(output);
@@ -434,7 +434,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.br;
   }
 
-  protected actionBr(): void
+  protected tokenizeBr(): void
   {
     this.out += this.renderer.br();
   }
@@ -445,7 +445,7 @@ export class InlineLexer extends AbstractInlineLexer
       return (<RulesInlineGfm>this.rules).del;
   }
 
-  protected actionDel(execArr: RegExpExecArray): void
+  protected tokenizeDel(execArr: RegExpExecArray): void
   {
     const output = this.staticThis.output(execArr[1], this.links, this.options);
     this.out += this.renderer.del(output);
@@ -456,7 +456,7 @@ export class InlineLexer extends AbstractInlineLexer
     return this.rules.text;
   }
 
-  protected actionText(execArr: RegExpExecArray): void
+  protected tokenizeText(execArr: RegExpExecArray): void
   {
     const output = this.options.escape(this.smartypants(execArr[0]));
     this.out += this.renderer.text(output);

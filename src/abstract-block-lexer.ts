@@ -56,7 +56,7 @@ export abstract class AbstractBlockLexer
     [
       {
         condition: this.conditionNewline,
-        action: this.actionNewline
+        tokenize: this.tokenizeNewline
       }
     ];
   }
@@ -81,7 +81,7 @@ export abstract class AbstractBlockLexer
         if( callbacks.regexp && (execArr = callbacks.regexp.exec(this.nextPart)) )
         {
           this.nextPart = this.nextPart.substring(execArr[0].length);
-          callbacks.action.call(this, execArr, top, isBlockQuote);
+          callbacks.tokenize.call(this, execArr, top, isBlockQuote);
           continue nextPart;
         }
       }
@@ -100,7 +100,7 @@ export abstract class AbstractBlockLexer
     return this.rules.newline;
   }
 
-  protected actionNewline(execArr: RegExpExecArray): void
+  protected tokenizeNewline(execArr: RegExpExecArray): void
   {
     if(execArr[0].length > 1)
     {
