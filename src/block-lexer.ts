@@ -176,6 +176,11 @@ export class BlockLexer extends AbstractBlockLexer
   {
     this.ruleCallbacks =
     [
+      // new line
+      {
+        condition: this.conditionNewline,
+        action: this.actionNewline
+      },
       // code
       {
         condition: this.conditionCode,

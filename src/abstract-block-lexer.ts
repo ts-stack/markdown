@@ -33,23 +33,6 @@ export abstract class AbstractBlockLexer
     this.init();
   }
 
-  /**
-   * Accepts Markdown text and returns object with tokens and links.
-   * 
-   * @param src String of markdown source to be compiled.
-   * @param options Hash of options.
-   * 
-   * @todo Periodically review whether it is possible
-   * to declare this static method abstract in TypeScript.
-   */
-  static lex(src: string, options?: object, top?: boolean, isBlockQuote?: boolean): LexerReturns
-  {
-    // *** Uncomment below code in a child class.
-    // const lexer = new this(this, options);
-    // return lexer.getTokens(src, top, isBlockQuote);
-    return;
-  }
-
   protected init()
   {
     this.setRules();
@@ -59,12 +42,24 @@ export abstract class AbstractBlockLexer
   /**
    * Should set an array of rules for markdown to `this.rules`.
    */
-  protected abstract setRules(): void;
+  protected setRules(): void
+  {
+    this.rules = {newline: /^\n+/};
+  }
 
   /**
    * Should set an array of rules callbacks to `this.ruleCallbacks`.
    */
-  protected abstract setRuleCallbacks(): void;
+  protected setRuleCallbacks(): void
+  {
+    this.ruleCallbacks =
+    [
+      {
+        condition: this.conditionNewline,
+        action: this.actionNewline
+      }
+    ];
+  }
 
   /**
    * Lexing.
@@ -72,23 +67,11 @@ export abstract class AbstractBlockLexer
   protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
     this.nextPart = src;
-    let execArr: RegExpExecArray;
     const lengthFn = this.ruleCallbacks.length;
 
     nextPart:
     while(this.nextPart)
     {
-      // newline
-      if( execArr = this.rules.newline.exec(this.nextPart) )
-      {
-        this.nextPart = this.nextPart.substring(execArr[0].length);
-
-        if(execArr[0].length > 1)
-        {
-          this.tokens.push({type: TokenType.space});
-        }
-      }
-
       for(let i = 0; i < lengthFn; i++)
       {
         const callbacks = this.ruleCallbacks[i];
@@ -110,5 +93,18 @@ export abstract class AbstractBlockLexer
     }
 
     return {tokens: this.tokens, links: this.links};
+  }
+
+  protected conditionNewline(): RegExp
+  {
+    return this.rules.newline;
+  }
+
+  protected actionNewline(execArr: RegExpExecArray): void
+  {
+    if(execArr[0].length > 1)
+    {
+      this.tokens.push({type: TokenType.space});
+    }
   }
 }

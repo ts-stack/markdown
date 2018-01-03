@@ -56,17 +56,6 @@ export abstract class AbstractInlineLexer
   }
 
   /**
-   * Static Lexing/Compiling Method.
-   */
-  static output(src: string, links: Links, options: MarkedOptions): string
-  {
-    // *** Uncomment below code in a child class.
-    // const inlineLexer = new this(this, links, options);
-    // return inlineLexer.output(src);
-    return;
-  }
-
-  /**
    * Should set an array of rules for markdown to `this.rules`.
    */
   protected abstract setRules(): void;
