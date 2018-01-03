@@ -9,8 +9,8 @@
  */
 
 import { ExtendRegexp } from './extend-regexp';
+import { AbstractInlineLexer } from './abstract-inline-lexer';
 import { Renderer } from './renderer';
-import { Marked } from './marked';
 import {
   RulesInlineBase,
   MarkedOptions,
@@ -25,10 +25,8 @@ import {
 
 /**
  * Inline Lexer & Compiler.
- * 
- * @todo Remove from constructor reference to current class.
  */
-export class InlineLexer<T extends typeof InlineLexer>
+export class InlineLexer extends AbstractInlineLexer
 {
   protected static rulesBase: RulesInlineBase;
   /**
@@ -43,33 +41,12 @@ export class InlineLexer<T extends typeof InlineLexer>
    * GFM + Line Breaks Inline Grammar.
    */
   protected static rulesBreaks: RulesInlineBreaks;
-  protected out = '';
-  protected nextPart = '';
-  protected links: Links;
   protected rules: RulesInlineBase | RulesInlinePedantic | RulesInlineGfm | RulesInlineBreaks;
   protected options: MarkedOptions;
   protected renderer: Renderer;
   protected inLink: boolean;
-  protected ruleFunctions: InlineRuleFunction[];
   protected hasRulesGfm: boolean;
-
-  constructor (private staticThis: T, links: Links, options?: MarkedOptions, renderer?: Renderer)
-  {
-    this.options = options || Marked.defaults;
-    this.renderer = renderer || this.options.renderer || new Renderer(this.options);
-    this.links = links;
-
-    if(!this.links)
-      throw new Error(`InlineLexer requires 'links' parameter.`);
-
-    this.init();
-  }
-
-  protected init()
-  {
-    this.setRules();
-    this.setRulesMethods();
-  }
+  protected staticThis: typeof InlineLexer;
 
   /**
    * Static Lexing/Compiling Method.
@@ -78,103 +55,6 @@ export class InlineLexer<T extends typeof InlineLexer>
   {
     const inlineLexer = new this(this, links, options);
     return inlineLexer.output(src);
-  }
-
-  protected setRules()
-  {
-    if(this.options.gfm)
-    {
-      if(this.options.breaks)
-      {
-        this.rules = this.staticThis.getRulesBreaks();
-      }
-      else
-      {
-        this.rules = this.staticThis.getRulesGfm();
-      }
-    }
-    else if(this.options.pedantic)
-    {
-      this.rules = this.staticThis.getRulesPedantic()
-    }
-    else
-    {
-      this.rules = this.staticThis.getRulesBase()
-    }
-
-    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
-  }
-
-  protected setRulesMethods()
-  {
-    this.ruleFunctions =
-    [
-      // escape
-      {
-        condition: this.conditionEscape,
-        action: this.actionEscape
-      },
-      // autolink
-      {
-        condition: this.conditionAutolink,
-        action: this.actionAutolink
-      },
-      // url (gfm)
-      {
-        condition: this.conditionUrl,
-        action: this.actionUrl
-      },
-      // tag
-      {
-        condition: this.conditionTag,
-        action: this.actionTag
-      },
-      // link
-      {
-        condition: this.conditionLink,
-        action: this.actionLink
-      },
-      // reflink
-      {
-        condition: this.conditionReflink,
-        action: this.actionReflink
-      },
-      // nolink
-      {
-        condition: this.conditionNolink,
-        action: this.actionNolink
-      },
-      // strong
-      {
-        condition: this.conditionStrong,
-        action: this.actionStrong
-      },
-      // em
-      {
-        condition: this.conditionEm,
-        action: this.actionEm
-      },
-      // code
-      {
-        condition: this.conditionCode,
-        action: this.actionCode
-      },
-      // br
-      {
-        condition: this.conditionBr,
-        action: this.actionBr
-      },
-      // del (gfm)
-      {
-        condition: this.conditionDel,
-        action: this.actionDel
-      },
-      // text
-      {
-        condition: this.conditionText,
-        action: this.actionText
-      }
-    ];
   }
 
   protected static getRulesBase(): RulesInlineBase
@@ -275,40 +155,101 @@ export class InlineLexer<T extends typeof InlineLexer>
     };
   }
 
-  /**
-   * Lexing/Compiling.
-   */
-  output(nextPart: string): string
+  protected setRules()
   {
-    this.nextPart = nextPart;
-    const lengthFn = this.ruleFunctions.length;
-
-    nextPart:
-    while(this.nextPart)
+    if(this.options.gfm)
     {
-      for(let i = 0; i < lengthFn; i++)
+      if(this.options.breaks)
       {
-        const callbacks = this.ruleFunctions[i];
-        callbacks.regexp = callbacks.regexp || callbacks.condition.call(this);
-        let execArr: RegExpExecArray;
-
-        if( callbacks.regexp && (execArr = callbacks.regexp.exec(this.nextPart)) )
-        {
-          this.nextPart = this.nextPart.substring(execArr[0].length);
-          callbacks.action.call(this, execArr);
-          continue nextPart;
-        }
+        this.rules = this.staticThis.getRulesBreaks();
       }
-
-      if(this.nextPart)
+      else
       {
-        throw new Error('Infinite loop on byte: ' + this.nextPart.charCodeAt(0) + `, near text '${this.nextPart.slice(0, 30)}...'`);
+        this.rules = this.staticThis.getRulesGfm();
       }
     }
+    else if(this.options.pedantic)
+    {
+      this.rules = this.staticThis.getRulesPedantic()
+    }
+    else
+    {
+      this.rules = this.staticThis.getRulesBase()
+    }
 
-    const out = this.out;
-    this.out = '';
-    return out;
+    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
+  }
+
+  protected setRuleCallbacks()
+  {
+    this.ruleFunctions =
+    [
+      // escape
+      {
+        condition: this.conditionEscape,
+        action: this.actionEscape
+      },
+      // autolink
+      {
+        condition: this.conditionAutolink,
+        action: this.actionAutolink
+      },
+      // url (gfm)
+      {
+        condition: this.conditionUrl,
+        action: this.actionUrl
+      },
+      // tag
+      {
+        condition: this.conditionTag,
+        action: this.actionTag
+      },
+      // link
+      {
+        condition: this.conditionLink,
+        action: this.actionLink
+      },
+      // reflink
+      {
+        condition: this.conditionReflink,
+        action: this.actionReflink
+      },
+      // nolink
+      {
+        condition: this.conditionNolink,
+        action: this.actionNolink
+      },
+      // strong
+      {
+        condition: this.conditionStrong,
+        action: this.actionStrong
+      },
+      // em
+      {
+        condition: this.conditionEm,
+        action: this.actionEm
+      },
+      // code
+      {
+        condition: this.conditionCode,
+        action: this.actionCode
+      },
+      // br
+      {
+        condition: this.conditionBr,
+        action: this.actionBr
+      },
+      // del (gfm)
+      {
+        condition: this.conditionDel,
+        action: this.actionDel
+      },
+      // text
+      {
+        condition: this.conditionText,
+        action: this.actionText
+      }
+    ];
   }
 
   protected conditionEscape(): RegExp
