@@ -6,3 +6,4 @@ export * from './marked';
 export * from './parser';
 export * from './renderer';
 export * from './extend-regexp';
+export * from './abstract-block-lexer';

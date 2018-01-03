@@ -9,7 +9,7 @@
  */
 
 import { ExtendRegexp } from './extend-regexp';
-import { Marked } from './marked';
+import { AbstractBlockLexer } from './abstract-block-lexer';
 import {
   RulesBlockBase,
   MarkedOptions,
@@ -23,8 +23,7 @@ import {
   BlockRuleCallback
 } from './interfaces';
 
-
-export class BlockLexer<T extends typeof BlockLexer>
+export class BlockLexer extends AbstractBlockLexer
 {
   protected static rulesBase: RulesBlockBase;
   /**
@@ -37,26 +36,9 @@ export class BlockLexer<T extends typeof BlockLexer>
   protected static rulesTables: RulesBlockTables;
   protected rules: RulesBlockBase | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
-  protected links: Links;
-  protected tokens: Token[];
-  protected nextPart: string;
-  protected ruleFunctions: BlockRuleCallback[];
   protected hasRulesGfm: boolean;
   protected hasRulesTables: boolean;
-
-  constructor (private staticThis: T, options?: MarkedOptions)
-  {
-    this.options = options || Marked.defaults;
-    this.links = {};
-    this.tokens = [];
-    this.init();
-  }
-
-  protected init()
-  {
-    this.setRules();
-    this.setRulesMethods();
-  }
+  protected staticThis: typeof BlockLexer;
 
   /**
    * Accepts Markdown text and returns object with tokens and links.
@@ -68,6 +50,104 @@ export class BlockLexer<T extends typeof BlockLexer>
   {
     const lexer = new this(this, options);
     return lexer.getTokens(src, top, isBlockQuote);
+  }
+
+  protected static getRulesBase(): RulesBlockBase
+  {
+    if(this.rulesBase)
+      return this.rulesBase;
+
+    const base: RulesBlockBase =
+    {
+      newline: /^\n+/,
+      code: /^( {4}[^\n]+\n*)+/,
+      hr: /^( *[-*_]){3,} *(?:\n+|$)/,
+      heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
+      lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
+      blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
+      list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
+      html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
+      def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
+      paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
+      text: /^[^\n]+/,
+      bullet: /(?:[*+-]|\d+\.)/,
+      item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
+    };
+
+    base.item = new ExtendRegexp(base.item, 'gm')
+    .setGroup(/bull/g, base.bullet)
+    .getRegexp();
+
+    base.list = new ExtendRegexp(base.list)
+    .setGroup(/bull/g, base.bullet)
+    .setGroup('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
+    .setGroup('def', '\\n+(?=' + base.def.source + ')')
+    .getRegexp();
+
+    const tag = '(?!(?:'
+      + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
+      + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
+      + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
+
+    base.html = new ExtendRegexp(base.html)
+    .setGroup('comment', /<!--[\s\S]*?-->/)
+    .setGroup('closed', /<(tag)[\s\S]+?<\/\1>/)
+    .setGroup('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
+    .setGroup(/tag/g, tag)
+    .getRegexp();
+
+    base.paragraph = new ExtendRegexp(base.paragraph)
+    .setGroup('hr', base.hr)
+    .setGroup('heading', base.heading)
+    .setGroup('lheading', base.lheading)
+    .setGroup('blockquote', base.blockquote)
+    .setGroup('tag', '<' + tag)
+    .setGroup('def', base.def)
+    .getRegexp();
+
+    return this.rulesBase = base;
+  }
+
+  protected static getRulesGfm(): RulesBlockGfm
+  {
+    if(this.rulesGfm)
+      return this.rulesGfm;
+
+    const base = this.getRulesBase();
+
+    const gfm: RulesBlockGfm =
+    {
+      ...base,
+      ...{
+        fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
+        paragraph: /^/,
+        heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
+      }
+    };
+
+    const group1 = gfm.fences.source.replace('\\1', '\\2');
+    const group2 = base.list.source.replace('\\1', '\\3');
+
+    gfm.paragraph = new ExtendRegexp(base.paragraph)
+    .setGroup('(?!', `(?!${group1}|${group2}|`)
+    .getRegexp();
+
+    return this.rulesGfm = gfm;
+  }
+
+  protected static getRulesTable(): RulesBlockTables
+  {
+    if(this.rulesTables)
+      return this.rulesTables;
+
+    return this.rulesTables =
+    {
+      ...this.getRulesGfm(),
+      ...{
+        nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
+        table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
+      }
+    };
   }
 
   protected setRules()
@@ -92,9 +172,9 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
   }
 
-  protected setRulesMethods()
+  protected setRuleCallbacks()
   {
-    this.ruleFunctions =
+    this.ruleCallbacks =
     [
       // code
       {
@@ -162,151 +242,6 @@ export class BlockLexer<T extends typeof BlockLexer>
         action: this.actionText
       },
     ];
-  }
-
-  protected static getRulesBase(): RulesBlockBase
-  {
-    if(this.rulesBase)
-      return this.rulesBase;
-
-    const base: RulesBlockBase =
-    {
-      newline: /^\n+/,
-      code: /^( {4}[^\n]+\n*)+/,
-      hr: /^( *[-*_]){3,} *(?:\n+|$)/,
-      heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
-      lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-      blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-      list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
-      html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
-      def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
-      paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
-      text: /^[^\n]+/,
-      bullet: /(?:[*+-]|\d+\.)/,
-      item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/,
-      _tag: ''
-    };
-
-    base.item = new ExtendRegexp(base.item, 'gm')
-    .setGroup(/bull/g, base.bullet)
-    .getRegexp();
-
-    base.list = new ExtendRegexp(base.list)
-    .setGroup(/bull/g, base.bullet)
-    .setGroup('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
-    .setGroup('def', '\\n+(?=' + base.def.source + ')')
-    .getRegexp();
-
-    base._tag = '(?!(?:'
-      + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
-      + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
-      + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
-
-    base.html = new ExtendRegexp(base.html)
-    .setGroup('comment', /<!--[\s\S]*?-->/)
-    .setGroup('closed', /<(tag)[\s\S]+?<\/\1>/)
-    .setGroup('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
-    .setGroup(/tag/g, base._tag)
-    .getRegexp();
-
-    base.paragraph = new ExtendRegexp(base.paragraph)
-    .setGroup('hr', base.hr)
-    .setGroup('heading', base.heading)
-    .setGroup('lheading', base.lheading)
-    .setGroup('blockquote', base.blockquote)
-    .setGroup('tag', '<' + base._tag)
-    .setGroup('def', base.def)
-    .getRegexp();
-
-    return this.rulesBase = base;
-  }
-
-  protected static getRulesGfm(): RulesBlockGfm
-  {
-    if(this.rulesGfm)
-      return this.rulesGfm;
-
-    const base = this.getRulesBase();
-
-    const gfm: RulesBlockGfm =
-    {
-      ...base,
-      ...{
-        fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
-        paragraph: /^/,
-        heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
-      }
-    };
-
-    const group1 = gfm.fences.source.replace('\\1', '\\2');
-    const group2 = base.list.source.replace('\\1', '\\3');
-
-    gfm.paragraph = new ExtendRegexp(base.paragraph)
-    .setGroup('(?!', `(?!${group1}|${group2}|`)
-    .getRegexp();
-
-    return this.rulesGfm = gfm;
-  }
-
-  protected static getRulesTable(): RulesBlockTables
-  {
-    if(this.rulesTables)
-      return this.rulesTables;
-
-    return this.rulesTables =
-    {
-      ...this.getRulesGfm(),
-      ...{
-        nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
-        table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
-      }
-    };
-  }
-
-  /**
-   * Lexing.
-   */
-  protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
-  {
-    this.nextPart = src;
-    let execArr: RegExpExecArray;
-    const lengthFn = this.ruleFunctions.length;
-
-    nextPart:
-    while(this.nextPart)
-    {
-      // newline
-      if( execArr = this.rules.newline.exec(this.nextPart) )
-      {
-        this.nextPart = this.nextPart.substring(execArr[0].length);
-
-        if(execArr[0].length > 1)
-        {
-          this.tokens.push({type: TokenType.space});
-        }
-      }
-
-      for(let i = 0; i < lengthFn; i++)
-      {
-        const callbacks = this.ruleFunctions[i];
-        callbacks.regexp = callbacks.regexp || callbacks.condition.call(this, top, isBlockQuote);
-        let execArr: RegExpExecArray;
-
-        if( callbacks.regexp && (execArr = callbacks.regexp.exec(this.nextPart)) )
-        {
-          this.nextPart = this.nextPart.substring(execArr[0].length);
-          callbacks.action.call(this, execArr, top, isBlockQuote);
-          continue nextPart;
-        }
-      }
-
-      if(this.nextPart)
-      {
-        throw new Error('Infinite loop on byte: ' + this.nextPart.charCodeAt(0) + `, near text '${this.nextPart.slice(0, 30)}...'`);
-      }
-    }
-
-    return {tokens: this.tokens, links: this.links};
   }
 
   protected conditionCode(): RegExp

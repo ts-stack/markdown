@@ -27,8 +27,7 @@ export interface RulesBlockBase
   /**
    * List item (<li>).
    */
-  item: RegExp,
-  _tag: string
+  item: RegExp
 }
 
 export interface RulesBlockGfm extends RulesBlockBase

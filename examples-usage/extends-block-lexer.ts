@@ -13,7 +13,7 @@ export interface MyRulesBlockBase extends RulesBlockBase
   someAdditionalProperty: string;
 }
 
-export class MyBlockLexer<T extends typeof BlockLexer> extends BlockLexer<T>
+export class MyBlockLexer extends BlockLexer
 {
   protected rules: MyRulesBlockBase | RulesBlockGfm | RulesBlockTables;
 
