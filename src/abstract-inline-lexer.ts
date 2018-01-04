@@ -18,7 +18,7 @@ import {
   RulesInlineGfm,
   RulesInlineBreaks,
   RulesInlinePedantic,
-  InlineRuleFunction
+  RulesInlineCallback
 } from './interfaces';
 
 
@@ -31,7 +31,7 @@ export abstract class AbstractInlineLexer
   protected nextPart = '';
   protected rules: object;
   protected renderer: object;
-  protected ruleFunctions: InlineRuleFunction[];
+  protected ruleFunctions: RulesInlineCallback[];
 
   constructor
   (

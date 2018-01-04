@@ -19,7 +19,7 @@ import {
   RulesInlineGfm,
   RulesInlineBreaks,
   RulesInlinePedantic,
-  InlineRuleFunction
+  RulesInlineCallback
 } from './interfaces';
 
 

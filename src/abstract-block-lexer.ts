@@ -13,7 +13,7 @@ import {
   Token,
   Links,
   TokenType,
-  BlockRuleCallback,
+  RulesBlockCallback,
   LexerReturns
 } from './interfaces';
 
@@ -25,7 +25,7 @@ export abstract class AbstractBlockLexer
   protected links: Links = {};
   protected tokens: Token[] = [];
   protected nextPart: string;
-  protected ruleCallbacks: BlockRuleCallback[] = [];
+  protected ruleCallbacks: RulesBlockCallback[] = [];
 
   constructor (protected staticThis: typeof AbstractBlockLexer, options?: object)
   {
@@ -40,7 +40,7 @@ export abstract class AbstractBlockLexer
   }
 
   /**
-   * Should set an array of rules for markdown to `this.rules`.
+   * Should set an array of objects with rules for markdown to `this.rules`.
    */
   protected setRules(): void
   {
@@ -48,7 +48,7 @@ export abstract class AbstractBlockLexer
   }
 
   /**
-   * Should set an array of rules callbacks to `this.ruleCallbacks`.
+   * Should set an array of objects with rules callbacks to `this.ruleCallbacks`.
    */
   protected setRuleCallbacks(): void
   {

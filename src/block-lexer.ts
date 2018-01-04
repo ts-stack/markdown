@@ -20,7 +20,7 @@ import {
   TokenType,
   RulesBlockGfm,
   RulesBlockTables,
-  BlockRuleCallback
+  RulesBlockCallback
 } from './interfaces';
 
 export class BlockLexer extends AbstractBlockLexer
