@@ -45,7 +45,6 @@ export class InlineLexer extends AbstractInlineLexer
   protected options: MarkedOptions;
   protected renderer: Renderer;
   protected inLink: boolean;
-  protected hasRulesGfm: boolean;
   protected staticThis: typeof InlineLexer;
 
   /**
@@ -176,13 +175,11 @@ export class InlineLexer extends AbstractInlineLexer
     {
       this.rules = this.staticThis.getRulesBase()
     }
-
-    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
   }
 
   protected setRuleCallbacks()
   {
-    this.ruleFunctions =
+    this.ruleCallbacks =
     [
       // escape
       {
@@ -250,6 +247,24 @@ export class InlineLexer extends AbstractInlineLexer
         tokenize: this.tokenizeText
       }
     ];
+
+    if( (<RulesInlineGfm>this.rules).url === undefined )
+    {
+      const length = this.ruleCallbacks.length;
+
+      for(let i = 0; i < this.ruleCallbacks.length; i++)
+      {
+        const cb = this.ruleCallbacks[i];
+
+        if(cb.tokenize.name == 'tokenizeDel' || cb.tokenize.name == 'tokenizeUrl')
+        {
+          this.ruleCallbacks.splice(i, 1);
+          if(length - 2 == this.ruleCallbacks.length)
+            break;
+          --i;
+        }
+      }
+    }
   }
 
   protected conditionEscape(): RegExp
@@ -292,7 +307,7 @@ export class InlineLexer extends AbstractInlineLexer
 
   protected conditionUrl(): RegExp
   {
-    if(!this.inLink && this.hasRulesGfm)
+    if(!this.inLink)
     {
       return (<RulesInlineGfm>this.rules).url;
     }
@@ -441,8 +456,7 @@ export class InlineLexer extends AbstractInlineLexer
 
   protected conditionDel(): RegExp
   {
-    if(this.hasRulesGfm)
-      return (<RulesInlineGfm>this.rules).del;
+    return (<RulesInlineGfm>this.rules).del;
   }
 
   protected tokenizeDel(execArr: RegExpExecArray): void

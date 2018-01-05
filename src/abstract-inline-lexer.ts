@@ -31,7 +31,7 @@ export abstract class AbstractInlineLexer
   protected nextPart = '';
   protected rules: object;
   protected renderer: object;
-  protected ruleFunctions: RulesInlineCallback[];
+  protected ruleCallbacks: RulesInlineCallback[];
 
   constructor
   (
@@ -71,14 +71,14 @@ export abstract class AbstractInlineLexer
   output(nextPart: string): string
   {
     this.nextPart = nextPart;
-    const lengthFn = this.ruleFunctions.length;
+    const lengthFn = this.ruleCallbacks.length;
 
     nextPart:
     while(this.nextPart)
     {
       for(let i = 0; i < lengthFn; i++)
       {
-        const callbacks = this.ruleFunctions[i];
+        const callbacks = this.ruleCallbacks[i];
         callbacks.regexp = callbacks.regexp || callbacks.condition.call(this);
         let execArr: RegExpExecArray;
 

@@ -36,8 +36,6 @@ export class BlockLexer extends AbstractBlockLexer
   protected static rulesTables: RulesBlockTables;
   protected rules: RulesBlockBase | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
-  protected hasRulesGfm: boolean;
-  protected hasRulesTables: boolean;
   protected staticThis: typeof BlockLexer;
 
   /**
@@ -167,9 +165,6 @@ export class BlockLexer extends AbstractBlockLexer
     {
       this.rules = this.staticThis.getRulesBase();
     }
-
-    this.hasRulesGfm = (<RulesBlockGfm>this.rules).fences !== undefined;
-    this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
   }
 
   protected setRuleCallbacks()
@@ -208,7 +203,7 @@ export class BlockLexer extends AbstractBlockLexer
       },
       // hr
       {
-        condition: this.conditionkHr,
+        condition: this.conditionHr,
         tokenize: this.tokenizeHr
       },
       // blockquote
@@ -247,6 +242,29 @@ export class BlockLexer extends AbstractBlockLexer
         tokenize: this.tokenizeText
       },
     ];
+
+    if( (<RulesBlockGfm>this.rules).fences === undefined )
+    {
+      const i = this.ruleCallbacks.findIndex(cb => cb.tokenize.name == 'tokenizeFencesCode')
+      this.ruleCallbacks.splice(i, 1);
+    }
+    else if( (<RulesBlockTables>this.rules).table === undefined )
+    {
+      const length = this.ruleCallbacks.length;
+
+      for(let i = 0; i < this.ruleCallbacks.length; i++)
+      {
+        const cb = this.ruleCallbacks[i];
+
+        if(cb.tokenize.name == 'tokenizeNptable' || cb.tokenize.name == 'tokenizeTableGfm')
+        {
+          this.ruleCallbacks.splice(i, 1);
+          if(length - 2 == this.ruleCallbacks.length)
+            break;
+          --i;
+        }
+      }
+    }
   }
 
   protected conditionCode(): RegExp
@@ -266,8 +284,7 @@ export class BlockLexer extends AbstractBlockLexer
 
   protected conditionFencesCode(): RegExp
   {
-    if(this.hasRulesGfm)
-      return (<RulesBlockGfm>this.rules).fences;
+    return (<RulesBlockGfm>this.rules).fences;
   }
 
   protected tokenizeFencesCode(execArr: RegExpExecArray): void
@@ -296,7 +313,7 @@ export class BlockLexer extends AbstractBlockLexer
   // table no leading pipe (gfm).
   protected conditionNptable(top: boolean): RegExp
   {
-    if(top && this.hasRulesTables)
+    if(top)
       return (<RulesBlockTables>this.rules).nptable;
   }
 
@@ -354,7 +371,7 @@ export class BlockLexer extends AbstractBlockLexer
     });
   }
 
-  protected conditionkHr(): RegExp
+  protected conditionHr(): RegExp
   {
     return this.rules.hr;
   }
@@ -374,9 +391,6 @@ export class BlockLexer extends AbstractBlockLexer
     this.tokens.push({type: TokenType.blockquoteStart});
     const str = execArr[0].replace(/^ *> ?/gm, '');
 
-    // Pass `top` to keep the current
-    // "toplevel" state. This is exactly
-    // how markdown.pl works.
     const {tokens, links} = this.staticThis.lex(str, this.options, false, true);
     this.tokens.push(...tokens);
     this.links = {...this.links, ...links};
@@ -503,7 +517,7 @@ export class BlockLexer extends AbstractBlockLexer
 
   protected conditionTableGfm(top: boolean): RegExp
   {
-    if(top && this.hasRulesTables)
+    if(top)
       return (<RulesBlockTables>this.rules).table;
   }
 
