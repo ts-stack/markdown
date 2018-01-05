@@ -137,16 +137,34 @@ you can use the `Marked.setBlockRule()` method:
 import { Marked } from 'marked-ts';
 
 const blockStr = `
-# Example usage with youtube id video
+# Example usage with embed block code
 
+@@@ gist
+a9dfd77500990871fc58b97fdb57d91f.js
 @@@
+
+@@@ youtube
 JgwnkM5WwWE
 @@@
 `;
 
-Marked.setBlockRule(/^@@@\n([\s\S]+?)\n@@@/, function (execArr) {
-  const id = execArr[1];
-  return `<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>`;
+Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
+
+  const channel = execArr[1];
+
+  switch(channel)
+  {
+    case 'youtube':
+    {
+      const id = execArr[2];
+      return `<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>\n`;
+    }
+    case 'gist':
+    {
+      const id = execArr[2];
+      return `<script src="https://gist.github.com/${id}"></script>\n`;
+    }
+  }
 });
 
 const html = Marked.parse(blockStr);
@@ -157,7 +175,8 @@ console.log(html);
 This code output:
 
 ```html
-<h1 id="example-usage-with-youtube-id-video">Example usage with youtube id video</h1>
+<h1 id="example-usage-with-embed-block-code">Example usage with embed block code</h1>
+<script src="https://gist.github.com/a9dfd77500990871fc58b97fdb57d91f.js"></script>
 <iframe width="420" height="315" src="https://www.youtube.com/embed/JgwnkM5WwWE"></iframe>
 ```
 
