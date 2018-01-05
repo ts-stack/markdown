@@ -14,7 +14,7 @@ For now - work in progress (there is only alpha.5 version).
   - [Minimal usage](#minimal-usage)
   - [Example usage with highlight.js](#example-usage-with-highlightjs)
   - [Overriding renderer methods](#overriding-renderer-methods)
-  - [Example of setting a simple rule](#example-of-setting-a-simple-rule)
+  - [Example of setting a simple block rule](#example-of-setting-a-simple-block-rule)
 - [API](#api)
   - [Methods of Marked class and necessary types](#methods-of-marked-class-and-necessary-types)
   - [Renderer methods API](#renderer-methods-api)
@@ -126,7 +126,7 @@ This code will output the following HTML:
 <h1 id="my-custom-hash">heading</h1>
 ```
 
-### Example of setting a simple rule
+### Example of setting a simple block rule
 
 This functionality is still available only in the `dev` branch.
 
@@ -137,36 +137,17 @@ you can use the `Marked.setBlockRule()` method:
 import { Marked } from 'marked-ts';
 
 const blockStr = `
-# Example usage
-
-&&&
-first block
-&&&
-
-222
-second block
-222
+# Example usage with youtube id video
 
 @@@
-third block
+JgwnkM5WwWE
 @@@
 `;
 
-// Don't use here arrow function if you need run the callbacks in Renderer class context.
-Marked
-.setBlockRule(/^@@@([\s\S]+?)@@@/, function (execArr)
-{
-  return execArr[1];
-})
-.setBlockRule(/^&&&([\s\S]+?)&&&/, function (execArr)
-{
-  return execArr[1];
-})
-.setBlockRule(/^222([\s\S]+?)222/, function (execArr)
-{
-  return execArr[1];
-})
-;
+Marked.setBlockRule(/^@@@\n([\s\S]+?)\n@@@/, function (execArr) {
+  const id = execArr[1];
+  return `<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>`;
+});
 
 const html = Marked.parse(blockStr);
 
@@ -176,13 +157,8 @@ console.log(html);
 This code output:
 
 ```html
-<h1 id="example-usage">Example usage</h1>
-
-first block
-
-second block
-
-third block
+<h1 id="example-usage-with-youtube-id-video">Example usage with youtube id video</h1>
+<iframe width="420" height="315" src="https://www.youtube.com/embed/JgwnkM5WwWE"></iframe>
 ```
 
 ## API
