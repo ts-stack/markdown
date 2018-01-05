@@ -13,7 +13,7 @@ import { Marked } from './marked';
 
 export class Renderer
 {
-  private options: MarkedOptions;
+  protected options: MarkedOptions;
 
   constructor(options?: MarkedOptions)
   {

@@ -10,4 +10,5 @@ tsconfig.json
 lib
 test
 dist-test
-src
+dist-examples
+examples-usage

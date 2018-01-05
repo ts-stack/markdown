@@ -4,18 +4,18 @@
     "module": "commonjs",
     "outDir": "dist",
     "sourceMap": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
     "removeComments": false,
     "noImplicitAny": true,
     "declaration": true
   },
   "exclude": [
-    "node_modules",
     "dist",
-    "test",
+    "dist-examples",
     "dist-test",
-    "examples-usage",
-    "dist-examples"
+    "test",
+    "node_modules",
+    "examples-usage"
   ]
 }
