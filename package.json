@@ -2,7 +2,7 @@
   "name": "marked-ts",
   "description": "A full-featured markdown parser and compiler, written in TypeScript",
   "author": "Костя Третяк <ktretiak.in.ua@gmail.com>",
-  "version": "0.0.0-alpha.5",
+  "version": "0.0.0-alpha.6",
   "main": "dist/index",
   "typings": "dist/index",
   "directories": {
