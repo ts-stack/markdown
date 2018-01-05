@@ -17,7 +17,6 @@ import {
   Align,
   Links,
   TokenType,
-  RulesBlockCallback,
   SimpleRenderer
 } from './interfaces';
 

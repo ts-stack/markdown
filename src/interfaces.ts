@@ -177,13 +177,6 @@ export interface Replacements
   [key: string]: string;
 }
 
-export interface RulesBlockCallback
-{
-  condition(top?: boolean, isBlockQuote?: boolean): RegExp,
-  tokenize(execArr: RegExpExecArray, top?: boolean, isBlockQuote?: boolean): void,
-  regexp?: RegExp
-}
-
 export interface RulesInlineCallback
 {
   condition(): RegExp,

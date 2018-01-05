@@ -128,8 +128,6 @@ This code will output the following HTML:
 
 ### Example of setting a simple block rule
 
-This functionality is still available only in the `dev` branch.
-
 If you need to set simple rules, when you do not need recursiveness or other advanced features,
 you can use the `Marked.setBlockRule()` method:
 

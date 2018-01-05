@@ -8,8 +8,8 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
+import { Marked } from './marked';
 import { ExtendRegexp } from './extend-regexp';
-import { AbstractBlockLexer } from './abstract-block-lexer';
 import {
   RulesBlockBase,
   MarkedOptions,
@@ -19,12 +19,12 @@ import {
   LexerReturns,
   TokenType,
   RulesBlockGfm,
-  RulesBlockTables,
-  RulesBlockCallback
+  RulesBlockTables
 } from './interfaces';
 
-export class BlockLexer extends AbstractBlockLexer
+export class BlockLexer
 {
+  static simpleRules: RegExp[] = [];
   protected static rulesBase: RulesBlockBase;
   /**
    * GFM Block Grammar.
@@ -36,7 +36,16 @@ export class BlockLexer extends AbstractBlockLexer
   protected static rulesTables: RulesBlockTables;
   protected rules: RulesBlockBase | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
-  protected staticThis: typeof BlockLexer;
+  protected links: Links = {};
+  protected tokens: Token[] = [];
+  protected hasRulesGfm: boolean;
+  protected hasRulesTables: boolean;
+
+  constructor (protected staticThis: typeof BlockLexer, options?: object)
+  {
+    this.options = options || Marked.defaults;
+    this.setRules();
+  }
 
   /**
    * Accepts Markdown text and returns object with tokens and links.
@@ -165,444 +174,366 @@ export class BlockLexer extends AbstractBlockLexer
     {
       this.rules = this.staticThis.getRulesBase();
     }
-  }
 
-  protected setRuleCallbacks()
-  {
-    this.ruleCallbacks =
-    [
-      // new line
-      {
-        condition: this.conditionNewline,
-        tokenize: this.tokenizeNewline
-      },
-      // code
-      {
-        condition: this.conditionCode,
-        tokenize: this.tokenizeCode
-      },
-      // fences code (gfm)
-      {
-        condition: this.conditionFencesCode,
-        tokenize: this.tokenizeFencesCode
-      },
-      // heading
-      {
-        condition: this.conditionHeading,
-        tokenize: this.tokenizeHeading
-      },
-      // table no leading pipe (gfm)
-      {
-        condition: this.conditionNptable,
-        tokenize: this.tokenizeNptable
-      },
-      // lheading
-      {
-        condition: this.conditionLheading,
-        tokenize: this.tokenizeLheading
-      },
-      // hr
-      {
-        condition: this.conditionHr,
-        tokenize: this.tokenizeHr
-      },
-      // blockquote
-      {
-        condition: this.conditionBlockquote,
-        tokenize: this.tokenizeBlockquote
-      },
-      // list
-      {
-        condition: this.conditionList,
-        tokenize: this.tokenizeList
-      },
-      // html
-      {
-        condition: this.conditionHtml,
-        tokenize: this.tokenizeHtml
-      },
-      // def
-      {
-        condition: this.conditionDef,
-        tokenize: this.tokenizeDef
-      },
-      // table (gfm)
-      {
-        condition: this.conditionTableGfm,
-        tokenize: this.tokenizeTableGfm
-      },
-      // top-level paragraph
-      {
-        condition: this.conditionParagraph,
-        tokenize: this.tokenizeParagraph
-      },
-      // text
-      {
-        condition: this.conditionText,
-        tokenize: this.tokenizeText
-      },
-    ];
-
-    if( (<RulesBlockGfm>this.rules).fences === undefined )
-    {
-      const i = this.ruleCallbacks.findIndex(cb => cb.tokenize.name == 'tokenizeFencesCode')
-      this.ruleCallbacks.splice(i, 1);
-    }
-    else if( (<RulesBlockTables>this.rules).table === undefined )
-    {
-      const length = this.ruleCallbacks.length;
-
-      for(let i = 0; i < this.ruleCallbacks.length; i++)
-      {
-        const cb = this.ruleCallbacks[i];
-
-        if(cb.tokenize.name == 'tokenizeNptable' || cb.tokenize.name == 'tokenizeTableGfm')
-        {
-          this.ruleCallbacks.splice(i, 1);
-          if(length - 2 == this.ruleCallbacks.length)
-            break;
-          --i;
-        }
-      }
-    }
-
-    if(this.staticThis.simpleRules.length)
-    {
-      const i = this.ruleCallbacks.findIndex(cb => cb.tokenize.name == 'tokenizeParagraph');
-      // Insert all simple rules before check paragraph rule.
-      this.ruleCallbacks.splice(i, 0, ...this.staticThis.simpleRules);
-    }
-  }
-
-  protected conditionCode(): RegExp
-  {
-    return this.rules.code;
-  }
-
-  protected tokenizeCode(execArr: RegExpExecArray): void
-  {
-    const code = execArr[0].replace(/^ {4}/gm, '');
-
-    this.tokens.push({
-      type: TokenType.code,
-      text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
-    });
-  }
-
-  protected conditionFencesCode(): RegExp
-  {
-    return (<RulesBlockGfm>this.rules).fences;
-  }
-
-  protected tokenizeFencesCode(execArr: RegExpExecArray): void
-  {
-    this.tokens.push({
-      type: TokenType.code,
-      lang: execArr[2],
-      text: execArr[3] || ''
-    });
-  }
-
-  protected conditionHeading(): RegExp
-  {
-    return this.rules.heading;
-  }
-
-  protected tokenizeHeading(execArr: RegExpExecArray): void
-  {
-    this.tokens.push({
-      type: TokenType.heading,
-      depth: execArr[1].length,
-      text: execArr[2]
-    });
-  }
-
-  // table no leading pipe (gfm).
-  protected conditionNptable(top: boolean): RegExp
-  {
-    if(top)
-      return (<RulesBlockTables>this.rules).nptable;
-  }
-
-  protected tokenizeNptable(execArr: RegExpExecArray): void
-  {
-    const item: Token =
-    {
-      type: TokenType.table,
-      header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-      align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
-      cells: []
-    };
-
-    for(let i = 0; i < item.align.length; i++)
-    {
-      if(/^ *-+: *$/.test(item.align[i]))
-      {
-        item.align[i] = 'right';
-      }
-      else if (/^ *:-+: *$/.test(item.align[i]))
-      {
-        item.align[i] = 'center';
-      }
-      else if (/^ *:-+ *$/.test(item.align[i]))
-      {
-        item.align[i] = 'left';
-      }
-      else
-      {
-        item.align[i] = null;
-      }
-    }
-
-    let td: string[] = execArr[3].replace(/\n$/, '').split('\n');
-
-    for(let i = 0; i < td.length; i++)
-    {
-      item.cells[i] = td[i].split(/ *\| */);
-    }
-
-    this.tokens.push(item);
-  }
-
-  protected conditionLheading(): RegExp
-  {
-    return this.rules.lheading;
-  }
-
-  protected tokenizeLheading(execArr: RegExpExecArray): void
-  {
-    this.tokens.push({
-      type: TokenType.heading,
-      depth: execArr[2] === '=' ? 1 : 2,
-      text: execArr[1]
-    });
-  }
-
-  protected conditionHr(): RegExp
-  {
-    return this.rules.hr;
-  }
-
-  protected tokenizeHr(): void
-  {
-    this.tokens.push({type: TokenType.hr});
-  }
-
-  protected conditionBlockquote(): RegExp
-  {
-    return this.rules.blockquote;
-  }
-
-  protected tokenizeBlockquote(execArr: RegExpExecArray): void
-  {
-    this.tokens.push({type: TokenType.blockquoteStart});
-    const str = execArr[0].replace(/^ *> ?/gm, '');
-
-    const {tokens, links} = this.staticThis.lex(str, this.options, false, true);
-    this.tokens.push(...tokens);
-    this.links = {...this.links, ...links};
-
-    this.tokens.push({type: TokenType.blockquoteEnd});
-  }
-
-  protected conditionList(): RegExp
-  {
-    return this.rules.list;
+    this.hasRulesGfm = (<RulesBlockGfm>this.rules).fences !== undefined;
+    this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
   }
 
   /**
-   * @param top Used for compatibility with other methods `check...()`.
-   * 
-   * @todo Improve performance.
+   * Lexing.
    */
-  protected tokenizeList(execArr: RegExpExecArray, top: boolean, isBlockQuote: boolean): void
+  protected getTokens(src: string, top?: boolean, isBlockQuote?: boolean): LexerReturns
   {
-    const bull: string = execArr[2];
+    let nextPart = src;
+    let execArr: RegExpExecArray;
 
-    this.tokens.push({type: TokenType.listStart, ordered: bull.length > 1});
-
-    // Get each top-level item.
-    const str = execArr[0].match(this.rules.item);
-    const length = str.length;
-
-    let
-    next: boolean = false,
-    space: number,
-    blockBullet: string,
-    loose: boolean
-    ;
-
-    for(let i = 0; i < length; i++)
+    mainLoop:
+    while(nextPart)
     {
-      let item = str[i];
-
-      // Remove the list item's bullet so it is seen as the next token.
-      space = item.length;
-      item = item.replace(/^ *([*+-]|\d+\.) +/, '');
-
-      // Outdent whatever the list item contains. Hacky.
-      if(item.includes('\n '))
+      // newline
+      if( execArr = this.rules.newline.exec(nextPart) )
       {
-        space -= item.length;
-        item = !this.options.pedantic
-          ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
-          : item.replace(/^ {1,4}/gm, '');
-      }
+        nextPart = nextPart.substring(execArr[0].length);
 
-      // Determine whether the next list item belongs here.
-      // Backpedal if it does not belong in this list.
-      if(this.options.smartLists && i !== length - 1)
-      {
-        blockBullet = this.staticThis.getRulesBase().bullet.exec(str[i + 1])[0];
-
-        if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
+        if(execArr[0].length > 1)
         {
-          this.nextPart = str.slice(i + 1).join('\n') + this.nextPart;
-          i = length - 1;
+          this.tokens.push({type: TokenType.space});
         }
       }
 
-      // Determine whether item is loose or not.
-      // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-      // for discount behavior.
-      loose = next || /\n\n(?!\s*$)/.test(item);
-
-      if(i !== length - 1)
+      // code
+      if(execArr = this.rules.code.exec(nextPart))
       {
-        next = item.charAt(item.length - 1) === '\n';
+        nextPart = nextPart.substring(execArr[0].length);
+        const code = execArr[0].replace(/^ {4}/gm, '');
 
-        if(!loose)
-          loose = next;
+        this.tokens.push({
+          type: TokenType.code,
+          text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
+        });
+        continue;
       }
 
-      this.tokens.push({type: loose ? TokenType.looseItemStart : TokenType.listItemStart});
-
-      // Recurse.
-      const {tokens, links} = this.staticThis.lex(item, this.options, false, isBlockQuote);
-      // console.log(`**** local tokens`, tokens);
-      // console.log(`**** global tokens`, this.tokens);
-      this.tokens.push(...tokens);
-      this.links = {...this.links, ...links};
-      this.tokens.push({type: TokenType.listItemEnd});
-    }
-
-    this.tokens.push({type: TokenType.listEnd});
-  }
-
-  protected conditionHtml(): RegExp
-  {
-    return this.rules.html;
-  }
-
-  protected tokenizeHtml(execArr: RegExpExecArray): void
-  {
-    const attr = execArr[1];
-    const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
-
-    this.tokens.push
-    ({
-      type: this.options.sanitize ? TokenType.paragraph : TokenType.html,
-      pre: !this.options.sanitizer && isPre,
-      text: execArr[0]
-    });
-  }
-
-  protected conditionDef(top: boolean, isBlockQuote: boolean): RegExp
-  {
-    if(top && !isBlockQuote)
-      return this.rules.def;
-  }
-
-  protected tokenizeDef(execArr: RegExpExecArray): void
-  {
-    this.links[execArr[1].toLowerCase()] =
-    {
-      href: execArr[2],
-      title: execArr[3]
-    };
-  }
-
-  protected conditionTableGfm(top: boolean): RegExp
-  {
-    if(top)
-      return (<RulesBlockTables>this.rules).table;
-  }
-
-  protected tokenizeTableGfm(execArr: RegExpExecArray): void
-  {
-    const item: Token =
-    {
-      type: TokenType.table,
-      header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-      align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
-      cells: []
-    };
-
-    for(let i = 0; i < item.align.length; i++)
-    {
-      if( /^ *-+: *$/.test(item.align[i]) )
+      // fences code (gfm)
+      if
+      (
+        this.hasRulesGfm
+        && (execArr = (<RulesBlockGfm>this.rules).fences.exec(nextPart))
+      )
       {
-        item.align[i] = 'right';
+        nextPart = nextPart.substring(execArr[0].length);
+
+        this.tokens.push({
+          type: TokenType.code,
+          lang: execArr[2],
+          text: execArr[3] || ''
+        });
+        continue;
       }
-      else if( /^ *:-+: *$/.test(item.align[i]) )
+
+      // heading
+      if(execArr = this.rules.heading.exec(nextPart))
       {
-        item.align[i] = 'center';
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({
+          type: TokenType.heading,
+          depth: execArr[1].length,
+          text: execArr[2]
+        });
+        continue;
       }
-      else if( /^ *:-+ *$/.test(item.align[i]) )
+
+      // table no leading pipe (gfm)
+      if
+      (
+        top
+        && this.hasRulesTables
+        && (execArr = (<RulesBlockTables>this.rules).nptable.exec(nextPart))
+      )
       {
-        item.align[i] = 'left';
+        nextPart = nextPart.substring(execArr[0].length);
+
+        const item: Token =
+        {
+          type: TokenType.table,
+          header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
+          cells: []
+        };
+
+        for(let i = 0; i < item.align.length; i++)
+        {
+          if(/^ *-+: *$/.test(item.align[i]))
+          {
+            item.align[i] = 'right';
+          }
+          else if (/^ *:-+: *$/.test(item.align[i]))
+          {
+            item.align[i] = 'center';
+          }
+          else if (/^ *:-+ *$/.test(item.align[i]))
+          {
+            item.align[i] = 'left';
+          }
+          else
+          {
+            item.align[i] = null;
+          }
+        }
+
+        let td: string[] = execArr[3].replace(/\n$/, '').split('\n');
+
+        for(let i = 0; i < td.length; i++)
+        {
+          item.cells[i] = td[i].split(/ *\| */);
+        }
+
+        this.tokens.push(item);
+        continue;
       }
-      else
+
+      // lheading
+      if(execArr = this.rules.lheading.exec(nextPart))
       {
-        item.align[i] = null;
+        nextPart = nextPart.substring(execArr[0].length);
+
+        this.tokens.push({
+          type: TokenType.heading,
+          depth: execArr[2] === '=' ? 1 : 2,
+          text: execArr[1]
+        });
+        continue;
+      }
+
+      // hr
+      if(execArr = this.rules.hr.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({type: TokenType.hr});
+        continue;
+      }
+
+      // blockquote
+      if(execArr = this.rules.blockquote.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({type: TokenType.blockquoteStart});
+        const str = execArr[0].replace(/^ *> ?/gm, '');
+
+        // Pass `top` to keep the current
+        // "toplevel" state. This is exactly
+        // how markdown.pl works.
+        this.getTokens(str);
+        this.tokens.push({type: TokenType.blockquoteEnd});
+        continue;
+      }
+
+      // list
+      if(execArr = this.rules.list.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        const bull: string = execArr[2];
+
+        this.tokens.push({type: TokenType.listStart, ordered: bull.length > 1});
+
+        // Get each top-level item.
+        const str = execArr[0].match(this.rules.item);
+        const length = str.length;
+
+        let
+        next: boolean = false,
+        space: number,
+        blockBullet: string,
+        loose: boolean
+        ;
+
+        for(let i = 0; i < length; i++)
+        {
+          let item = str[i];
+
+          // Remove the list item's bullet so it is seen as the next token.
+          space = item.length;
+          item = item.replace(/^ *([*+-]|\d+\.) +/, '');
+
+          // Outdent whatever the list item contains. Hacky.
+          if(item.includes('\n '))
+          {
+            space -= item.length;
+            item = !this.options.pedantic
+              ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
+              : item.replace(/^ {1,4}/gm, '');
+          }
+
+          // Determine whether the next list item belongs here.
+          // Backpedal if it does not belong in this list.
+          if(this.options.smartLists && i !== length - 1)
+          {
+            blockBullet = this.staticThis.getRulesBase().bullet.exec(str[i + 1])[0];
+
+            if( bull !== blockBullet && !(bull.length > 1 && blockBullet.length > 1) )
+            {
+              nextPart = str.slice(i + 1).join('\n') + nextPart;
+              i = length - 1;
+            }
+          }
+
+          // Determine whether item is loose or not.
+          // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
+          // for discount behavior.
+          loose = next || /\n\n(?!\s*$)/.test(item);
+
+          if(i !== length - 1)
+          {
+            next = item.charAt(item.length - 1) === '\n';
+
+            if(!loose)
+              loose = next;
+          }
+
+          this.tokens.push({type: loose ? TokenType.looseItemStart : TokenType.listItemStart});
+
+          // Recurse.
+          this.getTokens(item, false, isBlockQuote);
+          this.tokens.push({type: TokenType.listItemEnd});
+        }
+
+        this.tokens.push({type: TokenType.listEnd});
+        continue;
+      }
+
+      // html
+      if(execArr = this.rules.html.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        const attr = execArr[1];
+        const isPre = (attr === 'pre' || attr === 'script' || attr === 'style');
+
+        this.tokens.push
+        ({
+          type: this.options.sanitize ? TokenType.paragraph : TokenType.html,
+          pre: !this.options.sanitizer && isPre,
+          text: execArr[0]
+        });
+        continue;
+      }
+
+      // def
+      if(!isBlockQuote && top && (execArr = this.rules.def.exec(nextPart)))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+
+        this.links[execArr[1].toLowerCase()] =
+        {
+          href: execArr[2],
+          title: execArr[3]
+        };
+        continue;
+      }
+
+      // table (gfm)
+      if
+      (
+        top
+        && this.hasRulesTables
+        && (execArr = (<RulesBlockTables>this.rules).table.exec(nextPart))
+      )
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+
+        const item: Token =
+        {
+          type: TokenType.table,
+          header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+          align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
+          cells: []
+        };
+
+        for(let i = 0; i < item.align.length; i++)
+        {
+          if( /^ *-+: *$/.test(item.align[i]) )
+          {
+            item.align[i] = 'right';
+          }
+          else if( /^ *:-+: *$/.test(item.align[i]) )
+          {
+            item.align[i] = 'center';
+          }
+          else if( /^ *:-+ *$/.test(item.align[i]) )
+          {
+            item.align[i] = 'left';
+          }
+          else
+          {
+            item.align[i] = null;
+          }
+        }
+
+        const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
+
+        for(let i = 0; i < td.length; i++)
+        {
+          item.cells[i] = td[i]
+            .replace(/^ *\| *| *\| *$/g, '')
+            .split(/ *\| */);
+        }
+
+        this.tokens.push(item);
+        continue;
+      }
+
+      // simple rules
+      if(this.staticThis.simpleRules.length)
+      {
+        const simpleRules = this.staticThis.simpleRules;
+        for(let i = 0; i < simpleRules.length; i++)
+        {
+          if(execArr = simpleRules[i].exec(nextPart))
+          {
+            nextPart = nextPart.substring(execArr[0].length);
+            const type = TokenType.text + simpleRules.length;
+            this.tokens.push({type: type, execArr: execArr});
+            continue mainLoop;
+          }
+        }
+      }
+
+      // top-level paragraph
+      if( top && (execArr = this.rules.paragraph.exec(nextPart)) )
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+
+        if(execArr[1].charAt(execArr[1].length - 1) === '\n')
+        {
+          this.tokens.push({
+            type: TokenType.paragraph,
+            text: execArr[1].slice(0, -1),
+          });
+        }
+        else
+        {
+          this.tokens.push({
+            type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.html,
+            text: execArr[1],
+          });
+        }
+        continue;
+      }
+
+      // text
+      // Top-level should never reach here.
+      if(execArr = this.rules.text.exec(nextPart))
+      {
+        nextPart = nextPart.substring(execArr[0].length);
+        this.tokens.push({type: TokenType.text, text: execArr[0]});
+        continue;
+      }
+
+      if(nextPart)
+      {
+        throw new Error('Infinite loop on byte: ' + nextPart.charCodeAt(0) + `, near text '${nextPart.slice(0, 30)}...'`);
       }
     }
 
-    const td = execArr[3].replace(/(?: *\| *)?\n$/, '').split('\n');
-
-    for(let i = 0; i < td.length; i++)
-    {
-      item.cells[i] = td[i]
-        .replace(/^ *\| *| *\| *$/g, '')
-        .split(/ *\| */);
-    }
-
-    this.tokens.push(item);
-  }
-
-  protected conditionParagraph(top: boolean): RegExp
-  {
-    if(top)
-      return this.rules.paragraph;
-  }
-
-  protected tokenizeParagraph(execArr: RegExpExecArray): void
-  {
-    if(execArr[1].charAt(execArr[1].length - 1) === '\n')
-    {
-      this.tokens.push({
-        type: TokenType.paragraph,
-        text: execArr[1].slice(0, -1),
-      });
-    }
-    else
-    {
-      this.tokens.push({
-        type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.html,
-        text: execArr[1],
-      });
-    }
-
-  }
-
-  protected conditionText(): RegExp
-  {
-    return this.rules.text;
-  }
-
-  protected tokenizeText(execArr: RegExpExecArray): void
-  {
-    // Top-level should never reach here.
-    this.tokens.push({type: TokenType.text, text: execArr[0]});
+    return {tokens: this.tokens, links: this.links};
   }
 }

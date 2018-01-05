@@ -40,16 +40,8 @@ export class Marked
    */
   static setBlockRule(regexp: RegExp, renderer: SimpleRenderer)
   {
+    BlockLexer.simpleRules.push(regexp);
     this.simpleRenderers.push(renderer);
-
-    const type = TokenType.text + BlockLexer.simpleRules.length + 1;
-
-    function tokenize(execArr: RegExpExecArray)
-    {
-      this.tokens.push({type: type, execArr: execArr});
-    }
-
-    BlockLexer.simpleRules.push({condition: () => regexp, tokenize: tokenize});
 
     return this;
   }
