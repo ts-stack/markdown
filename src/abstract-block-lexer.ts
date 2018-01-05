@@ -20,6 +20,7 @@ import {
 
 export abstract class AbstractBlockLexer
 {
+  static simpleRules: RulesBlockCallback[] = [];
   protected rules: {newline: RegExp};
   protected options: object;
   protected links: Links = {};

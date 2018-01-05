@@ -86,6 +86,7 @@ export interface Token
   ordered?: boolean;
   pre?: boolean;
   escaped?: boolean;
+  execArr?: RegExpExecArray;
 }
 
 export interface RulesInlineBase
@@ -189,3 +190,5 @@ export interface RulesInlineCallback
   tokenize(execArr: RegExpExecArray): void,
   regexp?: RegExp
 }
+
+export type SimpleRenderer = (execArr?: RegExpExecArray) => string;

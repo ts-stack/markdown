@@ -15,12 +15,14 @@ import {
   Token,
   Links,
   TokenType,
-  LexerReturns
+  LexerReturns,
+  SimpleRenderer
 } from './interfaces';
 
 export class Marked
 {
   static defaults = new MarkedOptions;
+  protected static simpleRenderers: SimpleRenderer[] = [];
 
   /**
    * Merges the default options with options that will be set.
@@ -30,6 +32,25 @@ export class Marked
   static setOptions(options: MarkedOptions)
   {
     this.defaults = {...this.defaults, ...options};
+    return this;
+  }
+
+  /**
+   * Setting simple block rule.
+   */
+  static setBlockRule(regexp: RegExp, renderer: SimpleRenderer)
+  {
+    this.simpleRenderers.push(renderer);
+
+    const type = TokenType.text + BlockLexer.simpleRules.length + 1;
+
+    function tokenize(execArr: RegExpExecArray)
+    {
+      this.tokens.push({type: type, execArr: execArr});
+    }
+
+    BlockLexer.simpleRules.push({condition: () => regexp, tokenize: tokenize});
+
     return this;
   }
 
@@ -68,7 +89,16 @@ export class Marked
 
   protected static callParser(tokens: Token[], links: Links, options?: MarkedOptions): string
   {
-    return Parser.parse(tokens, links, options);
+    if(this.simpleRenderers.length)
+    {
+      const parser = new Parser(options);
+      parser.simpleRenderers = this.simpleRenderers;
+      return parser.parse(links, tokens);
+    }
+    else
+    {
+      return Parser.parse(tokens, links, options);
+    }
   }
 
   protected static callMe(err: Error)

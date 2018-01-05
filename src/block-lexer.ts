@@ -265,6 +265,13 @@ export class BlockLexer extends AbstractBlockLexer
         }
       }
     }
+
+    if(this.staticThis.simpleRules.length)
+    {
+      const i = this.ruleCallbacks.findIndex(cb => cb.tokenize.name == 'tokenizeParagraph');
+      // Insert all simple rules before check paragraph rule.
+      this.ruleCallbacks.splice(i, 0, ...this.staticThis.simpleRules);
+    }
   }
 
   protected conditionCode(): RegExp

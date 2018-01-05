@@ -9,6 +9,22 @@ This is fork of popular library `marked` from [this commit](https://github.com/c
 
 For now - work in progress (there is only alpha.5 version).
 
+- [Install](#install)
+- [Usage](#usage)
+  - [Minimal usage](#minimal-usage)
+  - [Example usage with highlight.js](#example-usage-with-highlightjs)
+  - [Overriding renderer methods](#overriding-renderer-methods)
+  - [Example of setting a simple rule](#example-of-setting-a-simple-rule)
+- [API](#api)
+  - [Methods of Marked class and necessary types](#methods-of-marked-class-and-necessary-types)
+  - [Renderer methods API](#renderer-methods-api)
+- [Philosophy behind marked](#philosophy-behind-marked)
+- [Benchmarks](#benchmarks)
+  - [Options for benchmarks](#options-for-benchmarks)
+    - [Example of usage bench options](#example-of-usage-bench-options)
+- [Contribution and License Agreement](#contribution-and-license-agreement)
+- [License](#license)
+
 ## Install
 
 ``` bash
@@ -17,7 +33,7 @@ npm install marked-ts --save
 
 ## Usage
 
-Minimal usage:
+### Minimal usage:
 
 ```js
 import { Marked } from 'marked-ts';
@@ -44,6 +60,129 @@ Marked.setOptions
 });
 
 console.log(Marked.parse('I am using __markdown__.'));
+```
+
+### Example usage with highlight.js
+
+```bash
+npm install highlight.js @types/highlight.js --save
+```
+
+A function to highlight code blocks:
+
+```ts
+import { Marked } from 'marked-ts';
+import { highlightAuto } from 'highlight.js';
+
+let md = '```js\n console.log("hello"); \n```';
+
+Marked.setOptions({ highlight: code => highlightAuto(code).value });
+
+console.log(Marked.parse(md));
+```
+
+### Overriding renderer methods
+
+The renderer option allows you to render tokens in a custom manner. Here is an
+example of overriding the default heading token rendering by adding custom head id:
+
+```ts
+import { Marked, Renderer, MarkedOptions } from 'marked-ts';
+
+// Setting some options for Marked.
+const markedOptions: MarkedOptions = {};
+
+const renderer = new Renderer(markedOptions);
+
+// Overriding renderer.
+renderer.heading = function (text, level)
+{
+  const patt = /\s?{([^}]+)}$/;
+  const link = patt.exec(text);
+  let linkStr: string;
+  
+  if(link && link.length && link[1])
+  {
+    text = text.replace(patt, '');
+    linkStr = link[1];
+  }
+  else
+  {
+    linkStr = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
+  }
+
+  return '<h' + level + ' id="' + linkStr + '">' + text + '</h' + level + '>';
+};
+
+markedOptions.renderer = renderer;
+Marked.setOptions(markedOptions);
+
+console.log(Marked.parse('# heading {my-custom-hash}'));
+```
+
+This code will output the following HTML:
+
+```html
+<h1 id="my-custom-hash">heading</h1>
+```
+
+### Example of setting a simple rule
+
+This functionality is still available only in the `dev` branch.
+
+If you need to set simple rules, when you do not need recursiveness or other advanced features,
+you can use the `Marked.setBlockRule()` method:
+
+```ts
+import { Marked } from 'marked-ts';
+
+const blockStr = `
+# Example usage
+
+&&&
+first block
+&&&
+
+222
+second block
+222
+
+@@@
+third block
+@@@
+`;
+
+// Don't use here arrow function if you need run the callbacks in Renderer class context.
+Marked
+.setBlockRule(/^@@@([\s\S]+?)@@@/, function (execArr)
+{
+  return execArr[1];
+})
+.setBlockRule(/^&&&([\s\S]+?)&&&/, function (execArr)
+{
+  return execArr[1];
+})
+.setBlockRule(/^222([\s\S]+?)222/, function (execArr)
+{
+  return execArr[1];
+})
+;
+
+const html = Marked.parse(blockStr);
+
+console.log(html);
+```
+
+This code output:
+
+```html
+<h1 id="example-usage">Example usage</h1>
+
+first block
+
+second block
+
+third block
 ```
 
 ## API
@@ -109,70 +248,6 @@ class MarkedOptions
    */
   unescape?: (html: string) => string = unescape;
 }
-```
-
-### Example usage with highlight.js
-
-```bash
-npm install highlight.js @types/highlight.js --save
-```
-
-A function to highlight code blocks:
-
-```ts
-import { Marked } from 'marked-ts';
-import { highlightAuto } from 'highlight.js';
-
-let md = '```js\n console.log("hello"); \n```';
-
-Marked.setOptions({ highlight: code => highlightAuto(code).value });
-
-console.log(Marked.parse(md));
-```
-
-#### Overriding renderer methods
-
-The renderer option allows you to render tokens in a custom manner. Here is an
-example of overriding the default heading token rendering by adding custom head id:
-
-```ts
-import { Marked, Renderer, MarkedOptions } from 'marked-ts';
-
-// Setting some options for Marked.
-const markedOptions: MarkedOptions = {};
-
-const renderer = new Renderer(markedOptions);
-
-// Overriding renderer.
-renderer.heading = function (text, level)
-{
-  const patt = /\s?{([^}]+)}$/;
-  const link = patt.exec(text);
-  let linkStr: string;
-  
-  if(link && link.length && link[1])
-  {
-    text = text.replace(patt, '');
-    linkStr = link[1];
-  }
-  else
-  {
-    linkStr = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
-  }
-
-  return '<h' + level + ' id="' + linkStr + '">' + text + '</h' + level + '>';
-};
-
-markedOptions.renderer = renderer;
-Marked.setOptions(markedOptions);
-
-console.log(Marked.parse('# heading {my-custom-hash}'));
-```
-
-This code will output the following HTML:
-
-```html
-<h1 id="my-custom-hash">heading</h1>
 ```
 
 ### Renderer methods API
@@ -274,7 +349,7 @@ Test files are accumulated in one file. If you specify, for example, `--length 1
 the first file will be taken, checked whether it is longer than 100 kilobytes,
 and if no - it will be attached to the next one and checked its length, and so on.
 
-### Example of usage bench options
+#### Example of usage bench options
 
 In order for npm passing the parameters, they need to be separated via ` -- `:
 
@@ -282,7 +357,7 @@ In order for npm passing the parameters, they need to be separated via ` -- `:
 npm run bench -- -l 500 -t 1
 ```
 
-### Contribution and License Agreement
+## Contribution and License Agreement
 
 If you contribute code to this project, you are implicitly allowing your code
 to be distributed under the MIT license. You are also implicitly verifying that
