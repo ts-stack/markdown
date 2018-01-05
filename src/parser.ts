@@ -9,18 +9,26 @@
  */
 
 import { Marked } from './marked';
-import { MarkedOptions, Token, Align, Links, TokenType } from './interfaces';
 import { Renderer } from './renderer';
 import { InlineLexer } from './inline-lexer';
+import {
+  MarkedOptions,
+  Token,
+  Align,
+  Links,
+  TokenType,
+  SimpleRenderer
+} from './interfaces';
 
 /**
  * Parsing & Compiling.
  */
 export class Parser
 {
+  simpleRenderers: SimpleRenderer[] = [];
   protected tokens: Token[];
   protected token: Token;
-  protected inlineLexer: InlineLexer<any>;
+  protected inlineLexer: InlineLexer;
   protected options: MarkedOptions;
   protected renderer: Renderer;
 
@@ -38,7 +46,7 @@ export class Parser
     return parser.parse(links, tokens);
   }
 
-  protected parse(links: Links, tokens: Token[])
+  parse(links: Links, tokens: Token[])
   {
     this.inlineLexer = new InlineLexer(InlineLexer, links, this.options, this.renderer);
     this.tokens = tokens.reverse();
@@ -205,6 +213,17 @@ export class Parser
       case TokenType.text:
       {
         return this.renderer.paragraph(this.parseText());
+      }
+      default:
+      {
+        if(this.simpleRenderers.length)
+        for(let i = 0; i < this.simpleRenderers.length; i++)
+        {
+          if(this.token.type == TokenType.text + i + 1)
+          {
+            return this.simpleRenderers[i].call(this.renderer, this.token.execArr);
+          }
+        }
       }
     }
   }

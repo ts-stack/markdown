@@ -27,8 +27,7 @@ export interface RulesBlockBase
   /**
    * List item (<li>).
    */
-  item: RegExp,
-  _tag: string
+  item: RegExp
 }
 
 export interface RulesBlockGfm extends RulesBlockBase
@@ -77,7 +76,7 @@ export type Align = 'center' | 'left' | 'right';
 
 export interface Token
 {
-  type: TokenType;
+  type: number | string;
   text?: string;
   lang?: string;
   depth?: number;
@@ -87,6 +86,7 @@ export interface Token
   ordered?: boolean;
   pre?: boolean;
   escaped?: boolean;
+  execArr?: RegExpExecArray;
 }
 
 export interface RulesInlineBase
@@ -176,5 +176,11 @@ export interface Replacements
   [key: string]: string;
 }
 
-export type BlockRuleFunction = (top?: boolean, isBlockQuote?: boolean) => void;
-export type InlineRuleFunction = (top?: boolean, isBlockQuote?: boolean) => void;
+export interface RulesInlineCallback
+{
+  condition(): RegExp,
+  tokenize(execArr: RegExpExecArray): void,
+  regexp?: RegExp
+}
+
+export type SimpleRenderer = (execArr?: RegExpExecArray) => string;

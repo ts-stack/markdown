@@ -146,6 +146,10 @@ function runBench(options: RunBenchOptions)
     {
       loadFrom = '../';
     }
+    else if(lib.name == 'marked')
+    {
+      loadFrom = '../lib';
+    }
 
     try
     {

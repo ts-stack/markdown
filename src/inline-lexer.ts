@@ -9,8 +9,8 @@
  */
 
 import { ExtendRegexp } from './extend-regexp';
-import { Renderer } from './renderer';
 import { Marked } from './marked';
+import { Renderer } from './renderer';
 import {
   RulesInlineBase,
   MarkedOptions,
@@ -19,16 +19,14 @@ import {
   RulesInlineGfm,
   RulesInlineBreaks,
   RulesInlinePedantic,
-  InlineRuleFunction
+  RulesInlineCallback
 } from './interfaces';
 
 
 /**
  * Inline Lexer & Compiler.
- * 
- * @todo Remove from constructor reference to current class.
  */
-export class InlineLexer<T extends typeof InlineLexer>
+export class InlineLexer
 {
   protected static rulesBase: RulesInlineBase;
   /**
@@ -43,18 +41,21 @@ export class InlineLexer<T extends typeof InlineLexer>
    * GFM + Line Breaks Inline Grammar.
    */
   protected static rulesBreaks: RulesInlineBreaks;
-  protected links: Links;
-  protected rules: RulesInlineBase;
-  protected options: MarkedOptions;
+  protected rules: RulesInlineBase | RulesInlinePedantic | RulesInlineGfm | RulesInlineBreaks;
   protected renderer: Renderer;
   protected inLink: boolean;
   protected hasRulesGfm: boolean;
+  protected ruleCallbacks: RulesInlineCallback[];
 
-  constructor (private staticThis: T, links: Links, options?: MarkedOptions, renderer?: Renderer)
+  constructor
+  (
+    protected staticThis: typeof InlineLexer,
+    protected links: Links,
+    protected options: MarkedOptions = Marked.defaults,
+    renderer?: Renderer
+  )
   {
-    this.options = options || Marked.defaults;
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
-    this.links = links;
 
     if(!this.links)
       throw new Error(`InlineLexer requires 'links' parameter.`);
@@ -62,29 +63,13 @@ export class InlineLexer<T extends typeof InlineLexer>
     this.setRules();
   }
 
-  protected setRules()
+  /**
+   * Static Lexing/Compiling Method.
+   */
+  static output(src: string, links: Links, options: MarkedOptions): string
   {
-    if(this.options.gfm)
-    {
-      if(this.options.breaks)
-      {
-        this.rules = this.staticThis.getRulesBreaks();
-      }
-      else
-      {
-        this.rules = this.staticThis.getRulesGfm();
-      }
-    }
-    else if(this.options.pedantic)
-    {
-      this.rules = this.staticThis.getRulesPedantic()
-    }
-    else
-    {
-      this.rules = this.staticThis.getRulesBase()
-    }
-
-    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
+    const inlineLexer = new this(this, links, options);
+    return inlineLexer.output(src);
   }
 
   protected static getRulesBase(): RulesInlineBase
@@ -95,7 +80,7 @@ export class InlineLexer<T extends typeof InlineLexer>
     /**
      * Inline-Level Grammar.
      */
-    const inline: RulesInlineBase =
+    const base: RulesInlineBase =
     {
       escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
       autolink: /^<([^ <>]+(@|:\/)[^ <>]+)>/,
@@ -112,16 +97,16 @@ export class InlineLexer<T extends typeof InlineLexer>
       _href: /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/,
     };
 
-    inline.link = new ExtendRegexp(inline.link)
-    .setGroup('inside', inline._inside)
-    .setGroup('href', inline._href)
+    base.link = new ExtendRegexp(base.link)
+    .setGroup('inside', base._inside)
+    .setGroup('href', base._href)
     .getRegexp();
 
-    inline.reflink = new ExtendRegexp(inline.reflink)
-    .setGroup('inside', inline._inside)
+    base.reflink = new ExtendRegexp(base.reflink)
+    .setGroup('inside', base._inside)
     .getRegexp();
 
-    return this.rulesBase = inline;
+    return this.rulesBase = base;
   }
 
   protected static getRulesPedantic(): RulesInlinePedantic
@@ -144,20 +129,20 @@ export class InlineLexer<T extends typeof InlineLexer>
     if(this.rulesGfm)
       return this.rulesGfm;
     
-    const inline = this.getRulesBase();
+    const base = this.getRulesBase();
 
-    const escape = new ExtendRegexp(inline.escape)
+    const escape = new ExtendRegexp(base.escape)
     .setGroup('])', '~|])')
     .getRegexp();
 
-    const text = new ExtendRegexp(inline.text)
+    const text = new ExtendRegexp(base.text)
     .setGroup(']|', '~]|')
     .setGroup('|', '|https?://|')
     .getRegexp();
 
     return this.rulesGfm =
     {
-      ...inline,
+      ...base,
       ...{
         escape: escape,
         url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
@@ -185,13 +170,29 @@ export class InlineLexer<T extends typeof InlineLexer>
     };
   }
 
-  /**
-   * Static Lexing/Compiling Method.
-   */
-  static output(src: string, links: Links, options: MarkedOptions): string
+  protected setRules()
   {
-    const inlineLexer = new this(this, links, options);
-    return inlineLexer.output(src);
+    if(this.options.gfm)
+    {
+      if(this.options.breaks)
+      {
+        this.rules = this.staticThis.getRulesBreaks();
+      }
+      else
+      {
+        this.rules = this.staticThis.getRulesGfm();
+      }
+    }
+    else if(this.options.pedantic)
+    {
+      this.rules = this.staticThis.getRulesPedantic()
+    }
+    else
+    {
+      this.rules = this.staticThis.getRulesBase()
+    }
+
+    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
   }
 
   /**
@@ -378,10 +379,10 @@ export class InlineLexer<T extends typeof InlineLexer>
   /**
    * Compile Link.
    */
-  outputLink(execArr: RegExpExecArray, link: Link)
+  protected outputLink(execArr: RegExpExecArray, link: Link)
   {
-    const href = this.options.escape(link.href)
-      ,title = link.title ? this.options.escape(link.title) : null;
+    const href = this.options.escape(link.href);
+    const title = link.title ? this.options.escape(link.title) : null;
 
     return execArr[0].charAt(0) !== '!'
       ? this.renderer.link(href, title, this.output(execArr[1]))
@@ -391,7 +392,7 @@ export class InlineLexer<T extends typeof InlineLexer>
   /**
    * Smartypants Transformations.
    */
-  smartypants(text: string)
+  protected smartypants(text: string)
   {
     if(!this.options.smartypants)
       return text;
@@ -416,7 +417,7 @@ export class InlineLexer<T extends typeof InlineLexer>
   /**
    * Mangle Links.
    */
-  mangle(text: string)
+  protected mangle(text: string)
   {
     if(!this.options.mangle)
       return text;

@@ -8,8 +8,8 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { ExtendRegexp } from './extend-regexp';
 import { Marked } from './marked';
+import { ExtendRegexp } from './extend-regexp';
 import {
   RulesBlockBase,
   MarkedOptions,
@@ -19,13 +19,13 @@ import {
   LexerReturns,
   TokenType,
   RulesBlockGfm,
-  RulesBlockTables,
-  BlockRuleFunction
+  RulesBlockTables
 } from './interfaces';
 
 
 export class BlockLexer<T extends typeof BlockLexer>
 {
+  static simpleRules: RegExp[] = [];
   protected static rulesBase: RulesBlockBase;
   /**
    * GFM Block Grammar.
@@ -37,17 +37,125 @@ export class BlockLexer<T extends typeof BlockLexer>
   protected static rulesTables: RulesBlockTables;
   protected rules: RulesBlockBase | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
-  protected links: Links;
-  protected tokens: Token[];
+  protected links: Links = {};
+  protected tokens: Token[] = [];
   protected hasRulesGfm: boolean;
   protected hasRulesTables: boolean;
 
-  constructor (private staticThis: T, options?: MarkedOptions)
+  constructor (protected staticThis: typeof BlockLexer, options?: object)
   {
     this.options = options || Marked.defaults;
-    this.links = {};
-    this.tokens = [];
     this.setRules();
+  }
+
+  /**
+   * Accepts Markdown text and returns object with tokens and links.
+   * 
+   * @param src String of markdown source to be compiled.
+   * @param options Hash of options.
+   */
+  static lex(src: string, options?: MarkedOptions, top?: boolean, isBlockQuote?: boolean): LexerReturns
+  {
+    const lexer = new this(this, options);
+    return lexer.getTokens(src, top, isBlockQuote);
+  }
+
+  protected static getRulesBase(): RulesBlockBase
+  {
+    if(this.rulesBase)
+      return this.rulesBase;
+
+    const base: RulesBlockBase =
+    {
+      newline: /^\n+/,
+      code: /^( {4}[^\n]+\n*)+/,
+      hr: /^( *[-*_]){3,} *(?:\n+|$)/,
+      heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
+      lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
+      blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
+      list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
+      html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
+      def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
+      paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
+      text: /^[^\n]+/,
+      bullet: /(?:[*+-]|\d+\.)/,
+      item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
+    };
+
+    base.item = new ExtendRegexp(base.item, 'gm')
+    .setGroup(/bull/g, base.bullet)
+    .getRegexp();
+
+    base.list = new ExtendRegexp(base.list)
+    .setGroup(/bull/g, base.bullet)
+    .setGroup('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
+    .setGroup('def', '\\n+(?=' + base.def.source + ')')
+    .getRegexp();
+
+    const tag = '(?!(?:'
+      + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
+      + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
+      + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
+
+    base.html = new ExtendRegexp(base.html)
+    .setGroup('comment', /<!--[\s\S]*?-->/)
+    .setGroup('closed', /<(tag)[\s\S]+?<\/\1>/)
+    .setGroup('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
+    .setGroup(/tag/g, tag)
+    .getRegexp();
+
+    base.paragraph = new ExtendRegexp(base.paragraph)
+    .setGroup('hr', base.hr)
+    .setGroup('heading', base.heading)
+    .setGroup('lheading', base.lheading)
+    .setGroup('blockquote', base.blockquote)
+    .setGroup('tag', '<' + tag)
+    .setGroup('def', base.def)
+    .getRegexp();
+
+    return this.rulesBase = base;
+  }
+
+  protected static getRulesGfm(): RulesBlockGfm
+  {
+    if(this.rulesGfm)
+      return this.rulesGfm;
+
+    const base = this.getRulesBase();
+
+    const gfm: RulesBlockGfm =
+    {
+      ...base,
+      ...{
+        fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
+        paragraph: /^/,
+        heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
+      }
+    };
+
+    const group1 = gfm.fences.source.replace('\\1', '\\2');
+    const group2 = base.list.source.replace('\\1', '\\3');
+
+    gfm.paragraph = new ExtendRegexp(base.paragraph)
+    .setGroup('(?!', `(?!${group1}|${group2}|`)
+    .getRegexp();
+
+    return this.rulesGfm = gfm;
+  }
+
+  protected static getRulesTable(): RulesBlockTables
+  {
+    if(this.rulesTables)
+      return this.rulesTables;
+
+    return this.rulesTables =
+    {
+      ...this.getRulesGfm(),
+      ...{
+        nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
+        table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
+      }
+    };
   }
 
   protected setRules()
@@ -56,7 +164,7 @@ export class BlockLexer<T extends typeof BlockLexer>
     {
       if(this.options.tables)
       {
-        this.rules = this.staticThis.getRulesTables();
+        this.rules = this.staticThis.getRulesTable();
       }
       else
       {
@@ -72,117 +180,6 @@ export class BlockLexer<T extends typeof BlockLexer>
     this.hasRulesTables = (<RulesBlockTables>this.rules).table !== undefined;
   }
 
-  protected static getRulesBase(): RulesBlockBase
-  {
-    if(this.rulesBase)
-      return this.rulesBase;
-
-    const block: RulesBlockBase =
-    {
-      newline: /^\n+/,
-      code: /^( {4}[^\n]+\n*)+/,
-      hr: /^( *[-*_]){3,} *(?:\n+|$)/,
-      heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
-      lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-      blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-      list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
-      html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
-      def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
-      paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
-      text: /^[^\n]+/,
-      bullet: /(?:[*+-]|\d+\.)/,
-      item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/,
-      _tag: ''
-    };
-
-    block.item = new ExtendRegexp(block.item, 'gm')
-    .setGroup(/bull/g, block.bullet)
-    .getRegexp();
-
-    block.list = new ExtendRegexp(block.list)
-    .setGroup(/bull/g, block.bullet)
-    .setGroup('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
-    .setGroup('def', '\\n+(?=' + block.def.source + ')')
-    .getRegexp();
-
-    block._tag = '(?!(?:'
-      + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
-      + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
-      + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
-
-    block.html = new ExtendRegexp(block.html)
-    .setGroup('comment', /<!--[\s\S]*?-->/)
-    .setGroup('closed', /<(tag)[\s\S]+?<\/\1>/)
-    .setGroup('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
-    .setGroup(/tag/g, block._tag)
-    .getRegexp();
-
-    block.paragraph = new ExtendRegexp(block.paragraph)
-    .setGroup('hr', block.hr)
-    .setGroup('heading', block.heading)
-    .setGroup('lheading', block.lheading)
-    .setGroup('blockquote', block.blockquote)
-    .setGroup('tag', '<' + block._tag)
-    .setGroup('def', block.def)
-    .getRegexp();
-
-    return this.rulesBase = block;
-  }
-
-  protected static getRulesGfm(): RulesBlockGfm
-  {
-    if(this.rulesGfm)
-      return this.rulesGfm;
-
-    const block = this.getRulesBase();
-
-    const gfm: RulesBlockGfm =
-    {
-      ...block,
-      ...{
-        fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
-        paragraph: /^/,
-        heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
-      }
-    };
-
-    const group1 = gfm.fences.source.replace('\\1', '\\2');
-    const group2 = block.list.source.replace('\\1', '\\3');
-
-    gfm.paragraph = new ExtendRegexp(block.paragraph)
-    .setGroup('(?!', `(?!${group1}|${group2}|`)
-    .getRegexp();
-
-    return this.rulesGfm = gfm;
-  }
-
-  protected static getRulesTables(): RulesBlockTables
-  {
-    if(this.rulesTables)
-      return this.rulesTables;
-
-    return this.rulesTables =
-    {
-      ...this.getRulesGfm(),
-      ...{
-        nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
-        table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
-      }
-    };
-  }
-
-  /**
-   * Accepts Markdown text and returns object with tokens and links.
-   * 
-   * @param src String of markdown source to be compiled.
-   * @param options Hash of options.
-   */
-  static lex(src: string, options?: MarkedOptions, top?: boolean, isBlockQuote?: boolean): LexerReturns
-  {
-    const lexer = new this(this, options);
-    return lexer.getTokens(src, top, isBlockQuote);
-  }
-
   /**
    * Lexing.
    */
@@ -191,6 +188,7 @@ export class BlockLexer<T extends typeof BlockLexer>
     let nextPart = src;
     let execArr: RegExpExecArray;
 
+    mainLoop:
     while(nextPart)
     {
       // newline
@@ -482,6 +480,22 @@ export class BlockLexer<T extends typeof BlockLexer>
 
         this.tokens.push(item);
         continue;
+      }
+
+      // simple rules
+      if(this.staticThis.simpleRules.length)
+      {
+        const simpleRules = this.staticThis.simpleRules;
+        for(let i = 0; i < simpleRules.length; i++)
+        {
+          if(execArr = simpleRules[i].exec(nextPart))
+          {
+            nextPart = nextPart.substring(execArr[0].length);
+            const type = TokenType.text + simpleRules.length;
+            this.tokens.push({type: type, execArr: execArr});
+            continue mainLoop;
+          }
+        }
       }
 
       // top-level paragraph
