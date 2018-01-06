@@ -35,10 +35,10 @@ export class Renderer
 
     if(!lang)
     {
-      return '<pre><code>' + (escaped ? code : this.options.escape(code, true)) + '\n</code></pre>';
+      return '\n<pre><code>' + (escaped ? code : this.options.escape(code, true)) + '\n</code></pre>\n';
     }
 
-    return '<pre><code class="' + this.options.langPrefix + this.options.escape(lang, true) + '">'
+    return '\n<pre><code class="' + this.options.langPrefix + this.options.escape(lang, true) + '">'
       + (escaped ? code : this.options.escape(code, true))
       + '\n</code></pre>\n';
   }
@@ -69,7 +69,7 @@ export class Renderer
   {
     const type = ordered ? 'ol' : 'ul';
 
-    return `<${type}>\n${body}</${type}>\n`;
+    return `\n<${type}>\n${body}</${type}>\n`;
   }
 
   listitem(text: string): string
@@ -86,12 +86,10 @@ export class Renderer
   {
     return `
 <table>
-  <thead>
-    ${header}
-  </thead>
-  <tbody>
-    ${body}
-  </tbody>
+<thead>
+${header}</thead>
+<tbody>
+${body}</tbody>
 </table>
 `;
   }

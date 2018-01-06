@@ -21,6 +21,8 @@ interface RunTestsOptions
   stop?: boolean
 }
 
+const testDir = path.normalize(__dirname + '/../test/tests');
+
 /**
  * Execute
  */
@@ -42,7 +44,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     functionOrEngine = null;
   }
 
-  const engine: Function = functionOrEngine || Marked.parse.bind(Marked);
+  const engine: (md: string) => string = functionOrEngine || Marked.parse.bind(Marked);
   options = options || {};
   const files = options.files || load();
   const filenames = Object.keys(files)
@@ -52,10 +54,13 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
   ,filename
   ,failed = 0
   ,complete = 0
-  ,file
+  ,file: {text: string, html: string}
   ,flags
-  ,text
-  ,html;
+  ,actualRows: string[]
+  ,actualStr: string
+  ,expectedRows: string[]
+  ,expectedStr: string
+  ;
 
   if(options.marked)
   {
@@ -65,9 +70,9 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
   const len = filenames.length;
 
   mainFor:
-  for(let i = 0; i < len; i++)
+  for(let indexFile = 0; indexFile < len; indexFile++)
   {
-    filename = filenames[i];
+    filename = filenames[indexFile];
     file = files[filename];
 
     if(original)
@@ -76,7 +81,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
       original = null;
     }
 
-    flags = filename.split('.').slice(1, -1);
+    flags = filename.split('.').slice(1);
 
     if(flags.length)
     {
@@ -102,8 +107,8 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
     try
     {
-      text = engine(file.text).replace(/\s/g, '');
-      html = file.html.replace(/\s/g, '');
+      expectedRows = file.html.split('\n').map(str => '\n' + str);
+      actualRows = engine(file.text).split('\n').map(str => '\n' + str);
     }
     catch(e)
     {
@@ -111,38 +116,43 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
       throw e;
     }
 
-    let length = html.length;
-
-    for(let j = 0; j < length; j++)
+    for(let indexRow = 0; indexRow < expectedRows.length; indexRow++)
     {
-      if(text[j] !== html[j])
+      let expectedRow = expectedRows[indexRow];
+      let actualRow = actualRows[indexRow];
+      // +1 to check empty rows.
+      let length = expectedRow.length + 1;
+
+      for(let indexChar = 0; indexChar < length; indexChar++)
       {
+        if(actualRow !== undefined && expectedRow[indexChar] === actualRow[indexChar])
+          continue;
+
         failed++;
         failures.push(filename);
 
-        text = text.substring
+        if(expectedRow !== undefined)
+        expectedRow = expectedRow.substring
         (
-          Math.max(j - 30, 0),
-          Math.min(j + 30, text.length)
+          Math.max(indexChar - 30, 0),
+          Math.min(indexChar + 30, expectedRow.length)
         );
 
-        html = html.substring
+        if(actualRow !== undefined)
+        actualRow = actualRow.substring
         (
-          Math.max(j - 30, 0),
-          Math.min(j + 30, html.length)
+          Math.max(indexChar - 30, 0),
+          Math.min(indexChar + 30, actualRow.length)
         );
 
-        console.log
-        (
-          '\n#%d. %s failed at offset %d. Near: "%s".\n'
-          ,i + 1
-          ,filename
-          ,j
-          ,text
-        );
+        expectedRow = expectedRow.replace('\n', '\\n').replace('\t', '\\t');
+        actualRow = (actualRow && actualRow.replace('\n', '\\n').replace('\t', '\\t'))  || `[missing '\\n' here]`;
 
-        console.log('\nGot:\n%s\n', text.trim() || text);
-        console.log('\nExpected:\n%s\n', html.trim() || html);
+
+        console.log(`\n#${indexFile + 1}. failed near ${testDir}/${filename}.html:${indexRow + 1}:${indexChar}\n`);
+
+        console.log(`\nExpected:\n'${expectedRow}'\n`);
+        console.log(`\nGot:\n'${actualRow}'\n`);
 
         if(options.stop)
         {
@@ -154,7 +164,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     }
 
     complete++;
-    console.log('#%d. %s completed.', i + 1, filename);
+    console.log(`#${indexFile + 1}. ${filename}.md completed.`);
   }
 
   console.log('%d/%d tests completed successfully.', complete, len);
@@ -177,11 +187,10 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
 function load()
 {
-  const dir = __dirname + '/../test/tests';
   let files: {[key: string]: any} = {};
 
   const list = fs
-  .readdirSync(dir)
+  .readdirSync(testDir)
   .filter(file => path.extname(file) == '.md')
   .sort((fileName1, fileName2) =>
   {
@@ -194,9 +203,11 @@ function load()
 
   for(let i = 0; i < length; i++)
   {
-    const file = path.join(dir, list[i]);
+    const file = path.join(testDir, list[i]);
+    const ext = path.extname(file);
+    const fineName = path.basename(file).replace(ext, '');
 
-    files[path.basename(file)] =
+    files[fineName] =
     {
       text: fs.readFileSync(file, 'utf8'),
       html: fs.readFileSync(file.replace(/[^.]+$/, 'html'), 'utf8')

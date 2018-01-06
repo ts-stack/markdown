@@ -129,7 +129,7 @@ This code will output the following HTML:
 ### Example of setting a simple block rule
 
 If you do not need recursiveness or checks some conditions, you can use the
-`Marked.setBlockRule(regexp[, callback])` method, which takes the regular expression as the first argument,
+`Marked.setBlockRule( regexp[, callback] )` method, which takes a regular expression as the first argument,
 and returns result `regexp.exec(string)` to `callback(execArr)`, which can be passed as a second argument.
 
 ```ts
