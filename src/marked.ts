@@ -38,7 +38,7 @@ export class Marked
   /**
    * Setting simple block rule.
    */
-  static setBlockRule(regexp: RegExp, renderer: SimpleRenderer)
+  static setBlockRule(regexp: RegExp, renderer: SimpleRenderer = () => '')
   {
     BlockLexer.simpleRules.push(regexp);
     this.simpleRenderers.push(renderer);

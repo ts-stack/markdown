@@ -21,8 +21,8 @@ const replacements: Replacements =
   "'": '&#39;'
 };
 
-const escapeTestNoEncode = /(?:[<>"']|&(?!#?\w+;))/;
-const escapeReplaceNoEncode = /(?:[<>"']|&(?!#?\w+;))/g;
+const escapeTestNoEncode = /[<>"']|&(?!#?\w+;)/;
+const escapeReplaceNoEncode = /[<>"']|&(?!#?\w+;)/g;
 
 export function escape(html: string, encode?: boolean)
 {

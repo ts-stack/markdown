@@ -7,7 +7,7 @@
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
-For now - work in progress (there is only alpha.5 version).
+For now - work in progress (there is only alpha.6 version).
 
 - [Install](#install)
 - [Usage](#usage)
@@ -128,11 +128,12 @@ This code will output the following HTML:
 
 ### Example of setting a simple block rule
 
-If you need to set simple rules, when you do not need recursiveness or other advanced features,
-you can use the `Marked.setBlockRule()` method:
+If you do not need recursiveness or checks some conditions, you can use the
+`Marked.setBlockRule(regexp[, callback])` method, which takes the regular expression as the first argument,
+and returns result `regexp.exec(string)` to `callback(execArr)`, which can be passed as a second argument.
 
 ```ts
-import { Marked } from 'marked-ts';
+import { Marked, escape } from 'marked-ts';
 
 const blockStr = `
 # Example usage with embed block code
@@ -146,7 +147,7 @@ JgwnkM5WwWE
 @@@
 `;
 
-Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
+Marked.setBlockRule(/^ *@{3,}[ \.]*(\S+)? *\n([\s\S]*?)\s*@{3,} *(?:\n+|$)/, function (execArr) {
 
   const channel = execArr[1];
 
@@ -154,12 +155,12 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
   {
     case 'youtube':
     {
-      const id = execArr[2];
+      const id = escape(execArr[2]);
       return `<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>\n`;
     }
     case 'gist':
     {
-      const id = execArr[2];
+      const id = escape(execArr[2]);
       return `<script src="https://gist.github.com/${id}"></script>\n`;
     }
   }
@@ -201,7 +202,7 @@ static parse(src: string, options?: MarkedOptions): string;
  */
 static setOptions(options: MarkedOptions): this;
 
-// This class also using as a type.
+// This class also using as an interface.
 class MarkedOptions
 {
   gfm?: boolean = true;
@@ -323,7 +324,7 @@ it doesn't cater to specific aspects.
 
 | Lib                   | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ----------------------|--------------|--------------|----------------|-----------|------------------
-| marked-ts alpha.5     | 6            | 6            | 101            | 113       | 8 641
+| marked-ts alpha.6     | 6            | 6            | 101            | 113       | 8 641
 | marked v0.3.9         | 4            | 2            | 106            | 112       | 9 323
 | remarkable v1.7.1     | 36           | 6            | 174            | 216       | 15 356
 | markdown-it v8.4.0    | 29           | 10           | 227            | 266       | 18 890

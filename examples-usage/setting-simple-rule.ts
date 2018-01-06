@@ -1,4 +1,4 @@
-import { Marked } from '../';
+import { Marked, escape } from '../';
 
 const blockStr = `
 # Example usage with embed block code
@@ -12,7 +12,7 @@ JgwnkM5WwWE
 @@@
 `;
 
-Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
+Marked.setBlockRule(/^ *@{3,}[ \.]*(\S+)? *\n([\s\S]*?)\s*@{3,} *(?:\n+|$)/, function (execArr) {
 
   const channel = execArr[1];
 
@@ -20,12 +20,12 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
   {
     case 'youtube':
     {
-      const id = execArr[2];
+      const id = escape(execArr[2]);
       return `<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>\n`;
     }
     case 'gist':
     {
-      const id = execArr[2];
+      const id = escape(execArr[2]);
       return `<script src="https://gist.github.com/${id}"></script>\n`;
     }
   }
