@@ -51,7 +51,7 @@ export class InlineLexer
   (
     protected staticThis: typeof InlineLexer,
     protected links: Links,
-    protected options: MarkedOptions = Marked.defaults,
+    protected options: MarkedOptions = Marked.options,
     renderer?: Renderer
   )
   {

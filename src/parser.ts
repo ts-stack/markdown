@@ -36,7 +36,7 @@ export class Parser
   {
     this.tokens = [];
     this.token = null;
-    this.options = options || Marked.defaults;
+    this.options = options || Marked.options;
     this.renderer = this.options.renderer || new Renderer(this.options);
   }
 

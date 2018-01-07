@@ -76,7 +76,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
     if(original)
     {
-      Marked.defaults = original;
+      Marked.options = original;
       original = null;
     }
 
@@ -84,8 +84,8 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
     if(flags.length)
     {
-      original = Marked.defaults;
-      Marked.defaults = {...original};
+      original = Marked.options;
+      Marked.options = {...original};
 
       flags.forEach( key =>
       {
@@ -97,9 +97,9 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
           val = false;
         }
 
-        if(Marked.defaults.hasOwnProperty(key))
+        if(Marked.options.hasOwnProperty(key))
         {
-          (<any>Marked.defaults)[key] = val;
+          (<any>Marked.options)[key] = val;
         }
       });
     }

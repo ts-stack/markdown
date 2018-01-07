@@ -44,7 +44,7 @@ export class BlockLexer<T extends typeof BlockLexer>
 
   constructor (protected staticThis: typeof BlockLexer, options?: object)
   {
-    this.options = options || Marked.defaults;
+    this.options = options || Marked.options;
     this.setRules();
   }
 

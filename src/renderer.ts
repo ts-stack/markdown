@@ -17,7 +17,7 @@ export class Renderer
 
   constructor(options?: MarkedOptions)
   {
-    this.options = options || Marked.defaults;
+    this.options = options || Marked.options;
   }
 
   code(code: string, lang?: string, escaped?: boolean): string

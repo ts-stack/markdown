@@ -21,7 +21,7 @@ import {
 
 export class Marked
 {
-  static defaults = new MarkedOptions;
+  static options = new MarkedOptions;
   protected static simpleRenderers: SimpleRenderer[] = [];
 
   /**
@@ -31,7 +31,7 @@ export class Marked
    */
   static setOptions(options: MarkedOptions)
   {
-    this.defaults = {...this.defaults, ...options};
+    this.options = {...this.options, ...options};
     return this;
   }
 
@@ -53,7 +53,7 @@ export class Marked
    * @param options Hash of options. They replace, but do not merge with the default options.
    * If you want the merging, you can to do this via `Marked.setOptions()`.
    */
-  static parse(src: string, options: MarkedOptions = this.defaults): string
+  static parse(src: string, options: MarkedOptions = this.options): string
   {
     try
     {
@@ -97,9 +97,9 @@ export class Marked
   {
     err.message += '\nPlease report this to https://github.com/KostyaTretyak/marked-ts';
 
-    if(this.defaults.silent)
+    if(this.options.silent)
     {
-      return '<p>An error occured:</p><pre>' + this.defaults.escape(err.message + '', true) + '</pre>';
+      return '<p>An error occured:</p><pre>' + this.options.escape(err.message + '', true) + '</pre>';
     }
 
     throw err;
