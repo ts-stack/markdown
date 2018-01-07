@@ -37,10 +37,6 @@ function main()
 }
 
 /**
- * Benchmark a function
- */
-
-/**
  * @param benchStrLen Length in kilobytes. Default 300 KB.
  */
 function initBench(benchStrLen: number = 300, times: number = 1): string
@@ -53,8 +49,7 @@ function initBench(benchStrLen: number = 300, times: number = 1): string
   while(benchStrLen > accumulatedMarkdown.length)
   for(let i = 0; (i < countFiles) && (benchStrLen > accumulatedMarkdown.length); i++)
   {
-    const file = files[i];
-    accumulatedMarkdown += '\n\n' + file;
+    accumulatedMarkdown += '\n\n' + files[i];
   }
 
   const lenAcumulatedFile = Math.round(accumulatedMarkdown.length / 1024);
@@ -168,10 +163,6 @@ function runBench(options: RunBenchOptions)
   });
 }
 
-/**
- * Argument Parsing
- */
-
 function parseArg(): RunBenchOptions
 {
   const argv = process.argv.slice(2);
@@ -179,10 +170,9 @@ function parseArg(): RunBenchOptions
 
   for(let i = 0; i < argv.length; i++)
   {
-    const arg = argv[i];
-    let [key, value] = arg.split('=');
+    let [key, value] = argv[i].split('=');
 
-    // We have next parameter or value of current parameter.
+    // In `argv` we have next parameter or value of current parameter.
     if(!value && argv[i + 1])
     {
       value = argv[i + 1].split('-')[0];
@@ -211,14 +201,9 @@ function parseArg(): RunBenchOptions
   return options;
 }
 
-
-/**
- * Load Tests
- */
-
 function load(): string[]
 {
-  const dir = __dirname + '/../test/tests';
+  const dir = path.normalize(__dirname + '/../test/tests');
   const files: string[] = [];
 
   const list = fs

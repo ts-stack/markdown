@@ -251,10 +251,9 @@ function parseArg(): RunTestsOptions
 
   for(let i = 0; i < argv.length; i++)
   {
-    const arg = argv[i];
-    let [key, value] = arg.split('=');
+    let [key, value] = argv[i].split('=');
 
-    // We have next parameter or value of current parameter.
+    // In `argv` we have next parameter or value of current parameter.
     if(!value && argv[i + 1])
     {
       value = argv[i + 1].split('-')[0];
