@@ -224,6 +224,17 @@ export class Parser
             return this.simpleRenderers[i].call(this.renderer, this.token.execArr);
           }
         }
+
+        const errMsg = `Token with "${this.token.type}" type was not found.`;
+
+        if(this.options.silent)
+        {
+          console.log(errMsg);
+        }
+        else
+        {
+          throw new Error(errMsg);
+        }
       }
     }
   }
