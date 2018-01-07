@@ -121,7 +121,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
       let expectedRow = expectedRows[indexRow];
       let actualRow = actualRows[indexRow];
       // 1 to check empty rows.
-      let length = expectedRow.length || 1;
+      const length = expectedRow.length || 1;
 
       for(let indexChar = 0; indexChar < length; indexChar++)
       {
@@ -145,11 +145,9 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
         );
 
         expectedRow = escapeAndShow(expectedRow);
-        actualRow = (actualRow && escapeAndShow(actualRow))  || `[missing '\\n' here]`;
-
+        actualRow = escapeAndShow(actualRow);
 
         console.log(`\n#${indexFile + 1}. failed near ${testDir}/${filename}.html:${indexRow + 1}:${indexChar + 1}\n`);
-
         console.log(`\nExpected:\n'${expectedRow}'\n`);
         console.log(`\nGot:\n'${actualRow}'\n`);
 
@@ -182,14 +180,15 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
 function escapeAndShow(str: string)
 {
-  if(!str)
+  if(str === '')
     return '\\n';
+  else if(str === undefined)
+    return `[missing '\\n' here]`;
 
-  const escapeReplace = /[\r\n\t\f\v]/g;
+  const escapeReplace = /[\r\t\f\v]/g;
   const replacements: Replacements =
   {
     '\r': '\\r',
-    '\n': '\\n',
     '\t': '\\t',
     '\f': '\\f',
     '\v': '\\v'
