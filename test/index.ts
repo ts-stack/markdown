@@ -47,8 +47,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
   const engine: (md: string) => string = functionOrEngine || Marked.parse.bind(Marked);
   options = options || {};
   const files = options.files || load();
-  const filenames = Object.keys(files)
-  ,failures = [];
+  const filenames = Object.keys(files);
 
   let original: MarkedOptions
   ,filename
@@ -129,7 +128,6 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
           continue;
 
         failed++;
-        failures.push(filename);
 
         expectedRow = expectedRow.substring
         (
@@ -160,6 +158,21 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
       }
     }
 
+    if(actualRows.length > expectedRows.length)
+    {
+      failed++;
+
+      console.log(`\n#${indexFile + 1}. failed ${testDir}/${filename}.html: `
+      + `expected number of rows: ${expectedRows.length}, got: ${actualRows.length}.\n`);
+
+      if(options.stop)
+      {
+        break;
+      }
+
+      continue;
+    }
+
     complete++;
     console.log(`#${indexFile + 1}. ${filename}.md completed.`);
   }
@@ -168,12 +181,6 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
   if(failed)
     console.log('%d/%d tests failed.', failed, len);
-
-  // Tests currently failing.
-  if(~failures.indexOf('def_blocks.md'))
-  {
-    failed -= 1;
-  }
 
   return !failed;
 }
