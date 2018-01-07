@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Marked, MarkedOptions } from '../';
+import { Marked, MarkedOptions, Replacements } from '../';
 
 interface RunTestsOptions
 {
@@ -107,8 +107,8 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
     try
     {
-      expectedRows = file.html.split('\n').map(str => '\n' + str);
-      actualRows = engine(file.text).split('\n').map(str => '\n' + str);
+      expectedRows = file.html.split('\n');
+      actualRows = engine(file.text).split('\n');
     }
     catch(e)
     {
@@ -120,8 +120,8 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     {
       let expectedRow = expectedRows[indexRow];
       let actualRow = actualRows[indexRow];
-      // +1 to check empty rows.
-      let length = expectedRow.length + 1;
+      // 1 to check empty rows.
+      let length = expectedRow.length || 1;
 
       for(let indexChar = 0; indexChar < length; indexChar++)
       {
@@ -131,7 +131,6 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
         failed++;
         failures.push(filename);
 
-        if(expectedRow !== undefined)
         expectedRow = expectedRow.substring
         (
           Math.max(indexChar - 30, 0),
@@ -145,11 +144,11 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
           Math.min(indexChar + 30, actualRow.length)
         );
 
-        expectedRow = expectedRow.replace('\n', '\\n').replace('\t', '\\t');
-        actualRow = (actualRow && actualRow.replace('\n', '\\n').replace('\t', '\\t'))  || `[missing '\\n' here]`;
+        expectedRow = escapeAndShow(expectedRow);
+        actualRow = (actualRow && escapeAndShow(actualRow))  || `[missing '\\n' here]`;
 
 
-        console.log(`\n#${indexFile + 1}. failed near ${testDir}/${filename}.html:${indexRow + 1}:${indexChar}\n`);
+        console.log(`\n#${indexFile + 1}. failed near ${testDir}/${filename}.html:${indexRow + 1}:${indexChar + 1}\n`);
 
         console.log(`\nExpected:\n'${expectedRow}'\n`);
         console.log(`\nGot:\n'${actualRow}'\n`);
@@ -179,6 +178,24 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
   }
 
   return !failed;
+}
+
+function escapeAndShow(str: string)
+{
+  if(!str)
+    return '\\n';
+
+  const escapeReplace = /[\r\n\t\f\v]/g;
+  const replacements: Replacements =
+  {
+    '\r': '\\r',
+    '\n': '\\n',
+    '\t': '\\t',
+    '\f': '\\f',
+    '\v': '\\v'
+  };
+
+  return str.replace(escapeReplace, (ch: string) => replacements[ch]);
 }
 
 /**
