@@ -14,6 +14,9 @@ JgwnkM5WwWE
 
 Marked.setBlockRule(/^ *@{3,}[ \.]*(\S+)? *\n([\s\S]*?)\s*@{3,} *(?:\n+|$)/, function (execArr) {
 
+  // Don't use arrow function for this callback
+  // if you need Renderer's context, for example to `this.options`.
+
   const channel = execArr[1];
 
   switch(channel)
