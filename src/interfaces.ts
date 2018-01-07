@@ -55,21 +55,21 @@ export interface Links
 export enum TokenType
 {
   space = 1
-  ,code
+  ,text
+  ,paragraph
   ,heading
-  ,table
-  ,hr
-  ,blockquoteStart
-  ,blockquoteEnd
   ,listStart
   ,listEnd
   ,looseItemStart
   ,looseItemEnd
   ,listItemStart
   ,listItemEnd
-  ,paragraph
+  ,blockquoteStart
+  ,blockquoteEnd
+  ,code
+  ,table
   ,html
-  ,text
+  ,hr
 }
 
 export type Align = 'center' | 'left' | 'right';

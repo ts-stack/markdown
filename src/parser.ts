@@ -92,9 +92,13 @@ export class Parser
       {
         return '';
       }
-      case TokenType.hr:
+      case TokenType.paragraph:
       {
-        return this.renderer.hr();
+        return this.renderer.paragraph(this.inlineLexer.output(this.token.text));
+      }
+      case TokenType.text:
+      {
+        return this.renderer.paragraph(this.parseText());
       }
       case TokenType.heading:
       {
@@ -104,6 +108,41 @@ export class Parser
           this.token.depth,
           this.token.text
         );
+      }
+      case TokenType.listStart:
+      {
+        let body = '', ordered = this.token.ordered;
+
+        while (this.next().type != TokenType.listEnd)
+        {
+          body += this.tok();
+        }
+
+        return this.renderer.list(body, ordered);
+      }
+      case TokenType.listItemStart:
+      {
+        let body = '';
+
+        while (this.next().type != TokenType.listItemEnd)
+        {
+          body += this.token.type == <any>TokenType.text
+            ? this.parseText()
+            : this.tok();
+        }
+
+        return this.renderer.listitem(body);
+      }
+      case TokenType.looseItemStart:
+      {
+        let body = '';
+
+        while (this.next().type != TokenType.listItemEnd)
+        {
+          body += this.tok();
+        }
+
+        return this.renderer.listitem(body);
       }
       case TokenType.code:
       {
@@ -164,40 +203,9 @@ export class Parser
 
         return this.renderer.blockquote(body);
       }
-      case TokenType.listStart:
+      case TokenType.hr:
       {
-        let body = '', ordered = this.token.ordered;
-
-        while (this.next().type != TokenType.listEnd)
-        {
-          body += this.tok();
-        }
-
-        return this.renderer.list(body, ordered);
-      }
-      case TokenType.listItemStart:
-      {
-        let body = '';
-
-        while (this.next().type != TokenType.listItemEnd)
-        {
-          body += this.token.type == <any>TokenType.text
-            ? this.parseText()
-            : this.tok();
-        }
-
-        return this.renderer.listitem(body);
-      }
-      case TokenType.looseItemStart:
-      {
-        let body = '';
-
-        while (this.next().type != TokenType.listItemEnd)
-        {
-          body += this.tok();
-        }
-
-        return this.renderer.listitem(body);
+        return this.renderer.hr();
       }
       case TokenType.html:
       {
@@ -206,20 +214,12 @@ export class Parser
           : this.token.text;
         return this.renderer.html(html);
       }
-      case TokenType.paragraph:
-      {
-        return this.renderer.paragraph(this.inlineLexer.output(this.token.text));
-      }
-      case TokenType.text:
-      {
-        return this.renderer.paragraph(this.parseText());
-      }
       default:
       {
         if(this.simpleRenderers.length)
         for(let i = 0; i < this.simpleRenderers.length; i++)
         {
-          if(this.token.type == TokenType.text + i + 1)
+          if(this.token.type == ('simpleRule' + (i + 1)))
           {
             return this.simpleRenderers[i].call(this.renderer, this.token.execArr);
           }

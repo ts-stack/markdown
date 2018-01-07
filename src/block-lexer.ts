@@ -491,7 +491,7 @@ export class BlockLexer<T extends typeof BlockLexer>
           if(execArr = simpleRules[i].exec(nextPart))
           {
             nextPart = nextPart.substring(execArr[0].length);
-            const type = TokenType.text + simpleRules.length;
+            const type = 'simpleRule' + simpleRules.length;
             this.tokens.push({type: type, execArr: execArr});
             continue mainLoop;
           }
