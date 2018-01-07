@@ -135,19 +135,7 @@ and returns result `regexp.exec(string)` to `callback(execArr)`, which can be pa
 ```ts
 import { Marked, escape } from 'marked-ts';
 
-const blockStr = `
-# Example usage with embed block code
-
-@@@ gist
-a9dfd77500990871fc58b97fdb57d91f.js
-@@@
-
-@@@ youtube
-JgwnkM5WwWE
-@@@
-`;
-
-Marked.setBlockRule(/^ *@{3,}[ \.]*(\S+)? *\n([\s\S]*?)\s*@{3,} *(?:\n+|$)/, function (execArr) {
+Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
 
   // Don't use arrow function for this callback
   // if you need Renderer's context, for example to `this.options`.
@@ -168,6 +156,19 @@ Marked.setBlockRule(/^ *@{3,}[ \.]*(\S+)? *\n([\s\S]*?)\s*@{3,} *(?:\n+|$)/, fun
     }
   }
 });
+
+const blockStr = `
+# Example usage with embed block code
+
+@@@ gist
+a9dfd77500990871fc58b97fdb57d91f.js
+@@@
+
+@@@ youtube
+JgwnkM5WwWE
+@@@
+`;
+
 
 const html = Marked.parse(blockStr);
 
