@@ -132,6 +132,8 @@ If you do not need recursiveness or checks some conditions, you can use the
 `Marked.setBlockRule( regexp[, callback] )` method, which takes a regular expression as the first argument,
 and returns result `regexp.exec(string)` to `callback(execArr)`, which can be passed as a second argument.
 
+In regular expression very important adding symbol `^` from start. You should do this anyway.
+
 ```ts
 import { Marked, escape } from 'marked-ts';
 
