@@ -115,20 +115,30 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
       throw e;
     }
 
-    for(let indexRow = 0; indexRow < expectedRows.length; indexRow++)
+    const lenRows = Math.max(expectedRows.length, actualRows.length);
+
+    for(let indexRow = 0; indexRow < lenRows; indexRow++)
     {
       let expectedRow = expectedRows[indexRow];
       let actualRow = actualRows[indexRow];
       // 1 to check empty rows.
-      const length = expectedRow.length || 1;
+      const lenStr = Math.max(expectedRows.length, actualRows.length) || 1;
 
-      for(let indexChar = 0; indexChar < length; indexChar++)
+      for(let indexChar = 0; indexChar < lenStr; indexChar++)
       {
-        if(actualRow !== undefined && expectedRow[indexChar] === actualRow[indexChar])
+        if
+        (
+          expectedRow !== undefined
+          && actualRow !== undefined
+          && expectedRow[indexChar] === actualRow[indexChar]
+        )
+        {
           continue;
+        }
 
         failed++;
 
+        if(expectedRow !== undefined)
         expectedRow = expectedRow.substring
         (
           Math.max(indexChar - 30, 0),
@@ -156,21 +166,6 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
         continue mainFor;
       }
-    }
-
-    if(actualRows.length > expectedRows.length)
-    {
-      failed++;
-
-      console.log(`\n#${indexFile + 1}. failed ${testDir}/${filename}.html: `
-      + `expected number of rows: ${expectedRows.length}, got: ${actualRows.length}.\n`);
-
-      if(options.stop)
-      {
-        break;
-      }
-
-      continue;
     }
 
     complete++;
