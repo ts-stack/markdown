@@ -16,7 +16,8 @@ import {
   Links,
   TokenType,
   LexerReturns,
-  SimpleRenderer
+  SimpleRenderer,
+  DebugReturns
 } from './interfaces';
 
 export class Marked
@@ -64,6 +65,21 @@ export class Marked
     {
       return this.callMe(e);
     }
+  }
+
+  /**
+   * Accepts Markdown text and returns object with text in HTML format, tokens and links from `BlockLexer.parser()`.
+   * 
+   * @param src String of markdown source to be compiled.
+   * @param options Hash of options. They replace, but do not merge with the default options.
+   * If you want the merging, you can to do this via `Marked.setOptions()`.
+   */
+  static debug(src: string, options: MarkedOptions = this.options): DebugReturns
+  {
+    const {tokens, links} = this.callBlockLexer(src, options);
+    const origin = tokens.slice();
+    const result = this.callParser(tokens, links, options);
+    return {tokens: origin, links, result};
   }
 
   protected static callBlockLexer(src: string, options?: MarkedOptions): LexerReturns

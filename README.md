@@ -171,7 +171,6 @@ JgwnkM5WwWE
 @@@
 `;
 
-
 const html = Marked.parse(blockStr);
 
 console.log(html);
@@ -199,6 +198,15 @@ This code output:
  * set using the `Marked.setOptions` method as seen above.
  */
 static parse(src: string, options?: MarkedOptions): string;
+
+/**
+ * Accepts Markdown text and returns object with text in HTML format, tokens and links from `BlockLexer.parser()`.
+ * 
+ * @param src String of markdown source to be compiled.
+ * @param options Hash of options. They replace, but do not merge with the default options.
+ * If you want the merging, you can to do this via `Marked.setOptions()`.
+ */
+  static debug(src: string, options: MarkedOptions = this.options): DebugReturns
 
 
 /**

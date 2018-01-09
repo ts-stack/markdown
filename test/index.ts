@@ -12,7 +12,14 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Marked, MarkedOptions, Replacements } from '../';
+import { Marked,
+  MarkedOptions,
+  Replacements,
+  DebugReturns,
+  Token,
+  Links,
+  TokenType
+} from '../';
 
 interface RunTestsOptions
 {
@@ -44,7 +51,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     functionOrEngine = null;
   }
 
-  const engine: (md: string) => string = functionOrEngine || Marked.parse.bind(Marked);
+  const engine: (md: string) => DebugReturns = functionOrEngine || Marked.debug.bind(Marked);
   options = options || {};
   const files = options.files || load();
   const filenames = Object.keys(files);
@@ -59,6 +66,9 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
   ,actualStr: string
   ,expectedRows: string[]
   ,expectedStr: string
+  ,tokens: Token[]
+  ,links: Links
+  ,result: string
   ;
 
   if(options.marked)
@@ -107,7 +117,14 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     try
     {
       expectedRows = file.html.split('\n');
-      actualRows = engine(file.text).split('\n');
+      ({result, tokens, links} = engine(file.text));
+
+      tokens.forEach( token =>
+      {
+        token.type = (<any>TokenType)[token.type] || token.type;
+      });
+
+      actualRows = result.split('\n');
     }
     catch(e)
     {
@@ -175,7 +192,11 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
   console.log('%d/%d tests completed successfully.', complete, len);
 
   if(failed)
+  {
     console.log('%d/%d tests failed.', failed, len);
+    console.log(`links:`,links);
+    console.log(`tokens:`, tokens);
+  }
 
   return !failed;
 }
