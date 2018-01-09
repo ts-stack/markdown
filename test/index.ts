@@ -173,7 +173,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
         console.log(`\n#${indexFile + 1}. failed near ${testDir}/${filename}.html:${erroredLine}:${indexChar + 1}\n`);
         console.log(`\nExpected:\n'${expectedRow}'\n`);
         console.log(`\nGot:\n'${actualRow}'\n`);
-        console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => index >= indexBefore && index <= indexAfter));
+        console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => (index >= indexBefore && index <= indexAfter)));
         console.log(`links:`,links);
 
         if(options.stop)
@@ -208,7 +208,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
  */
 function findIndexBefore(tokens: Token[], erroredLine: number)
 {
-  let indexBefore: number;
+  let indexBefore = 0;
 
   tokens.reduce( (acc, token, index) =>
   {
@@ -238,7 +238,7 @@ function findIndexBefore(tokens: Token[], erroredLine: number)
  */
 function findIndexAfter(tokens: Token[], erroredLine: number, lenRows: number)
 {
-  let indexAfter: number;
+  let indexAfter = tokens.length - 1;
 
   tokens.reduce( (acc, token, index) =>
   {
