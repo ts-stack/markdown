@@ -118,6 +118,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     {
       expectedRows = file.html.split('\n');
       ({result, tokens, links} = engine(file.text));
+      fs.writeFileSync(`${testDir}/${filename}-actual.html`, result, 'utf8');
       tokens = transform(tokens);
       actualRows = result.split('\n');
     }
@@ -170,9 +171,9 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
         const indexBefore = findIndexBefore(tokens, erroredLine);
         const indexAfter = findIndexAfter(tokens, erroredLine, lenRows);
 
-        console.log(`\n#${indexFile + 1}. failed near ${testDir}/${filename}.html:${erroredLine}:${indexChar + 1}\n`);
-        console.log(`\nExpected:\n'${expectedRow}'\n`);
-        console.log(`\nGot:\n'${actualRow}'\n`);
+        console.log(`\n#${indexFile + 1}. failed ${filename}.md`);
+        console.log(`\nExpected:\n~~~~~~~~> in ${testDir}/${filename}.html:${erroredLine}:${indexChar + 1}\n\n'${expectedRow}'\n`);
+        console.log(`\nActual:\n--------> in ${testDir}/${filename}-actual.html:${erroredLine}:${indexChar + 1}\n\n'${actualRow}'\n`);
         console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => (index >= indexBefore && index <= indexAfter)));
         console.log(`links:`,links);
 

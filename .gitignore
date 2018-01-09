@@ -5,3 +5,4 @@ npm-debug.log
 *.tgz
 .vscode
 test/tmp.ts
+test/tests/*-actual.html
