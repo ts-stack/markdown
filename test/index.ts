@@ -21,82 +21,41 @@ import { Marked,
   TokenType
 } from '../';
 
-interface RunTestsOptions
+interface RunTestsOptions extends MarkedOptions
 {
-  files?: {[key: string]: any},
-  marked?: MarkedOptions,
   stop?: boolean
 }
 
 const testDir = path.normalize(__dirname + '/../test/tests');
 
-/**
- * Execute
- */
-main();
+runTests();
 
-function main()
+function runTests(): void
 {
-  const opt = parseArg();
-  return runTests(opt);
-}
-
-function runTests(options?: RunTestsOptions): boolean;
-function runTests(engine: Function, options?: RunTestsOptions): boolean;
-function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTestsOptions): boolean
-{
-  if(typeof functionOrEngine != 'function')
-  {
-    options = functionOrEngine;
-    functionOrEngine = null;
-  }
-
-  const engine: (md: string) => DebugReturns = functionOrEngine || Marked.debug.bind(Marked);
-  options = options || {};
-  const files = options.files || load();
+  const files = load();
   const filenames = Object.keys(files);
-
-  let original: MarkedOptions
-  ,filename
-  ,failed = 0
-  ,complete = 0
-  ,file: {text: string, html: string}
-  ,flags
-  ,actualRows: string[]
-  ,actualStr: string
-  ,expectedRows: string[]
-  ,expectedStr: string
-  ,tokens: Token[]
-  ,links: Links
-  ,result: string
-  ;
-
-  if(options.marked)
-  {
-    Marked.setOptions(options.marked);
-  }
-
-  const len = filenames.length;
+  const lenFiles = filenames.length;
+  const cliOptions = parseArg();
+  let failed = 0, complete = 0;
 
   mainFor:
-  for(let indexFile = 0; indexFile < len; indexFile++)
+  for(let indexFile = 0; indexFile < lenFiles; indexFile++)
   {
-    filename = filenames[indexFile];
-    file = files[filename];
+    const filename = filenames[indexFile];
+    const file: {text: string, html: string} = files[filename];
+    const options: RunTestsOptions = {...cliOptions, ...Marked.options};
+    let
+    expectedRows: string[]
+    ,actualRows: string[]
+    ,tokens: Token[]
+    ,links: Links
+    ,result: string
+    ;
 
-    if(original)
-    {
-      Marked.options = original;
-      original = null;
-    }
-
-    flags = filename.split('.').slice(1);
-
+    // Getting options from filename.
+    const flags = filename.split('.').slice(1);
     if(flags.length)
     {
-      original = Marked.options;
-      Marked.options = {...original};
-
       flags.forEach( key =>
       {
         let val = true;
@@ -109,15 +68,18 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
         if(Marked.options.hasOwnProperty(key))
         {
-          (<any>Marked.options)[key] = val;
+          (<any>options)[key] = val;
         }
       });
     }
 
     try
     {
+      // Getting expected rows.
       expectedRows = file.html.split('\n');
-      ({result, tokens, links} = engine(file.text));
+
+      // Getting actual rows and tokens with links.
+      ({result, tokens, links} = Marked.debug(file.text, options));
       fs.writeFileSync(`${testDir}/${filename}-actual.html`, result, 'utf8');
       tokens = transform(tokens);
       actualRows = result.split('\n');
@@ -134,8 +96,8 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     {
       let expectedRow = expectedRows[indexRow];
       let actualRow = actualRows[indexRow];
-      // 1 to check empty rows.
-      const lenStr = Math.max(expectedRows.length, actualRows.length) || 1;
+      // 1 to compare missing and empty lines.
+      const lenStr = Math.max(expectedRows.length, actualRows.length, 1);
 
       for(let indexChar = 0; indexChar < lenStr; indexChar++)
       {
@@ -168,13 +130,13 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
         expectedRow = escapeAndShow(expectedRow);
         actualRow = escapeAndShow(actualRow);
         const erroredLine = indexRow + 1;
-        const indexBefore = findIndexBefore(tokens, erroredLine);
-        const indexAfter = findIndexAfter(tokens, erroredLine, lenRows);
+        const indexFrom = findIndexBefore(tokens, erroredLine);
+        const indexTo = findIndexAfter(tokens, erroredLine, lenRows);
 
         console.log(`\n#${indexFile + 1}. failed ${filename}.md`);
         console.log(`\nExpected:\n~~~~~~~~> in ${testDir}/${filename}.html:${erroredLine}:${indexChar + 1}\n\n'${expectedRow}'\n`);
         console.log(`\nActual:\n--------> in ${testDir}/${filename}-actual.html:${erroredLine}:${indexChar + 1}\n\n'${actualRow}'\n`);
-        console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => (index >= indexBefore && index <= indexAfter)));
+        console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => (index >= indexFrom && index <= indexTo)));
         console.log(`links:`,links);
 
         if(options.stop)
@@ -190,22 +152,20 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     console.log(`#${indexFile + 1}. ${filename}.md completed.`);
   }
 
-  console.log('%d/%d tests completed successfully.', complete, len);
+  console.log('%d/%d tests completed successfully.', complete, lenFiles);
 
   if(failed)
   {
-    console.log('%d/%d tests failed.', failed, len);
+    console.log('%d/%d tests failed.', failed, lenFiles);
     // console.log(`tokens:`, tokens);
   }
-
-  return !failed;
 }
 
 /**
- * Searches for the maximum line number preceding the error line number,
+ * Searches for a maximum line number preceding an error line number,
  * and returns its index from an array of tokens.
  * 
- * Here, "line number" refers to the line number of the resulting HTML file.
+ * Here, "line number" refers to a line number of a resulting HTML file.
  */
 function findIndexBefore(tokens: Token[], erroredLine: number)
 {
@@ -232,10 +192,10 @@ function findIndexBefore(tokens: Token[], erroredLine: number)
 }
 
 /**
- * Searches for the minimum line number that goes after the error line number,
+ * Searches for a minimum line number that goes after an error line number,
  * and returns its index from an array of tokens.
  * 
- * Here, "line number" refers to the line number of the resulting HTML file.
+ * Here, "line number" refers to a line number of a resulting HTML file.
  */
 function findIndexAfter(tokens: Token[], erroredLine: number, lenRows: number)
 {
@@ -263,7 +223,7 @@ function findIndexAfter(tokens: Token[], erroredLine: number, lenRows: number)
 
 /**
  * Translates a token type into a readable form,
- * and moves `line` field to the first place in a token object.
+ * and moves `line` field to a first place in a token object.
  */
 function transform(tokens: Token[])
 {
@@ -300,9 +260,8 @@ function escapeAndShow(str: string)
 }
 
 /**
- * Load Tests
+ * Load Tests.
  */
-
 function load()
 {
   let files: {[key: string]: any} = {};
