@@ -206,7 +206,7 @@ static parse(src: string, options?: MarkedOptions): string;
  * @param options Hash of options. They replace, but do not merge with the default options.
  * If you want the merging, you can to do this via `Marked.setOptions()`.
  */
-  static debug(src: string, options: MarkedOptions = this.options): DebugReturns
+static debug(src: string, options?: MarkedOptions): DebugReturns
 
 
 /**

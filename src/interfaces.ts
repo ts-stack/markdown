@@ -87,6 +87,10 @@ export interface Token
   pre?: boolean;
   escaped?: boolean;
   execArr?: RegExpExecArray;
+  /**
+   * Used for debugging. Identifies the line number in the resulting HTML file.
+   */
+  line?: number;
 }
 
 export interface RulesInlineBase

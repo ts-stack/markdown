@@ -118,12 +118,7 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
     {
       expectedRows = file.html.split('\n');
       ({result, tokens, links} = engine(file.text));
-
-      tokens.forEach( token =>
-      {
-        token.type = (<any>TokenType)[token.type] || token.type;
-      });
-
+      tokens = transform(tokens);
       actualRows = result.split('\n');
     }
     catch(e)
@@ -171,10 +166,15 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
 
         expectedRow = escapeAndShow(expectedRow);
         actualRow = escapeAndShow(actualRow);
+        const erroredLine = indexRow + 1;
+        const indexBefore = findIndexBefore(tokens, erroredLine);
+        const indexAfter = findIndexAfter(tokens, erroredLine, lenRows);
 
-        console.log(`\n#${indexFile + 1}. failed near ${testDir}/${filename}.html:${indexRow + 1}:${indexChar + 1}\n`);
+        console.log(`\n#${indexFile + 1}. failed near ${testDir}/${filename}.html:${erroredLine}:${indexChar + 1}\n`);
         console.log(`\nExpected:\n'${expectedRow}'\n`);
         console.log(`\nGot:\n'${actualRow}'\n`);
+        console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => index >= indexBefore && index <= indexAfter));
+        console.log(`links:`,links);
 
         if(options.stop)
         {
@@ -194,11 +194,89 @@ function runTests(functionOrEngine?: Function | RunTestsOptions, options?: RunTe
   if(failed)
   {
     console.log('%d/%d tests failed.', failed, len);
-    console.log(`links:`,links);
-    console.log(`tokens:`, tokens);
+    // console.log(`tokens:`, tokens);
   }
 
   return !failed;
+}
+
+/**
+ * Searches for the maximum line number preceding the error line number,
+ * and returns its index from an array of tokens.
+ * 
+ * Here, "line number" refers to the line number of the resulting HTML file.
+ */
+function findIndexBefore(tokens: Token[], erroredLine: number)
+{
+  let indexBefore: number;
+
+  tokens.reduce( (acc, token, index) =>
+  {
+    if(token.line < erroredLine)
+    {
+      const nextMax = Math.max(acc, token.line);
+      if(acc !== nextMax)
+      {
+        indexBefore = index;
+      }
+      return nextMax;
+    }
+    else
+    {
+      return acc;
+    }
+  }, 0);
+
+  return indexBefore;
+}
+
+/**
+ * Searches for the minimum line number that goes after the error line number,
+ * and returns its index from an array of tokens.
+ * 
+ * Here, "line number" refers to the line number of the resulting HTML file.
+ */
+function findIndexAfter(tokens: Token[], erroredLine: number, lenRows: number)
+{
+  let indexAfter: number;
+
+  tokens.reduce( (acc, token, index) =>
+  {
+    if(token.line > erroredLine)
+    {
+      const nextMin = Math.min(acc, token.line);
+      if(nextMin !== acc)
+      {
+        indexAfter = index;
+      }
+      return nextMin;
+    }
+    else
+    {
+      return acc;
+    }
+  }, lenRows);
+
+  return indexAfter;
+}
+
+/**
+ * Translates a token type into a readable form,
+ * and moves `line` field to the first place in a token object.
+ */
+function transform(tokens: Token[])
+{
+  return tokens.map( token =>
+  {
+    token.type = (<any>TokenType)[token.type] || token.type;
+
+    const line = token.line;
+    delete token.line;
+    if(line)
+      return {...{line}, ...token};
+    else
+      return token;
+  });
 }
 
 function escapeAndShow(str: string)
