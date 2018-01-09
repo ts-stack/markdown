@@ -80,7 +80,6 @@ function runTests(): void
 
       // Getting actual rows and tokens with links.
       ({result, tokens, links} = Marked.debug(file.text, options));
-      fs.writeFileSync(`${testDir}/${filename}-actual.html`, result, 'utf8');
       tokens = transform(tokens);
       actualRows = result.split('\n');
     }
@@ -112,6 +111,7 @@ function runTests(): void
         }
 
         failed++;
+        fs.writeFileSync(`${testDir}/${filename}-actual.html`, result, 'utf8');
 
         if(expectedRow !== undefined)
         expectedRow = expectedRow.substring
@@ -150,6 +150,10 @@ function runTests(): void
 
     complete++;
     console.log(`#${indexFile + 1}. ${filename}.md completed.`);
+    const fileCompleted = `${testDir}/${filename}-actual.html`;
+
+    if(fs.existsSync(fileCompleted))
+      fs.unlinkSync(fileCompleted);
   }
 
   console.log('%d/%d tests completed successfully.', complete, lenFiles);
