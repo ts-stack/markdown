@@ -18,7 +18,6 @@ For now - work in progress (there is only alpha.6 version).
 - [API](#api)
   - [Methods of Marked class and necessary types](#methods-of-marked-class-and-necessary-types)
   - [Renderer methods API](#renderer-methods-api)
-- [Philosophy behind marked](#philosophy-behind-marked)
 - [Benchmarks](#benchmarks)
   - [Options for benchmarks](#options-for-benchmarks)
     - [Example of usage bench options](#example-of-usage-bench-options)
@@ -304,22 +303,6 @@ image(href: string, title: string, text: string): string;
 text(text: string): string;
 
 ```
-
-## Philosophy behind marked
-
-The point of marked was to create a markdown compiler where it was possible to
-frequently parse huge chunks of markdown without having to worry about
-caching the compiled output somehow...or blocking for an unnecessarily long time.
-
-Marked is very concise and still implements all markdown features.
-
-Marked more or less passes the official markdown test suite in its
-entirety. This is important because a surprising number of markdown compilers
-cannot pass more than a few tests. It was very difficult to get marked as
-compliant as it is.
-
-Along with implementing every markdown feature, marked also implements [GFM
-features][gfmf].
 
 ## Benchmarks
 
