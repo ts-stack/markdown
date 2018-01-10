@@ -26,7 +26,7 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
     }
     default:
     {
-      return '<span style="color: red">[Error: a channel for an embedded code is not recognized]</span>'
+      return `<span style="color: red">[Error: a channel "${channel}" for an embedded code is not recognized]</span>`
     }
   }
 });
