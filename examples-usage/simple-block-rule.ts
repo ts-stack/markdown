@@ -24,6 +24,10 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
     {
       return katex.renderToString(escape(content));
     }
+    default:
+    {
+      return '<span style="color: red">[Error: a channel for an embedded code is not recognized]</span>'
+    }
   }
 });
 
