@@ -62,13 +62,7 @@ export class Parser
     return out;
   }
 
-  static debug(tokens: Token[], links: Links, options?: MarkedOptions): string
-  {
-    const parser = new this(options);
-    return parser.debug(links, tokens);
-  }
-
-  protected debug(links: Links, tokens: Token[])
+  debug(links: Links, tokens: Token[])
   {
     this.inlineLexer = new InlineLexer(InlineLexer, links, this.options, this.renderer);
     this.tokens = tokens.reverse();

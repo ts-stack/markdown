@@ -28,17 +28,17 @@
     "typescript": "^2.6.2"
   },
   "devDependencies": {
-    "typescript": "^2.6.2",
     "@types/highlight.js": "^9.12.2",
     "@types/markdown-it": "^0.0.4",
-    "@types/node": "^8.5.2",
+    "@types/node": "^8.5.8",
     "concurrently": "^3.5.1",
     "highlight.js": "^9.12.0",
     "markdown": "*",
     "markdown-it": "^8.4.0",
-    "marked": "^0.3.9",
+    "marked": "^0.3.12",
     "remarkable": "^1.7.1",
-    "showdown": "^1.8.6"
+    "showdown": "^1.8.6",
+    "typescript": "^2.6.2"
   },
   "scripts": {
     "test": "node dist-test/index.js",

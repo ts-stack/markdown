@@ -78,7 +78,7 @@ export class Marked
   {
     const {tokens, links} = this.callBlockLexer(src, options);
     const origin = tokens.slice();
-    const result = Parser.debug(tokens, links, options);
+    const result = (new Parser(options)).debug(links, tokens);
     return {tokens: origin, links, result};
   }
 
