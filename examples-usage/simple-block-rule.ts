@@ -1,4 +1,9 @@
 import { Marked, escape } from '../';
+/**
+ * KaTeX is a fast, easy-to-use JavaScript library for TeX math rendering on the web.
+ */
+import * as katex from 'katex';
+
 
 Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
 
@@ -6,18 +11,18 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
   // if you need Renderer's context, for example to `this.options`.
 
   const channel = execArr[1];
+  const content = execArr[2];
 
   switch(channel)
   {
     case 'youtube':
     {
-      const id = escape(execArr[2]);
-      return `<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>\n`;
+      const id = escape(content);
+      return `\n<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>\n`;
     }
-    case 'gist':
+    case 'katex':
     {
-      const id = escape(execArr[2]);
-      return `<script src="https://gist.github.com/${id}"></script>\n`;
+      return katex.renderToString(escape(content));
     }
   }
 });
@@ -25,8 +30,8 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
 const blockStr = `
 # Example usage with embed block code
 
-@@@ gist
-a9dfd77500990871fc58b97fdb57d91f.js
+@@@ katex
+c = \\pm\\sqrt{a^2 + b^2}
 @@@
 
 @@@ youtube

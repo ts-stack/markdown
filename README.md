@@ -71,11 +71,11 @@ A function to highlight code blocks:
 
 ```ts
 import { Marked } from 'marked-ts';
-import { highlightAuto } from 'highlight.js';
+import { highlight } from 'highlight.js';
 
 let md = '```js\n console.log("hello"); \n```';
 
-Marked.setOptions({ highlight: code => highlightAuto(code).value });
+Marked.setOptions({ highlight: (code, lang) => highlight(lang, code).value });
 
 console.log(Marked.parse(md));
 ```
@@ -136,24 +136,30 @@ In regular expression very important adding symbol `^` from start. You should do
 ```ts
 import { Marked, escape } from 'marked-ts';
 
+/**
+ * KaTeX is a fast, easy-to-use JavaScript library for TeX math rendering on the web.
+ */
+import * as katex from 'katex';
+
+
 Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
 
   // Don't use arrow function for this callback
   // if you need Renderer's context, for example to `this.options`.
 
   const channel = execArr[1];
+  const content = execArr[2];
 
   switch(channel)
   {
     case 'youtube':
     {
-      const id = escape(execArr[2]);
-      return `<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>\n`;
+      const id = escape(content);
+      return `\n<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>\n`;
     }
-    case 'gist':
+    case 'katex':
     {
-      const id = escape(execArr[2]);
-      return `<script src="https://gist.github.com/${id}"></script>\n`;
+      return katex.renderToString(escape(content));
     }
   }
 });
@@ -161,8 +167,8 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
 const blockStr = `
 # Example usage with embed block code
 
-@@@ gist
-a9dfd77500990871fc58b97fdb57d91f.js
+@@@ katex
+c = \\pm\\sqrt{a^2 + b^2}
 @@@
 
 @@@ youtube
@@ -173,14 +179,6 @@ JgwnkM5WwWE
 const html = Marked.parse(blockStr);
 
 console.log(html);
-```
-
-This code output:
-
-```html
-<h1 id="example-usage-with-embed-block-code">Example usage with embed block code</h1>
-<script src="https://gist.github.com/a9dfd77500990871fc58b97fdb57d91f.js"></script>
-<iframe width="420" height="315" src="https://www.youtube.com/embed/JgwnkM5WwWE"></iframe>
 ```
 
 ## API
@@ -214,6 +212,45 @@ static debug(src: string, options?: MarkedOptions): {result: string, tokens: Tok
  * @param options Hash of options.
  */
 static setOptions(options: MarkedOptions): this;
+
+interface Token
+{
+  type: number | string;
+  text?: string;
+  lang?: string;
+  depth?: number;
+  header?: string[];
+  align?: ('center' | 'left' | 'right')[];
+  cells?: string[][];
+  ordered?: boolean;
+  pre?: boolean;
+  escaped?: boolean;
+  execArr?: RegExpExecArray;
+  /**
+   * Used for debugging. Identifies the line number in the resulting HTML file.
+   */
+  line?: number;
+}
+
+enum TokenType
+{
+  space = 1
+  ,text
+  ,paragraph
+  ,heading
+  ,listStart
+  ,listEnd
+  ,looseItemStart
+  ,looseItemEnd
+  ,listItemStart
+  ,listItemEnd
+  ,blockquoteStart
+  ,blockquoteEnd
+  ,code
+  ,table
+  ,html
+  ,hr
+}
 
 // This class also using as an interface.
 class MarkedOptions
