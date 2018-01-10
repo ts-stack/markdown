@@ -72,7 +72,7 @@ export class BlockLexer<T extends typeof BlockLexer>
       hr: /^( *[-*_]){3,} *(?:\n+|$)/,
       heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
       lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-      blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
+      blockquote: /^( *>[^\n]+(\n[^\n]+)*\n*)+/,
       list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
       html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
       def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
@@ -419,7 +419,7 @@ export class BlockLexer<T extends typeof BlockLexer>
       }
 
       // def
-      if(!isBlockQuote && top && (execArr = this.rules.def.exec(nextPart)))
+      if(top && (execArr = this.rules.def.exec(nextPart)))
       {
         nextPart = nextPart.substring(execArr[0].length);
 
