@@ -25,16 +25,7 @@ interface RunBenchOptions
 
 const widthTable = 90;
 
-/**
- * Execute
- */
-main();
-
-function main()
-{
-  const opt = parseArg();  
-  return runBench(opt);
-}
+runBench();
 
 /**
  * @param benchStrLen Length in kilobytes. Default 300 KB.
@@ -107,8 +98,10 @@ function bench
  * Benchmark all engines
  */
 
-function runBench(options: RunBenchOptions)
+function runBench()
 {
+  let options: RunBenchOptions = parseArg();
+
   interface Lib
   {
     name: string,
