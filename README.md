@@ -7,8 +7,6 @@
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
-For now - work in progress (there is only alpha.6 version).
-
 - [Install](#install)
 - [Usage](#usage)
   - [Minimal usage](#minimal-usage)
@@ -356,14 +354,14 @@ npm run bench
 By default, these benchmarks run the entire markdown test suite once. The test suite includes every markdown feature,
 it doesn't cater to specific aspects.
 
-| Lib                   | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
-| ----------------------|--------------|--------------|----------------|-----------|------------------
-| marked-ts alpha.6     | 6            | 6            | 101            | 113       | 8 641
-| marked v0.3.9         | 4            | 2            | 106            | 112       | 9 323
-| remarkable v1.7.1     | 36           | 6            | 174            | 216       | 15 356
-| markdown-it v8.4.0    | 29           | 10           | 227            | 266       | 18 890
-| showdown v1.8.6       | 10           | 14           | 353            | 377       | 36 833
-| markdown v0.5.0       | 4            | 3            | 314            | 321       | 22 664
+| Lib                     | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
+| ------------------------|--------------|--------------|----------------|-----------|------------------
+| marked-ts v1.0.0-beta.1 | 6            | 6            | 101            | 113       | 8 641
+| marked v0.3.9           | 4            | 2            | 106            | 112       | 9 323
+| remarkable v1.7.1       | 36           | 6            | 174            | 216       | 15 356
+| markdown-it v8.4.0      | 29           | 10           | 227            | 266       | 18 890
+| showdown v1.8.6         | 10           | 14           | 353            | 377       | 36 833
+| markdown v0.5.0         | 4            | 3            | 314            | 321       | 22 664
 
 
 ### Options for benchmarks
