@@ -68,7 +68,8 @@ export class Marked
   }
 
   /**
-   * Accepts Markdown text and returns object with text in HTML format, tokens and links from `BlockLexer.parser()`.
+   * Accepts Markdown text and returns object with text in HTML format,
+   * tokens and links from `BlockLexer.parser()`.
    * 
    * @param src String of markdown source to be compiled.
    * @param options Hash of options. They replace, but do not merge with the default options.

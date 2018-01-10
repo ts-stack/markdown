@@ -125,7 +125,7 @@ This code will output the following HTML:
 
 ### Example of setting a simple block rule
 
-If you do not need recursiveness or checks some conditions, you can use the
+If you do not need recursiveness or checks some conditions before execute a regular expression, you can use the
 `Marked.setBlockRule( regexp[, callback] )` method, which takes a regular expression as the first argument,
 and returns result `regexp.exec(string)` to `callback(execArr)`, which can be passed as a second argument.
 
@@ -195,7 +195,8 @@ console.log(html);
 static parse(src: string, options?: MarkedOptions): string;
 
 /**
- * Accepts Markdown text and returns object with text in HTML format, tokens and links from `BlockLexer.parser()`.
+ * Accepts Markdown text and returns object with text in HTML format,
+ * tokens and links from `BlockLexer.parser()`.
  * 
  * @param src String of markdown source to be compiled.
  * @param options Hash of options. They replace, but do not merge with the default options.
@@ -357,7 +358,7 @@ it doesn't cater to specific aspects.
 | Lib                     | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ------------------------|--------------|--------------|----------------|-----------|------------------
 | marked-ts v1.0.0-beta.1 | 6            | 6            | 101            | 113       | 8 641
-| marked v0.3.9           | 4            | 2            | 106            | 112       | 9 323
+| marked v0.3.12          | 4            | 2            | 106            | 112       | 9 323
 | remarkable v1.7.1       | 36           | 6            | 174            | 216       | 15 356
 | markdown-it v8.4.0      | 29           | 10           | 227            | 266       | 18 890
 | showdown v1.8.6         | 10           | 14           | 353            | 377       | 36 833
