@@ -130,14 +130,14 @@ function runTests(): void
         expectedRow = escapeAndShow(expectedRow);
         actualRow = escapeAndShow(actualRow);
         const erroredLine = indexRow + 1;
-        const indexFrom = findIndexBefore(tokens, erroredLine);
-        const indexTo = findIndexAfter(tokens, erroredLine, lenRows);
+        const indexFrom = findIndexFrom(tokens, erroredLine);
+        const indexTo = findIndexTo(tokens, erroredLine, lenRows);
 
         console.log(`\n#${indexFile + 1}. failed ${filename}.md`);
         console.log(`\nExpected:\n~~~~~~~~> in ${testDir}/${filename}.html:${erroredLine}:${indexChar + 1}\n\n'${expectedRow}'\n`);
         console.log(`\nActual:\n--------> in ${testDir}/${filename}-actual.html:${erroredLine}:${indexChar + 1}\n\n'${actualRow}'\n`);
         console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => (index >= indexFrom && index <= indexTo)));
-        console.log(`links:`,links);
+        console.log(`links:`, links);
 
         if(options.stop)
         {
@@ -171,9 +171,9 @@ function runTests(): void
  * 
  * Here, "line number" refers to a line number of a resulting HTML file.
  */
-function findIndexBefore(tokens: Token[], erroredLine: number)
+function findIndexFrom(tokens: Token[], erroredLine: number)
 {
-  let indexBefore = 0;
+  let indexFrom = 0;
 
   tokens.reduce( (acc, token, index) =>
   {
@@ -182,7 +182,7 @@ function findIndexBefore(tokens: Token[], erroredLine: number)
       const nextMax = Math.max(acc, token.line);
       if(acc !== nextMax)
       {
-        indexBefore = index;
+        indexFrom = index;
       }
       return nextMax;
     }
@@ -192,7 +192,7 @@ function findIndexBefore(tokens: Token[], erroredLine: number)
     }
   }, 0);
 
-  return indexBefore;
+  return indexFrom;
 }
 
 /**
@@ -201,9 +201,9 @@ function findIndexBefore(tokens: Token[], erroredLine: number)
  * 
  * Here, "line number" refers to a line number of a resulting HTML file.
  */
-function findIndexAfter(tokens: Token[], erroredLine: number, lenRows: number)
+function findIndexTo(tokens: Token[], erroredLine: number, lenRows: number)
 {
-  let indexAfter = tokens.length - 1;
+  let indexTo = tokens.length - 1;
 
   tokens.reduce( (acc, token, index) =>
   {
@@ -212,7 +212,7 @@ function findIndexAfter(tokens: Token[], erroredLine: number, lenRows: number)
       const nextMin = Math.min(acc, token.line);
       if(nextMin !== acc)
       {
-        indexAfter = index;
+        indexTo = index;
       }
       return nextMin;
     }
@@ -222,7 +222,7 @@ function findIndexAfter(tokens: Token[], erroredLine: number, lenRows: number)
     }
   }, lenRows);
 
-  return indexAfter;
+  return indexTo;
 }
 
 /**
