@@ -41,9 +41,11 @@ function runTests(): void
   mainFor:
   for(let indexFile = 0; indexFile < lenFiles; indexFile++)
   {
+    const options: RunTestsOptions = {...cliOptions, ...Marked.options};
     const filename = filenames[indexFile];
     const file: {text: string, html: string} = files[filename];
-    const options: RunTestsOptions = {...cliOptions, ...Marked.options};
+    const resolvedPath = path.resolve(testDir, filename);
+    const relativePath = path.relative(process.cwd(), resolvedPath);
     let
     expectedRows: string[]
     ,actualRows: string[]
@@ -134,8 +136,8 @@ function runTests(): void
         const indexTo = findIndexTo(tokens, erroredLine, lenRows);
 
         console.log(`\n#${indexFile + 1}. failed ${filename}.md`);
-        console.log(`\nExpected:\n~~~~~~~~> in ${testDir}/${filename}.html:${erroredLine}:${indexChar + 1}\n\n'${expectedRow}'\n`);
-        console.log(`\nActual:\n--------> in ${testDir}/${filename}-actual.html:${erroredLine}:${indexChar + 1}\n\n'${actualRow}'\n`);
+        console.log(`\nExpected:\n~~~~~~~~> in ${relativePath}.html:${erroredLine}:${indexChar + 1}\n\n'${expectedRow}'\n`);
+        console.log(`\nActual:\n--------> in ${relativePath}-actual.html:${erroredLine}:${indexChar + 1}\n\n'${actualRow}'\n`);
         console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => (index >= indexFrom && index <= indexTo)));
         console.log(`links:`, links);
 
@@ -150,7 +152,7 @@ function runTests(): void
 
     complete++;
     console.log(`#${indexFile + 1}. ${filename}.md completed.`);
-    const fileCompleted = `${testDir}/${filename}-actual.html`;
+    const fileCompleted = `${relativePath}-actual.html`;
 
     if(fs.existsSync(fileCompleted))
       fs.unlinkSync(fileCompleted);
