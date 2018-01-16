@@ -161,7 +161,8 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
     }
     default:
     {
-      return `<span style="color: red">[Error: a channel "${channel}" for an embedded code is not recognized]</span>`
+      const msg = `[Error: a channel "${channel}" for an embedded code is not recognized]`;
+      return '<div style="color: red">' + msg + '</div>';
     }
   }
 });
@@ -193,8 +194,10 @@ console.log(html);
  * 
  * @param src String of markdown source to be compiled.
  * 
- * @param options Hash of options. Can also be
- * set using the `Marked.setOptions` method as seen above.
+ * @param options Hash of options. They replace, but do not merge with the default options.
+ * If you want the merging, you can to do this via `Marked.setOptions()`.
+ * 
+ * Can also be set using the `Marked.setOptions` method as seen above.
  */
 static parse(src: string, options?: MarkedOptions): string;
 
