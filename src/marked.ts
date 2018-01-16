@@ -83,7 +83,7 @@ export class Marked
     return {tokens: origin, links, result};
   }
 
-  protected static callBlockLexer(src: string, options?: MarkedOptions): LexerReturns
+  protected static callBlockLexer(src: string = '', options?: MarkedOptions): LexerReturns
   {
     // Preprocessing.
     src = src
