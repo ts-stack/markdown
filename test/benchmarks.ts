@@ -16,9 +16,6 @@ import * as path from 'path';
 interface RunBenchOptions
 {
   first?: boolean,
-  stop?: boolean,
-  bench?: boolean,
-  extended?: boolean,
   times?: number,
   length?: number
 }
