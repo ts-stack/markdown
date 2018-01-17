@@ -303,7 +303,6 @@ function load()
 /**
  * Argument Parsing
  */
-
 function parseArg(): RunTestsOptions
 {
   const argv = process.argv.slice(2);

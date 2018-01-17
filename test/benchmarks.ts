@@ -94,7 +94,6 @@ function bench
 /**
  * Benchmark all engines
  */
-
 function runBench()
 {
   let options: RunBenchOptions = parseArg();
