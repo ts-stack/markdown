@@ -357,7 +357,7 @@ export class BlockLexer<T extends typeof BlockLexer>
           item = item.replace(/^ *([*+-]|\d+\.) +/, '');
 
           // Outdent whatever the list item contains. Hacky.
-          if(item.includes('\n '))
+          if(item.indexOf('\n ') !== -1)
           {
             space -= item.length;
             item = !this.options.pedantic
