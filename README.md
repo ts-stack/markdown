@@ -7,6 +7,8 @@
 This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
+## Table of contents
+
 - [Install](#install)
 - [Usage](#usage)
   - [Minimal usage](#minimal-usage)
@@ -71,11 +73,8 @@ A function to highlight code blocks:
 import { Marked } from 'marked-ts';
 import { highlight } from 'highlight.js';
 
-let md = '```js\n console.log("hello"); \n```';
-
 Marked.setOptions({ highlight: (code, lang) => highlight(lang, code).value });
-
-console.log(Marked.parse(md));
+console.log(Marked.parse('```js\n console.log("hello"); \n```'));
 ```
 
 ### Overriding renderer methods
@@ -84,35 +83,32 @@ The renderer option allows you to render tokens in a custom manner. Here is an
 example of overriding the default heading token rendering by adding custom head id:
 
 ```ts
-import { Marked, Renderer, MarkedOptions } from 'marked-ts';
+import { Marked, Renderer } from 'marked-ts';
 
-// Setting some options for Marked.
-const markedOptions: MarkedOptions = {};
-
-const renderer = new Renderer(markedOptions);
-
-// Overriding renderer.
-renderer.heading = function (text, level)
+class MyRenderer extends Renderer
 {
-  const patt = /\s?{([^}]+)}$/;
-  const link = patt.exec(text);
-  let linkStr: string;
-  
-  if(link && link.length && link[1])
+  // Overriding parent method.
+  heading(text: string, level: number, raw: string)
   {
-    text = text.replace(patt, '');
-    linkStr = link[1];
-  }
-  else
-  {
-    linkStr = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
-  }
+    const regexp = /\s*{([^}]+)}$/;
+    const execArr = regexp.exec(text);
+    let id: string;
+    
+    if(execArr)
+    {
+      text = text.replace(regexp, '');
+      id = execArr[1];
+    }
+    else
+    {
+      id = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
+    }
 
-  return '<h' + level + ' id="' + linkStr + '">' + text + '</h' + level + '>';
-};
+    return `<h${level} id="${id}">${text}</h${level}>`;
+  }
+}
 
-markedOptions.renderer = renderer;
-Marked.setOptions(markedOptions);
+Marked.setOptions({renderer: new MyRenderer});
 
 console.log(Marked.parse('# heading {my-custom-hash}'));
 ```
@@ -122,6 +118,8 @@ This code will output the following HTML:
 ```html
 <h1 id="my-custom-hash">heading</h1>
 ```
+
+See also [Renderer methods API](#renderer-methods-api).
 
 ### Example of setting a simple block rule
 

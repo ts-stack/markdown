@@ -1,31 +1,28 @@
-import { Marked, Renderer, MarkedOptions } from '../';
+import { Marked, Renderer } from '../';
 
-// Setting some options for Marked.
-const markedOptions: MarkedOptions = {};
-
-const renderer = new Renderer(markedOptions);
-
-// Overriding renderer.
-renderer.heading = function (text, level)
+class MyRenderer extends Renderer
 {
-  const patt = /\s?{([^}]+)}$/;
-  const link = patt.exec(text);
-  let linkStr: string;
-  
-  if(link && link.length && link[1])
+  // Overriding parent method.
+  heading(text: string, level: number, raw: string)
   {
-    text = text.replace(patt, '');
-    linkStr = link[1];
-  }
-  else
-  {
-    linkStr = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
-  }
+    const regexp = /\s*{([^}]+)}$/;
+    const execArr = regexp.exec(text);
+    let id: string;
+    
+    if(execArr)
+    {
+      text = text.replace(regexp, '');
+      id = execArr[1];
+    }
+    else
+    {
+      id = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
+    }
 
-  return '<h' + level + ' id="' + linkStr + '">' + text + '</h' + level + '>';
-};
+    return `<h${level} id="${id}">${text}</h${level}>`;
+  }
+}
 
-markedOptions.renderer = renderer;
-Marked.setOptions(markedOptions);
+Marked.setOptions({renderer: new MyRenderer});
 
 console.log(Marked.parse('# heading {my-custom-hash}'));
