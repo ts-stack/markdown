@@ -253,7 +253,6 @@ function escapeAndShow(str: string)
   else if(str === undefined)
     return `[missing '\\n' here]`;
 
-  const escapeReplace = /[\r\t\f\v]/g;
   const replacements: Replacements =
   {
     '\r': '\\r',
@@ -262,7 +261,7 @@ function escapeAndShow(str: string)
     '\v': '\\v'
   };
 
-  return str.replace(escapeReplace, (ch: string) => replacements[ch]);
+  return str.replace(/[\r\t\f\v]/g, (ch: string) => replacements[ch]);
 }
 
 /**
@@ -270,7 +269,7 @@ function escapeAndShow(str: string)
  */
 function load()
 {
-  let files: {[key: string]: any} = {};
+  const files: {[key: string]: any} = {};
 
   const list = fs
   .readdirSync(testDir)
@@ -282,9 +281,7 @@ function load()
     return a > b ? 1 : (a < b ? -1 : 0);
   });
 
-  const length = list.length;
-
-  for(let i = 0; i < length; i++)
+  for(let i = 0; i < list.length; i++)
   {
     const file = path.join(testDir, list[i]);
     const ext = path.extname(file);
