@@ -2,7 +2,6 @@ import { Marked, Renderer } from '../';
 
 Marked.setOptions
 ({
-  renderer: new Renderer,
   gfm: true,
   tables: true,
   breaks: false,
@@ -11,5 +10,7 @@ Marked.setOptions
   smartLists: true,
   smartypants: false
 });
+
+Marked.setOptions({renderer: new Renderer});
 
 console.log(Marked.parse('I am using __markdown__.'));
