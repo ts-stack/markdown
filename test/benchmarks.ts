@@ -102,7 +102,7 @@ function runBench()
   {
     name: string,
     parserName: string,
-    static: boolean,
+    static?: boolean,
     className?: string
   }
 
@@ -110,9 +110,9 @@ function runBench()
   [
     {name: 'marked-ts', className: 'Marked', parserName: 'parse', static: true},
     {name: 'marked', parserName: 'parse', static: true},
-    {name: 'remarkable', parserName: 'render', static: false},
-    {name: 'markdown-it', parserName: 'render', static: false},
-    {name: 'showdown', className: 'Converter', parserName: 'makeHtml', static: false},
+    {name: 'remarkable', parserName: 'render'},
+    {name: 'markdown-it', parserName: 'render'},
+    {name: 'showdown', className: 'Converter', parserName: 'makeHtml'},
     {name: 'markdown', parserName: 'parse', static: true},
   ];
 

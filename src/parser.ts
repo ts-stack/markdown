@@ -116,7 +116,10 @@ export class Parser
       }
       case TokenType.text:
       {
-        return this.renderer.paragraph(this.parseText());
+        if(this.options.isNoP)
+          return this.parseText();
+        else
+          return this.renderer.paragraph(this.parseText());
       }
       case TokenType.heading:
       {

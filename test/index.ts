@@ -82,7 +82,6 @@ function runTests(): void
 
       // Getting actual rows and tokens with links.
       ({result, tokens, links} = Marked.debug(file.text, options));
-      tokens = transform(tokens);
       actualRows = result.split('\n');
     }
     catch(e)
@@ -98,7 +97,7 @@ function runTests(): void
       let expectedRow = expectedRows[indexRow];
       let actualRow = actualRows[indexRow];
       // 1 to compare missing and empty lines.
-      const lenStr = Math.max(expectedRows.length, actualRows.length, 1);
+      const lenStr = Math.max(expectedRow.length, actualRow.length, 1);
 
       for(let indexChar = 0; indexChar < lenStr; indexChar++)
       {
@@ -227,25 +226,6 @@ function findIndexTo(tokens: Token[], erroredLine: number, lenRows: number)
   return indexTo;
 }
 
-/**
- * Translates a token type into a readable form,
- * and moves `line` field to a first place in a token object.
- */
-function transform(tokens: Token[])
-{
-  return tokens.map( token =>
-  {
-    token.type = (<any>TokenType)[token.type] || token.type;
-
-    const line = token.line;
-    delete token.line;
-    if(line)
-      return {...{line}, ...token};
-    else
-      return token;
-  });
-}
-
 function escapeAndShow(str: string)
 {
   if(str === '')
@@ -303,7 +283,7 @@ function load()
 function parseArg(): RunTestsOptions
 {
   const argv = process.argv.slice(2);
-  const options: RunTestsOptions = {};
+  const options: RunTestsOptions = <any>{};
 
   for(let i = 0; i < argv.length; i++)
   {

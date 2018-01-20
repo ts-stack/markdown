@@ -167,6 +167,19 @@ export class MarkedOptions
    * By default using inner helper.
    */
   unescape?: (html: string) => string = unescape;
+  /**
+   * If set to `true`, an inline text will not be taken in paragraph.
+   * 
+   * ```ts
+   * // isNoP == false
+   * Marked.parse('some text'); // returns '<p>some text</p>'
+   * 
+   * Marked.setOptions({isNoP: true});
+   * 
+   * Marked.parse('some text'); // returns 'some text'
+   * ```
+   */
+  isNoP?: boolean;
 }
 
 export interface LexerReturns

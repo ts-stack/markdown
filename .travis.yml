@@ -4,7 +4,7 @@ node_js:
   - "8"
 
 install:
-  - npm i typescript
+  - npm i typescript jasmine
 
 before_script:
   - npm run compile

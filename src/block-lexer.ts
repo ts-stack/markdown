@@ -491,7 +491,7 @@ export class BlockLexer<T extends typeof BlockLexer>
           if(execArr = simpleRules[i].exec(nextPart))
           {
             nextPart = nextPart.substring(execArr[0].length);
-            const type = 'simpleRule' + simpleRules.length;
+            const type = 'simpleRule' + (i + 1);
             this.tokens.push({type: type, execArr: execArr});
             continue mainLoop;
           }
@@ -503,7 +503,7 @@ export class BlockLexer<T extends typeof BlockLexer>
       {
         nextPart = nextPart.substring(execArr[0].length);
 
-        if(execArr[1].charAt(execArr[1].length - 1) === '\n')
+        if(execArr[1].slice(-1) === '\n')
         {
           this.tokens.push({
             type: TokenType.paragraph,
@@ -513,7 +513,7 @@ export class BlockLexer<T extends typeof BlockLexer>
         else
         {
           this.tokens.push({
-            type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.html,
+            type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.text,
             text: execArr[1],
           });
         }

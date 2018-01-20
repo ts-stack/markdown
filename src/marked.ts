@@ -78,8 +78,27 @@ export class Marked
   static debug(src: string, options: MarkedOptions = this.options): DebugReturns
   {
     const {tokens, links} = this.callBlockLexer(src, options);
-    const origin = tokens.slice();
-    const result = (new Parser(options)).debug(links, tokens);
+    let origin = tokens.slice();
+    const parser = new Parser(options);
+    parser.simpleRenderers = this.simpleRenderers;
+    const result = parser.debug(links, tokens);
+
+    /**
+     * Translates a token type into a readable form,
+     * and moves `line` field to a first place in a token object.
+     */
+    origin = origin.map( token =>
+    {
+      token.type = (<any>TokenType)[token.type] || token.type;
+
+      const line = token.line;
+      delete token.line;
+      if(line)
+        return {...{line}, ...token};
+      else
+        return token;
+    });
+
     return {tokens: origin, links, result};
   }
 
