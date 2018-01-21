@@ -15,7 +15,7 @@ import * as path from 'path';
 
 interface RunBenchOptions
 {
-  first?: boolean,
+  single?: number,
   times?: number,
   length?: number
 }
@@ -54,13 +54,13 @@ function initBench(benchStrLen: number = 300, times: number = 1): string
 
 /**
  * @param name Name of engine.
- * @param func Function to be used for testing.
+ * @param parseAndCompile Function to be used for testing.
  */
 function bench
 (
   name: string,
   accumulatedMarkdown: string,
-  func: Function,
+  parseAndCompile: Function,
   times: number = 1,
   loadTime: number = 0,
   initTime: number = 0,
@@ -72,7 +72,7 @@ function bench
 
   while(times--)
   {
-    func(accumulatedMarkdown);
+    parseAndCompile(accumulatedMarkdown);
   }
 
   const heapUsed = Math.round(process.memoryUsage().heapUsed / 1024);
@@ -101,26 +101,36 @@ function runBench()
   interface Lib
   {
     name: string,
-    parserName: string,
-    static?: boolean,
-    className?: string
+    parserClass?: string,
+    compilerClass?: string,
+    parserAndCompilerMethod?: string,
+    parserMethod?: string,
+    compilerMethod?: string,
+    isParserStatic?: boolean,
   }
 
   let libs: Lib[] =
   [
-    {name: 'marked-ts', className: 'Marked', parserName: 'parse', static: true},
-    {name: 'marked', parserName: 'parse', static: true},
-    {name: 'remarkable', parserName: 'render'},
-    {name: 'markdown-it', parserName: 'render'},
-    {name: 'showdown', className: 'Converter', parserName: 'makeHtml'},
-    {name: 'markdown', parserName: 'parse', static: true},
+    {name: 'marked-ts', parserClass: 'Marked', parserAndCompilerMethod: 'parse', isParserStatic: true},
+    {name: 'marked', parserAndCompilerMethod: 'parse', isParserStatic: true},
+    {name: 'remarkable', parserAndCompilerMethod: 'render'},
+    {name: 'markdown-it', parserAndCompilerMethod: 'render'},
+    {name: 'commonmark', parserClass: 'Parser', parserMethod: 'parse', compilerClass: 'HtmlRenderer', compilerMethod: 'render'},
+    {name: 'showdown', parserClass: 'Converter', parserAndCompilerMethod: 'makeHtml'},
+    {name: 'markdown', parserAndCompilerMethod: 'parse', isParserStatic: true},
   ];
 
   options = options || {};
   const times = options.times;
   const length = options.length;
   const accumulatedMarkdown = initBench(length, times);
-  libs = options.first ? [libs[0]] : libs;
+  if(options.single !== -1)
+  {
+    if(!libs[options.single])
+      return console.warn(`libraries with this index ${options.single} do not exist.\n`);
+
+    libs = [libs[options.single]];
+  }
 
   libs.forEach(lib =>
   {
@@ -134,20 +144,39 @@ function runBench()
     try
     {
       const startLoadTime = Date.now();
-      const ParserClass = lib.className ? require(loadFrom)[lib.className] : require(loadFrom);
+      const fullLib = require(loadFrom);
       const loadTime = Date.now() - startLoadTime;
 
+      const ParserClass = lib.parserClass ? fullLib[lib.parserClass] : fullLib;
+      const CompilerClass = lib.compilerClass ? fullLib[lib.compilerClass] : null;
+      const parserInstance = lib.isParserStatic ? ParserClass : new ParserClass;
+      const compilerInstance = CompilerClass ? new CompilerClass : null;
+      let parseAndCompile: (md: string) => string;
+
+      if(lib.parserAndCompilerMethod)
+      {
+        parseAndCompile = parserInstance[lib.parserAndCompilerMethod].bind(parserInstance);
+      }
+      else
+      {
+        const parse = parserInstance[lib.parserMethod].bind(parserInstance);
+        const compile = compilerInstance[lib.compilerMethod].bind(compilerInstance);
+        parseAndCompile = function(md: string): string
+        {
+          return compile(parse(md));
+        }
+      }
+
       const startInit = Date.now();
-      const parserClass = lib.static ? ParserClass : new ParserClass;
-      const parse = parserClass[lib.parserName].bind(parserClass);
-      parse('1');
+      parseAndCompile('1');
       const initTime = Date.now() - startInit;
 
-      bench(lib.name, accumulatedMarkdown, parse, times, loadTime, initTime);
+      bench(lib.name, accumulatedMarkdown, parseAndCompile, times, loadTime, initTime);
     }
     catch(e)
     {
-      console.log(`Could not bench '${lib.name}'. (Error: ${e.message})`);
+      console.log(`Could not bench '${lib.name}'.`);
+      console.log(e.stack)
     }
   });
 }
@@ -155,7 +184,7 @@ function runBench()
 function parseArg(): RunBenchOptions
 {
   const argv = process.argv.slice(2);
-  const options: RunBenchOptions = {};
+  const options: RunBenchOptions = {single: -1};
 
   for(let i = 0; i < argv.length; i++)
   {
@@ -176,9 +205,9 @@ function parseArg(): RunBenchOptions
       case '--length':
         options.length = +value;
         break;
-      case '-f':
-      case '--first':
-        options.first = true;
+      case '-s':
+      case '--single':
+        options.single = +value || 0;
         break;
       case '-t':
       case '--times':
