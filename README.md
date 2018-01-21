@@ -41,15 +41,14 @@ console.log(Marked.parse('I am using __markdown__.'));
 // Outputs: I am using <strong>markdown</strong>.
 ```
 
-Create instance of `Renderer` only **after** you setting the necessary options.
-Do not pass `Renderer` at one time with other options,
-because its constructor should also get these options:
+Example setting options with default values:
 
 ```js
 import { Marked, Renderer } from 'marked-ts';
 
 Marked.setOptions
 ({
+  renderer: new Renderer,
   gfm: true,
   tables: true,
   breaks: false,
@@ -58,8 +57,6 @@ Marked.setOptions
   smartLists: true,
   smartypants: false
 });
-
-Marked.setOptions({renderer: new Renderer});
 
 console.log(Marked.parse('I am using __markdown__.'));
 ```
@@ -77,7 +74,8 @@ import { Marked } from 'marked-ts';
 import { highlight } from 'highlight.js';
 
 Marked.setOptions({ highlight: (code, lang) => highlight(lang, code).value });
-console.log(Marked.parse('```js\n console.log("hello"); \n```'));
+let md = '```js\n console.log("hello"); \n```';
+console.log(Marked.parse(md));
 ```
 
 ### Overriding renderer methods
@@ -365,9 +363,10 @@ it doesn't cater to specific aspects.
 
 | Lib                     | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ------------------------|--------------|--------------|----------------|-----------|------------------
-| marked-ts v1.0.0-beta.1 | 6            | 6            | 101            | 113       | 8 641
+| marked-ts v1.0.0-beta.4 | 8            | 5            | 99             | 111       | 8 679
 | marked v0.3.12          | 4            | 2            | 106            | 112       | 9 323
 | remarkable v1.7.1       | 36           | 6            | 174            | 216       | 15 356
+| commonmark v0.28.1      | 35           | 3            | 186            | 224       | 24 749
 | markdown-it v8.4.0      | 29           | 10           | 227            | 266       | 18 890
 | showdown v1.8.6         | 10           | 14           | 353            | 377       | 36 833
 | markdown v0.5.0         | 4            | 3            | 314            | 321       | 22 664

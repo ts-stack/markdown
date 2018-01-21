@@ -10,6 +10,7 @@
 
 import { Parser } from './parser';
 import { BlockLexer } from './block-lexer';
+import { merge } from './helpers';
 import {
   MarkedOptions,
   Token,
@@ -32,7 +33,7 @@ export class Marked
    */
   static setOptions(options: MarkedOptions)
   {
-    this.options = {...this.options, ...options};
+    this.options = merge(this.options, options);
     return this;
   }
 
