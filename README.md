@@ -376,7 +376,7 @@ it doesn't cater to specific aspects.
 
 | Lib                     | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ------------------------|--------------|--------------|----------------|-----------|------------------
-| marked-ts v1.0.0-beta.4 | 8            | 5            | 99             | 111       | 8 679
+| marked-ts v1.0.0-beta.4 | 8            | 5            | 98             | 111       | 8 679
 | marked v0.3.12          | 4            | 2            | 106            | 112       | 9 323
 | remarkable v1.7.1       | 36           | 6            | 174            | 216       | 15 356
 | commonmark v0.28.1      | 35           | 3            | 186            | 224       | 24 749
