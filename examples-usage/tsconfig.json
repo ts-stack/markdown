@@ -1,14 +1,7 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
-    "outDir": "../dist-examples",
-    "sourceMap": false,
-    "emitDecoratorMetadata": false,
-    "experimentalDecorators": false,
-    "removeComments": false,
-    "noImplicitAny": true,
-    "declaration": false
+    "outDir": "../dist-examples"
   },
   "exclude": [
     "dist",

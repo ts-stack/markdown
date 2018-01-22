@@ -10,7 +10,6 @@
 
 import { Parser } from './parser';
 import { BlockLexer } from './block-lexer';
-import { merge } from './helpers';
 import {
   MarkedOptions,
   Token,
@@ -33,7 +32,7 @@ export class Marked
    */
   static setOptions(options: MarkedOptions)
   {
-    this.options = merge(this.options, options);
+    Object.assign(this.options, options);
     return this;
   }
 
@@ -105,6 +104,9 @@ export class Marked
 
   protected static callBlockLexer(src: string = '', options?: MarkedOptions): LexerReturns
   {
+    if(typeof src != 'string')
+      throw new Error(`Expected that the 'src' parameter would have a 'string' type, got '${typeof src}'`);
+
     // Preprocessing.
     src = src
     .replace(/\r\n|\r/g, '\n')
