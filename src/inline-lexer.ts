@@ -1,9 +1,9 @@
 /**
  * @license
- * 
+ *
  * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
  * https://github.com/chjj/marked
- * 
+ *
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
  * https://github.com/KostyaTretyak/marked-ts
  */
@@ -128,7 +128,7 @@ export class InlineLexer
   {
     if(this.rulesGfm)
       return this.rulesGfm;
-    
+
     const base = this.getRulesBase();
 
     const escape = new ExtendRegexp(base.escape)
@@ -156,7 +156,7 @@ export class InlineLexer
   {
     if(this.rulesBreaks)
       return this.rulesBreaks;
-    
+
     const inline = this.getRulesGfm();
     const gfm = this.getRulesGfm();
 
@@ -426,14 +426,14 @@ export class InlineLexer
 
     for(let i = 0; i < length; i++)
     {
-      let str: string;
+      let ch: string | number = text.charCodeAt(i);
 
       if(Math.random() > 0.5)
       {
-        str = 'x' + text.charCodeAt(i).toString(16);
+        ch = 'x' + ch.toString(16);
       }
 
-      out += '&#' + str + ';';
+      out += '&#' + ch + ';';
     }
 
     return out;
