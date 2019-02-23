@@ -1,8 +1,7 @@
 import { Marked, Renderer } from '../';
 
-Marked.setOptions
-({
-  renderer: new Renderer,
+Marked.setOptions({
+  renderer: new Renderer(),
   gfm: true,
   tables: true,
   breaks: false,

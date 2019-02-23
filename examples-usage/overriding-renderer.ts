@@ -1,21 +1,16 @@
 import { Marked, Renderer } from '../';
 
-class MyRenderer extends Renderer
-{
+class MyRenderer extends Renderer {
   // Overriding parent method.
-  heading(text: string, level: number, raw: string)
-  {
+  heading(text: string, level: number, raw: string) {
     const regexp = /\s*{([^}]+)}$/;
     const execArr = regexp.exec(text);
     let id: string;
-    
-    if(execArr)
-    {
+
+    if (execArr) {
       text = text.replace(regexp, '');
       id = execArr[1];
-    }
-    else
-    {
+    } else {
       id = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
     }
 
@@ -23,6 +18,6 @@ class MyRenderer extends Renderer
   }
 }
 
-Marked.setOptions({renderer: new MyRenderer});
+Marked.setOptions({ renderer: new MyRenderer() });
 
 console.log(Marked.parse('# heading {my-custom-hash}'));

@@ -1,5 +1,5 @@
-import { Marked } from '../';
 import { highlight } from 'highlight.js';
+import { Marked } from '../';
 
 Marked.setOptions({ highlight: (code, lang) => highlight(lang, code).value });
 
