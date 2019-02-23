@@ -124,6 +124,7 @@
       "check-operator",
       "check-separator",
       "check-type"
-    ]
+    ],
+    "no-conditional-assignment": false
   }
 }

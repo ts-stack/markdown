@@ -17,6 +17,7 @@ const replacements: Replacements = {
   '<': '&lt;',
   '>': '&gt;',
   '"': '&quot;',
+  // tslint:disable-next-line:quotemark
   "'": '&#39;'
 };
 

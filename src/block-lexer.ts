@@ -292,10 +292,10 @@ export class BlockLexer<T extends typeof BlockLexer> {
         const str = execArr[0].match(this.rules.item);
         const length = str.length;
 
-        let next = false,
-          space: number,
-          blockBullet: string,
-          loose: boolean;
+        let next = false;
+        let space: number;
+        let blockBullet: string;
+        let loose: boolean;
 
         for (let i = 0; i < length; i++) {
           let item = str[i];

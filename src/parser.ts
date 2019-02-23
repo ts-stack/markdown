@@ -103,8 +103,8 @@ export class Parser {
         return this.renderer.heading(this.inlineLexer.output(this.token.text), this.token.depth, this.token.text);
       }
       case TokenType.listStart: {
-        let body = '',
-          ordered = this.token.ordered;
+        let body = '';
+        const ordered = this.token.ordered;
 
         while (this.next().type != TokenType.listEnd) {
           body += this.tok();
@@ -134,10 +134,9 @@ export class Parser {
         return this.renderer.code(this.token.text, this.token.lang, this.token.escaped);
       }
       case TokenType.table: {
-        let header = '',
-          body = '',
-          row,
-          cell;
+        let header = '';
+        let body = '';
+        let cell;
 
         // header
         cell = '';
@@ -150,9 +149,7 @@ export class Parser {
 
         header += this.renderer.tablerow(cell);
 
-        for (let i = 0; i < this.token.cells.length; i++) {
-          row = this.token.cells[i];
-
+        for (const row of this.token.cells) {
           cell = '';
 
           for (let j = 0; j < row.length; j++) {

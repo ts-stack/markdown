@@ -192,7 +192,8 @@ export class InlineLexer {
 
       // autolink
       if ((execArr = this.rules.autolink.exec(nextPart))) {
-        let text: string, href: string;
+        let text: string;
+        let href: string;
         nextPart = nextPart.substring(execArr[0].length);
 
         if (execArr[2] === '@') {
@@ -211,7 +212,8 @@ export class InlineLexer {
 
       // url (gfm)
       if (!this.inLink && this.hasRulesGfm && (execArr = (this.rules as RulesInlineGfm).url.exec(nextPart))) {
-        let text: string, href: string;
+        let text: string;
+        let href: string;
         nextPart = nextPart.substring(execArr[0].length);
         text = this.options.escape(execArr[1]);
         href = text;
@@ -366,8 +368,8 @@ export class InlineLexer {
       return text;
     }
 
-    let out = '',
-      length = text.length;
+    let out = '';
+    const length = text.length;
 
     for (let i = 0; i < length; i++) {
       let str: string;
