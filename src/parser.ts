@@ -9,7 +9,7 @@
  */
 
 import { InlineLexer } from './inline-lexer';
-import { Align, Links, MarkedOptions, SimpleRenderer, Token, TokenType } from './interfaces';
+import { Links, MarkedOptions, SimpleRenderer, Token, TokenType } from './interfaces';
 import { Marked } from './marked';
 import { Renderer } from './renderer';
 

@@ -8,7 +8,7 @@
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { Obj, Replacements } from './interfaces';
+import { Replacements } from './interfaces';
 
 const escapeTest = /[&<>"']/;
 const escapeReplace = /[&<>"']/g;
