@@ -41,13 +41,17 @@
     "markdown": "*",
     "markdown-it": "^8.4.0",
     "marked": "^0.3.12",
+    "prettier": "^1.16.4",
     "remarkable": "^1.7.1",
     "showdown": "^1.8.6",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
     "typescript": "^2.6.2"
   },
   "scripts": {
-    "test": "node dist-test/index.js && ./node_modules/.bin/jasmine",
-    "compile": "./node_modules/.bin/tsc && ./node_modules/.bin/tsc --project test && ./node_modules/.bin/tsc --project examples-usage",
+    "test": "node dist-test/index.js && jasmine",
+    "compile": "tsc && tsc --project test && tsc --project examples-usage",
     "bench": "node --expose-gc dist-test/benchmarks.js",
     "watch": "npm run compile && concurrently 'tsc -w' 'tsc -w --project test' 'tsc -w --project examples-usage'"
   }
