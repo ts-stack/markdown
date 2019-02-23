@@ -1,4 +1,4 @@
-/**
+/*
  * @license
  *
  * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
@@ -7,9 +7,6 @@
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
  * https://github.com/KostyaTretyak/marked-ts
  */
-
-// For JSDoc ignore license in description ExtendRegexp class.
-import {} from '';
 
 export class ExtendRegexp {
   private source: string;
