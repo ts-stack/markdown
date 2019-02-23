@@ -1,81 +1,76 @@
 /**
  * @license
- * 
+ *
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
  * https://github.com/KostyaTretyak/marked-ts
  */
 
-import { Renderer } from './renderer';
 import { escape, unescape } from './helpers';
+import { Renderer } from './renderer';
 
-export type Obj = {[key: string]: any};
+export interface Obj {
+  [key: string]: any;
+}
 
-export interface RulesBlockBase
-{
-  newline: RegExp,
-  code: RegExp,
-  hr: RegExp,
-  heading: RegExp,
-  lheading: RegExp,
-  blockquote: RegExp,
-  list: RegExp,
-  html: RegExp,
-  def: RegExp,
-  paragraph: RegExp,
-  text: RegExp,
-  bullet: RegExp,
+export interface RulesBlockBase {
+  newline: RegExp;
+  code: RegExp;
+  hr: RegExp;
+  heading: RegExp;
+  lheading: RegExp;
+  blockquote: RegExp;
+  list: RegExp;
+  html: RegExp;
+  def: RegExp;
+  paragraph: RegExp;
+  text: RegExp;
+  bullet: RegExp;
   /**
    * List item (<li>).
    */
-  item: RegExp
+  item: RegExp;
 }
 
-export interface RulesBlockGfm extends RulesBlockBase
-{
-  fences: RegExp
+export interface RulesBlockGfm extends RulesBlockBase {
+  fences: RegExp;
 }
 
-export interface RulesBlockTables extends RulesBlockGfm
-{
-  nptable: RegExp,
-  table: RegExp
+export interface RulesBlockTables extends RulesBlockGfm {
+  nptable: RegExp;
+  table: RegExp;
 }
 
-export interface Link
-{
-  href: string,
-  title: string
+export interface Link {
+  href: string;
+  title: string;
 }
 
-export interface Links
-{
-  [key: string]: Link
+export interface Links {
+  [key: string]: Link;
 }
 
-export enum TokenType
-{
-  space = 1
-  ,text
-  ,paragraph
-  ,heading
-  ,listStart
-  ,listEnd
-  ,looseItemStart
-  ,looseItemEnd
-  ,listItemStart
-  ,listItemEnd
-  ,blockquoteStart
-  ,blockquoteEnd
-  ,code
-  ,table
-  ,html
-  ,hr
+export enum TokenType {
+  space = 1,
+  text,
+  paragraph,
+  heading,
+  listStart,
+  listEnd,
+  looseItemStart,
+  looseItemEnd,
+  listItemStart,
+  listItemEnd,
+  blockquoteStart,
+  blockquoteEnd,
+  code,
+  table,
+  html,
+  hr
 }
 
 export type Align = 'center' | 'left' | 'right';
 
-export interface Token
-{
+export interface Token {
   type: number | string;
   text?: string;
   lang?: string;
@@ -93,44 +88,35 @@ export interface Token
   line?: number;
 }
 
-export interface RulesInlineBase
-{
-  escape: RegExp,
-  autolink: RegExp,
-  tag: RegExp,
-  link: RegExp,
-  reflink: RegExp,
-  nolink: RegExp,
-  strong: RegExp,
-  em: RegExp,
-  code: RegExp,
-  br: RegExp,
-  text: RegExp,
-  _inside: RegExp,
-  _href: RegExp
+export interface RulesInlineBase {
+  escape: RegExp;
+  autolink: RegExp;
+  tag: RegExp;
+  link: RegExp;
+  reflink: RegExp;
+  nolink: RegExp;
+  strong: RegExp;
+  em: RegExp;
+  code: RegExp;
+  br: RegExp;
+  text: RegExp;
+  _inside: RegExp;
+  _href: RegExp;
 }
 
-export interface RulesInlinePedantic extends RulesInlineBase
-{
-  
-}
+export interface RulesInlinePedantic extends RulesInlineBase {}
 
 /**
  * GFM Inline Grammar
  */
-export interface RulesInlineGfm extends RulesInlineBase
-{
-  url: RegExp,
-  del: RegExp,
+export interface RulesInlineGfm extends RulesInlineBase {
+  url: RegExp;
+  del: RegExp;
 }
 
-export interface RulesInlineBreaks extends RulesInlineGfm
-{
-  
-}
+export interface RulesInlineBreaks extends RulesInlineGfm {}
 
-export class MarkedOptions
-{
+export class MarkedOptions {
   gfm?: boolean = true;
   tables?: boolean = true;
   breaks?: boolean = false;
@@ -169,40 +155,36 @@ export class MarkedOptions
   unescape?: (html: string) => string = unescape;
   /**
    * If set to `true`, an inline text will not be taken in paragraph.
-   * 
+   *
    * ```ts
    * // isNoP == false
    * Marked.parse('some text'); // returns '<p>some text</p>'
-   * 
+   *
    * Marked.setOptions({isNoP: true});
-   * 
+   *
    * Marked.parse('some text'); // returns 'some text'
    * ```
    */
   isNoP?: boolean;
 }
 
-export interface LexerReturns
-{
-  tokens: Token[],
-  links: Links
+export interface LexerReturns {
+  tokens: Token[];
+  links: Links;
 }
 
-export interface DebugReturns extends LexerReturns
-{
-  result: string
+export interface DebugReturns extends LexerReturns {
+  result: string;
 }
 
-export interface Replacements
-{
+export interface Replacements {
   [key: string]: string;
 }
 
-export interface RulesInlineCallback
-{
-  condition(): RegExp,
-  tokenize(execArr: RegExpExecArray): void,
-  regexp?: RegExp
+export interface RulesInlineCallback {
+  regexp?: RegExp;
+  condition(): RegExp;
+  tokenize(execArr: RegExpExecArray): void;
 }
 
 export type SimpleRenderer = (execArr?: RegExpExecArray) => string;

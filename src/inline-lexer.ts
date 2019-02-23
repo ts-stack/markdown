@@ -1,33 +1,31 @@
 /**
  * @license
- * 
+ *
  * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
  * https://github.com/chjj/marked
- * 
+ *
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
  * https://github.com/KostyaTretyak/marked-ts
  */
 
 import { ExtendRegexp } from './extend-regexp';
+import {
+  Link,
+  Links,
+  MarkedOptions,
+  RulesInlineBase,
+  RulesInlineBreaks,
+  RulesInlineCallback,
+  RulesInlineGfm,
+  RulesInlinePedantic
+} from './interfaces';
 import { Marked } from './marked';
 import { Renderer } from './renderer';
-import {
-  RulesInlineBase,
-  MarkedOptions,
-  Links,
-  Link,
-  RulesInlineGfm,
-  RulesInlineBreaks,
-  RulesInlinePedantic,
-  RulesInlineCallback
-} from './interfaces';
-
 
 /**
  * Inline Lexer & Compiler.
  */
-export class InlineLexer
-{
+export class InlineLexer {
   protected static rulesBase: RulesInlineBase;
   /**
    * Pedantic Inline Grammar.
@@ -47,18 +45,17 @@ export class InlineLexer
   protected hasRulesGfm: boolean;
   protected ruleCallbacks: RulesInlineCallback[];
 
-  constructor
-  (
+  constructor(
     protected staticThis: typeof InlineLexer,
     protected links: Links,
     protected options: MarkedOptions = Marked.options,
     renderer?: Renderer
-  )
-  {
+  ) {
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
 
-    if(!this.links)
+    if (!this.links) {
       throw new Error(`InlineLexer requires 'links' parameter.`);
+    }
 
     this.setRules();
   }
@@ -66,22 +63,20 @@ export class InlineLexer
   /**
    * Static Lexing/Compiling Method.
    */
-  static output(src: string, links: Links, options: MarkedOptions): string
-  {
+  static output(src: string, links: Links, options: MarkedOptions): string {
     const inlineLexer = new this(this, links, options);
     return inlineLexer.output(src);
   }
 
-  protected static getRulesBase(): RulesInlineBase
-  {
-    if(this.rulesBase)
+  protected static getRulesBase(): RulesInlineBase {
+    if (this.rulesBase) {
       return this.rulesBase;
+    }
 
     /**
      * Inline-Level Grammar.
      */
-    const base: RulesInlineBase =
-    {
+    const base: RulesInlineBase = {
       escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
       autolink: /^<([^ <>]+(@|:\/)[^ <>]+)>/,
       tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^<'">])*?>/,
@@ -94,144 +89,118 @@ export class InlineLexer
       br: /^ {2,}\n(?!\s*$)/,
       text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/,
       _inside: /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/,
-      _href: /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/,
+      _href: /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/
     };
 
     base.link = new ExtendRegexp(base.link)
-    .setGroup('inside', base._inside)
-    .setGroup('href', base._href)
-    .getRegexp();
+      .setGroup('inside', base._inside)
+      .setGroup('href', base._href)
+      .getRegexp();
 
-    base.reflink = new ExtendRegexp(base.reflink)
-    .setGroup('inside', base._inside)
-    .getRegexp();
+    base.reflink = new ExtendRegexp(base.reflink).setGroup('inside', base._inside).getRegexp();
 
-    return this.rulesBase = base;
+    return (this.rulesBase = base);
   }
 
-  protected static getRulesPedantic(): RulesInlinePedantic
-  {
-    if(this.rulesPedantic)
+  protected static getRulesPedantic(): RulesInlinePedantic {
+    if (this.rulesPedantic) {
       return this.rulesPedantic;
+    }
 
-    return this.rulesPedantic =
-    {
+    return (this.rulesPedantic = {
       ...this.getRulesBase(),
       ...{
         strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
         em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
       }
-    };
+    });
   }
 
-  protected static getRulesGfm(): RulesInlineGfm
-  {
-    if(this.rulesGfm)
+  protected static getRulesGfm(): RulesInlineGfm {
+    if (this.rulesGfm) {
       return this.rulesGfm;
-    
+    }
+
     const base = this.getRulesBase();
 
-    const escape = new ExtendRegexp(base.escape)
-    .setGroup('])', '~|])')
-    .getRegexp();
+    const escape = new ExtendRegexp(base.escape).setGroup('])', '~|])').getRegexp();
 
     const text = new ExtendRegexp(base.text)
-    .setGroup(']|', '~]|')
-    .setGroup('|', '|https?://|')
-    .getRegexp();
+      .setGroup(']|', '~]|')
+      .setGroup('|', '|https?://|')
+      .getRegexp();
 
-    return this.rulesGfm =
-    {
+    return (this.rulesGfm = {
       ...base,
       ...{
-        escape: escape,
+        escape,
         url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
         del: /^~~(?=\S)([\s\S]*?\S)~~/,
-        text: text
+        text
       }
-    };
+    });
   }
 
-  protected static getRulesBreaks(): RulesInlineBreaks
-  {
-    if(this.rulesBreaks)
+  protected static getRulesBreaks(): RulesInlineBreaks {
+    if (this.rulesBreaks) {
       return this.rulesBreaks;
-    
+    }
+
     const inline = this.getRulesGfm();
     const gfm = this.getRulesGfm();
 
-    return this.rulesBreaks =
-    {
+    return (this.rulesBreaks = {
       ...gfm,
       ...{
         br: new ExtendRegexp(inline.br).setGroup('{2,}', '*').getRegexp(),
         text: new ExtendRegexp(gfm.text).setGroup('{2,}', '*').getRegexp()
       }
-    };
+    });
   }
 
-  protected setRules()
-  {
-    if(this.options.gfm)
-    {
-      if(this.options.breaks)
-      {
+  protected setRules() {
+    if (this.options.gfm) {
+      if (this.options.breaks) {
         this.rules = this.staticThis.getRulesBreaks();
-      }
-      else
-      {
+      } else {
         this.rules = this.staticThis.getRulesGfm();
       }
-    }
-    else if(this.options.pedantic)
-    {
-      this.rules = this.staticThis.getRulesPedantic()
-    }
-    else
-    {
-      this.rules = this.staticThis.getRulesBase()
+    } else if (this.options.pedantic) {
+      this.rules = this.staticThis.getRulesPedantic();
+    } else {
+      this.rules = this.staticThis.getRulesBase();
     }
 
-    this.hasRulesGfm = (<RulesInlineGfm>this.rules).url !== undefined;
+    this.hasRulesGfm = (this.rules as RulesInlineGfm).url !== undefined;
   }
 
   /**
    * Lexing/Compiling.
    */
-  output(nextPart: string): string
-  {
+  output(nextPart: string): string {
     nextPart = nextPart;
     let execArr: RegExpExecArray;
     let out = '';
 
-    while(nextPart)
-    {
+    while (nextPart) {
       // escape
-      if(execArr = this.rules.escape.exec(nextPart))
-      {
+      if ((execArr = this.rules.escape.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         out += execArr[1];
         continue;
       }
 
       // autolink
-      if(execArr = this.rules.autolink.exec(nextPart))
-      {
+      if ((execArr = this.rules.autolink.exec(nextPart))) {
         let text: string, href: string;
         nextPart = nextPart.substring(execArr[0].length);
 
-        if(execArr[2] === '@')
-        {
-          text = this.options.escape
-          (
-            execArr[1].charAt(6) === ':'
-            ? this.mangle(execArr[1].substring(7))
-            : this.mangle(execArr[1])
+        if (execArr[2] === '@') {
+          text = this.options.escape(
+            execArr[1].charAt(6) === ':' ? this.mangle(execArr[1].substring(7)) : this.mangle(execArr[1])
           );
           href = this.mangle('mailto:') + text;
-        }
-        else
-        {
+        } else {
           text = this.options.escape(execArr[1]);
           href = text;
         }
@@ -241,13 +210,7 @@ export class InlineLexer
       }
 
       // url (gfm)
-      if
-      (
-        !this.inLink
-        && this.hasRulesGfm
-        && (execArr = (<RulesInlineGfm>this.rules).url.exec(nextPart))
-      )
-      {
+      if (!this.inLink && this.hasRulesGfm && (execArr = (this.rules as RulesInlineGfm).url.exec(nextPart))) {
         let text: string, href: string;
         nextPart = nextPart.substring(execArr[0].length);
         text = this.options.escape(execArr[1]);
@@ -257,14 +220,10 @@ export class InlineLexer
       }
 
       // tag
-      if(execArr = this.rules.tag.exec(nextPart))
-      {
-        if(!this.inLink && /^<a /i.test(execArr[0]))
-        {
+      if ((execArr = this.rules.tag.exec(nextPart))) {
+        if (!this.inLink && /^<a /i.test(execArr[0])) {
           this.inLink = true;
-        }
-        else if(this.inLink && /^<\/a>/i.test(execArr[0]))
-        {
+        } else if (this.inLink && /^<\/a>/i.test(execArr[0])) {
           this.inLink = false;
         }
 
@@ -279,8 +238,7 @@ export class InlineLexer
       }
 
       // link
-      if(execArr = this.rules.link.exec(nextPart))
-      {
+      if ((execArr = this.rules.link.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         this.inLink = true;
 
@@ -294,18 +252,12 @@ export class InlineLexer
       }
 
       // reflink, nolink
-      if
-      (
-        (execArr = this.rules.reflink.exec(nextPart))
-        || (execArr = this.rules.nolink.exec(nextPart))
-      )
-      {
+      if ((execArr = this.rules.reflink.exec(nextPart)) || (execArr = this.rules.nolink.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         const keyLink = (execArr[2] || execArr[1]).replace(/\s+/g, ' ');
         const link = this.links[keyLink.toLowerCase()];
 
-        if(!link || !link.href)
-        {
+        if (!link || !link.href) {
           out += execArr[0].charAt(0);
           nextPart = execArr[0].substring(1) + nextPart;
           continue;
@@ -318,59 +270,50 @@ export class InlineLexer
       }
 
       // strong
-      if(execArr = this.rules.strong.exec(nextPart))
-      {
+      if ((execArr = this.rules.strong.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         out += this.renderer.strong(this.output(execArr[2] || execArr[1]));
         continue;
       }
 
       // em
-      if(execArr = this.rules.em.exec(nextPart))
-      {
+      if ((execArr = this.rules.em.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         out += this.renderer.em(this.output(execArr[2] || execArr[1]));
         continue;
       }
 
       // code
-      if(execArr = this.rules.code.exec(nextPart))
-      {
+      if ((execArr = this.rules.code.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         out += this.renderer.codespan(this.options.escape(execArr[2].trim(), true));
         continue;
       }
 
       // br
-      if(execArr = this.rules.br.exec(nextPart))
-      {
+      if ((execArr = this.rules.br.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         out += this.renderer.br();
         continue;
       }
 
       // del (gfm)
-      if
-      (
-        this.hasRulesGfm
-        && (execArr = (<RulesInlineGfm>this.rules).del.exec(nextPart))
-      )
-      {
+      if (this.hasRulesGfm && (execArr = (this.rules as RulesInlineGfm).del.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
         out += this.renderer.del(this.output(execArr[1]));
         continue;
       }
 
       // text
-      if(execArr = this.rules.text.exec(nextPart))
-      {
+      if ((execArr = this.rules.text.exec(nextPart))) {
         nextPart = nextPart.substring(execArr[0].length);
-        out += this.renderer.text( this.options.escape(this.smartypants(execArr[0])) );
+        out += this.renderer.text(this.options.escape(this.smartypants(execArr[0])));
         continue;
       }
 
-      if(nextPart)
+      if (nextPart) {
         throw new Error('Infinite loop on byte: ' + nextPart.charCodeAt(0));
+      }
     }
 
     return out;
@@ -379,8 +322,7 @@ export class InlineLexer
   /**
    * Compile Link.
    */
-  protected outputLink(execArr: RegExpExecArray, link: Link)
-  {
+  protected outputLink(execArr: RegExpExecArray, link: Link) {
     const href = this.options.escape(link.href);
     const title = link.title ? this.options.escape(link.title) : null;
 
@@ -392,44 +334,45 @@ export class InlineLexer
   /**
    * Smartypants Transformations.
    */
-  protected smartypants(text: string)
-  {
-    if(!this.options.smartypants)
+  protected smartypants(text: string) {
+    if (!this.options.smartypants) {
       return text;
+    }
 
-    return text
-    // em-dashes
-    .replace(/---/g, '\u2014')
-    // en-dashes
-    .replace(/--/g, '\u2013')
-    // opening singles
-    .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
-    // closing singles & apostrophes
-    .replace(/'/g, '\u2019')
-    // opening doubles
-    .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
-    // closing doubles
-    .replace(/"/g, '\u201d')
-    // ellipses
-    .replace(/\.{3}/g, '\u2026');
+    return (
+      text
+        // em-dashes
+        .replace(/---/g, '\u2014')
+        // en-dashes
+        .replace(/--/g, '\u2013')
+        // opening singles
+        .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
+        // closing singles & apostrophes
+        .replace(/'/g, '\u2019')
+        // opening doubles
+        .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
+        // closing doubles
+        .replace(/"/g, '\u201d')
+        // ellipses
+        .replace(/\.{3}/g, '\u2026')
+    );
   }
 
   /**
    * Mangle Links.
    */
-  protected mangle(text: string)
-  {
-    if(!this.options.mangle)
+  protected mangle(text: string) {
+    if (!this.options.mangle) {
       return text;
+    }
 
-    let out = '', length = text.length;
+    let out = '',
+      length = text.length;
 
-    for(let i = 0; i < length; i++)
-    {
+    for (let i = 0; i < length; i++) {
       let str: string;
 
-      if(Math.random() > 0.5)
-      {
+      if (Math.random() > 0.5) {
         str = 'x' + text.charCodeAt(i).toString(16);
       }
 
