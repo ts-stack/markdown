@@ -43,6 +43,7 @@
     "marked": "^0.3.12",
     "prettier": "^1.16.4",
     "remarkable": "^1.7.1",
+    "rimraf": "^2.6.3",
     "showdown": "^1.8.6",
     "tslint": "^5.12.1",
     "tslint-config-prettier": "^1.18.0",
@@ -50,8 +51,9 @@
     "typescript": "^2.6.2"
   },
   "scripts": {
-    "test": "node dist-test/index.js && jasmine",
-    "compile": "tsc && tsc --project test && tsc --project examples-usage",
+    "test": "rimraf dist-test && tsc --project test && node dist-test/index.js && jasmine",
+    "compile": "rimraf dist && tsc",
+    "compile-example": "rimraf dist && tsc && rimraf dist-example && tsc --project examples-usage",
     "bench": "node --expose-gc dist-test/benchmarks.js",
     "watch": "npm run compile && concurrently 'tsc -w' 'tsc -w --project test' 'tsc -w --project examples-usage'"
   }
