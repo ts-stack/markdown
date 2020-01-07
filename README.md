@@ -374,7 +374,7 @@ npm run bench
 By default, these benchmarks run the entire markdown test suite once. The test suite includes every markdown feature,
 it doesn't cater to specific aspects.
 
-| Lib                     | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB
+| Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ------------------------|--------------|--------------|----------------|-----------|------------------
 | marked-ts v1.0.0-beta.4 | 8            | 5            | 98             | 111       | 8 679
 | marked v0.3.12          | 4            | 2            | 106            | 112       | 9 323
