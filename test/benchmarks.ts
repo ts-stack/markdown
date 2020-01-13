@@ -44,7 +44,7 @@ function initBench(benchStrLen: number = 300, times: number = 1): string {
   console.log('='.repeat(widthTable));
 
   const marginFromName = ' '.repeat(7);
-  console.log(`Lib ${marginFromName} | Load lib, ms | Init lib, ms | Bench work, ms | Total, ms | Memory usage, KB`);
+  console.log(`Lib ${marginFromName} | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB`);
 
   console.log('='.repeat(widthTable));
   return accumulatedMarkdown;
@@ -120,8 +120,8 @@ function runBench() {
   let libs: Lib[] = [
     { name: 'marked-ts', parserClass: 'Marked', parserAndCompilerMethod: 'parse', isParserStatic: true },
     { name: 'marked', parserAndCompilerMethod: 'parse', isParserStatic: true },
-    { name: 'remarkable', parserAndCompilerMethod: 'render' },
-    { name: 'markdown-it', parserAndCompilerMethod: 'render' },
+    { name: 'markdown', parserAndCompilerMethod: 'parse', isParserStatic: true },
+    { name: 'remarkable', parserClass: 'Remarkable', parserAndCompilerMethod: 'render' },
     {
       name: 'commonmark',
       parserClass: 'Parser',
@@ -129,8 +129,8 @@ function runBench() {
       compilerClass: 'HtmlRenderer',
       compilerMethod: 'render'
     },
-    { name: 'showdown', parserClass: 'Converter', parserAndCompilerMethod: 'makeHtml' },
-    { name: 'markdown', parserAndCompilerMethod: 'parse', isParserStatic: true }
+    { name: 'markdown-it', parserAndCompilerMethod: 'render' },
+    { name: 'showdown', parserClass: 'Converter', parserAndCompilerMethod: 'makeHtml' }
   ];
 
   options = options || {};

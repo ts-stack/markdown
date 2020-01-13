@@ -376,13 +376,13 @@ it doesn't cater to specific aspects.
 
 | Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ------------------------|--------------|--------------|----------------|-----------|------------------
-| marked-ts v1.0.0-beta.4 | 8            | 5            | 98             | 111       | 8 679
-| marked v0.3.12          | 4            | 2            | 106            | 112       | 9 323
-| remarkable v1.7.1       | 36           | 6            | 174            | 216       | 15 356
-| commonmark v0.28.1      | 35           | 3            | 186            | 224       | 24 749
-| markdown-it v8.4.0      | 29           | 10           | 227            | 266       | 18 890
-| showdown v1.8.6         | 10           | 14           | 353            | 377       | 36 833
-| markdown v0.5.0         | 4            | 3            | 314            | 321       | 22 664
+| marked-ts v1.0.0-beta.4 | 5            | 4            | 84             | 93        | 5 706
+| marked v0.8.0           | 5            | 7            | 86             | 98        | 7 489
+| markdown v0.5.0         | 2            | 2            | 128            | 132       | 19 220
+| remarkable v2.0.0       | 5            | 2            | 136            | 143       | 12 408
+| commonmark v0.29.1      | 19           | 3            | 148            | 170       | 22 571
+| markdown-it v10.0.0     | 24           | 3            | 176            | 203       | 17 190
+| showdown v1.8.6         | 4            | 7            | 408            | 419       | 57 767
 
 
 ### Options for benchmarks
