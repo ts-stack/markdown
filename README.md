@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/ts-stack/markdown.svg?branch=master)](https://travis-ci.org/ts-stack/markdown)
-
 # @ts-stack/markdown
 
 > A full-featured markdown parser and compiler, written in TypeScript.
