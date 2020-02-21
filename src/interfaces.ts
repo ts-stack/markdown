@@ -2,7 +2,7 @@
  * @license
  *
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
- * https://github.com/KostyaTretyak/marked-ts
+ * https://github.com/ts-stack/markdown
  */
 
 import { escape, unescape } from './helpers';

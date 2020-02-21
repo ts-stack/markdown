@@ -5,7 +5,7 @@
  * https://github.com/chjj/marked
  *
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
- * https://github.com/KostyaTretyak/marked-ts
+ * https://github.com/ts-stack/markdown
  */
 
 import { BlockLexer } from './block-lexer';
@@ -113,7 +113,7 @@ export class Marked {
   }
 
   protected static callMe(err: Error) {
-    err.message += '\nPlease report this to https://github.com/KostyaTretyak/marked-ts';
+    err.message += '\nPlease report this to https://github.com/ts-stack/markdown';
 
     if (this.options.silent) {
       return '<p>An error occured:</p><pre>' + this.options.escape(err.message + '', true) + '</pre>';

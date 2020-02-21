@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/KostyaTretyak/marked-ts.svg?branch=master)](https://travis-ci.org/KostyaTretyak/marked-ts)
+[![Build Status](https://travis-ci.org/ts-stack/markdown.svg?branch=master)](https://travis-ci.org/ts-stack/markdown)
 
-# marked-ts
+# @ts-stack/markdown
 
 > A full-featured markdown parser and compiler, written in TypeScript.
 
@@ -27,7 +27,7 @@ This is fork of popular library `marked` from [this commit](https://github.com/c
 ## Install
 
 ``` bash
-npm install marked-ts --save
+npm install @ts-stack/markdown --save
 ```
 
 ## Usage
@@ -35,7 +35,7 @@ npm install marked-ts --save
 ### Minimal usage:
 
 ```js
-import { Marked } from 'marked-ts';
+import { Marked } from '@ts-stack/markdown';
 
 console.log(Marked.parse('I am using __markdown__.'));
 // Outputs: I am using <strong>markdown</strong>.
@@ -44,7 +44,7 @@ console.log(Marked.parse('I am using __markdown__.'));
 Example setting options with default values:
 
 ```js
-import { Marked, Renderer } from 'marked-ts';
+import { Marked, Renderer } from '@ts-stack/markdown';
 
 Marked.setOptions
 ({
@@ -70,7 +70,7 @@ npm install highlight.js @types/highlight.js --save
 A function to highlight code blocks:
 
 ```ts
-import { Marked } from 'marked-ts';
+import { Marked } from '@ts-stack/markdown';
 import { highlight } from 'highlight.js';
 
 Marked.setOptions({ highlight: (code, lang) => highlight(lang, code).value });
@@ -84,7 +84,7 @@ The renderer option allows you to render tokens in a custom manner. Here is an
 example of overriding the default heading token rendering by adding custom head id:
 
 ```ts
-import { Marked, Renderer } from 'marked-ts';
+import { Marked, Renderer } from '@ts-stack/markdown';
 
 class MyRenderer extends Renderer
 {
@@ -131,7 +131,7 @@ and returns result `regexp.exec(string)` to `callback(execArr)`, which can be pa
 In regular expression very important adding symbol `^` from start. You should do this anyway.
 
 ```ts
-import { Marked, escape } from 'marked-ts';
+import { Marked, escape } from '@ts-stack/markdown';
 
 /**
  * KaTeX is a fast, easy-to-use JavaScript library for TeX math rendering on the web.
@@ -364,8 +364,8 @@ text(text: string): string;
 node v8.9.x
 
 ``` bash
-git clone https://github.com/KostyaTretyak/marked-ts.git
-cd marked-ts
+git clone https://github.com/ts-stack/markdown.git
+cd @ts-stack/markdown
 npm install
 npm run compile
 npm run bench
@@ -376,7 +376,7 @@ it doesn't cater to specific aspects.
 
 | Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ------------------------|--------------|--------------|----------------|-----------|------------------
-| marked-ts v1.0.0-beta.4 | 5            | 4            | 84             | 93        | 5 706
+| @ts-stack/markdown v1.0.0-beta.4 | 5            | 4            | 84             | 93        | 5 706
 | marked v0.8.0           | 5            | 7            | 86             | 98        | 7 489
 | markdown v0.5.0         | 2            | 2            | 128            | 132       | 19 220
 | remarkable v2.0.0       | 5            | 2            | 136            | 143       | 12 408

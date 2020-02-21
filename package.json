@@ -1,17 +1,17 @@
 {
-  "name": "marked-ts",
+  "name": "@ts-stack/markdown",
   "description": "A full-featured markdown parser and compiler, written in TypeScript",
   "author": "Костя Третяк <ktretiak.in.ua@gmail.com>",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0",
   "main": "dist/index",
   "typings": "dist/index",
   "directories": {
     "lib": "src"
   },
-  "repository": "git://github.com/KostyaTretyak/marked-ts.git",
-  "homepage": "https://github.com/KostyaTretyak/marked-ts",
+  "repository": "git://github.com/ts-stack/markdown.git",
+  "homepage": "https://github.com/ts-stack/markdown",
   "bugs": {
-    "url": "http://github.com/KostyaTretyak/marked-ts/issues"
+    "url": "http://github.com/ts-stack/markdown/issues"
   },
   "license": "MIT",
   "keywords": [
@@ -51,9 +51,9 @@
     "typescript": "^2.6.2"
   },
   "scripts": {
-    "test": "rimraf dist-test && tsc --project test && node dist-test/index.js && jasmine",
-    "compile": "rimraf dist && tsc && rimraf dist-test && tsc --project test",
-    "compile-example": "rimraf dist && tsc && rimraf dist-example && tsc --project examples-usage",
+    "test": "rimraf dist-test/* && tsc --project test && node dist-test/index.js && jasmine",
+    "compile": "rimraf dist/* && tsc && rimraf dist-test/* && tsc --project test",
+    "compile-example": "rimraf dist/* && tsc && rimraf dist-example/* && tsc --project examples-usage",
     "bench": "node --expose-gc dist-test/benchmarks.js",
     "watch": "npm run compile && concurrently 'tsc -w' 'tsc -w --project test' 'tsc -w --project examples-usage'"
   }

@@ -5,9 +5,9 @@
  * Copyright (c) 2011-2013, Christopher Jeffrey. (MIT Licensed)
  * https://github.com/chjj/marked
  *
- * marked-ts tests
+ * @ts-stack/markdown tests
  * Copyright (c) 2018, Третяк Костя. (MIT Licensed)
- * https://github.com/KostyaTretyak/marked-ts
+ * https://github.com/ts-stack/markdown
  */
 
 import * as fs from 'fs';
@@ -19,7 +19,7 @@ interface RunBenchOptions {
   length?: number;
 }
 
-const widthTable = 90;
+const widthTable = 100;
 
 runBench();
 
@@ -43,7 +43,7 @@ function initBench(benchStrLen: number = 300, times: number = 1): string {
   console.log(`Benchmark run ${times} times for one file ${lenAcumulatedFile} KB with accumulated Markdown tests:`);
   console.log('='.repeat(widthTable));
 
-  const marginFromName = ' '.repeat(7);
+  const marginFromName = ' '.repeat(16);
   console.log(`Lib ${marginFromName} | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB`);
 
   console.log('='.repeat(widthTable));
@@ -73,7 +73,7 @@ function bench(
   const heapUsed = Math.round(process.memoryUsage().heapUsed / 1024);
   const benchTime = Date.now() - startBench;
   const total = loadTime + initTime + benchTime;
-  const marginFromName = ' '.repeat(11 - name.length);
+  const marginFromName = ' '.repeat(20 - name.length);
   const marginFromLoad = ' '.repeat(12 - loadTime.toString().length);
   const marginFromInit = ' '.repeat(12 - initTime.toString().length);
   const marginFromBench = ' '.repeat(14 - benchTime.toString().length);
@@ -118,7 +118,7 @@ function runBench() {
   }
 
   let libs: Lib[] = [
-    { name: 'marked-ts', parserClass: 'Marked', parserAndCompilerMethod: 'parse', isParserStatic: true },
+    { name: '@ts-stack/markdown', parserClass: 'Marked', parserAndCompilerMethod: 'parse', isParserStatic: true },
     { name: 'marked', parserAndCompilerMethod: 'parse', isParserStatic: true },
     { name: 'markdown', parserAndCompilerMethod: 'parse', isParserStatic: true },
     { name: 'remarkable', parserClass: 'Remarkable', parserAndCompilerMethod: 'render' },
@@ -148,7 +148,7 @@ function runBench() {
   libs.forEach(lib => {
     let loadFrom: string = lib.name;
 
-    if (lib.name == 'marked-ts') {
+    if (lib.name == '@ts-stack/markdown') {
       loadFrom = '../';
     }
 

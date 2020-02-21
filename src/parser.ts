@@ -5,7 +5,7 @@
  * https://github.com/chjj/marked
  *
  * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
- * https://github.com/KostyaTretyak/marked-ts
+ * https://github.com/ts-stack/markdown
  */
 
 import { InlineLexer } from './inline-lexer';

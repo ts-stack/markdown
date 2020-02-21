@@ -5,9 +5,9 @@
  * Copyright (c) 2011-2013, Christopher Jeffrey. (MIT Licensed)
  * https://github.com/chjj/marked
  *
- * marked-ts tests
+ * @ts-stack/markdown tests
  * Copyright (c) 2018, Третяк Костя. (MIT Licensed)
- * https://github.com/KostyaTretyak/marked-ts
+ * https://github.com/ts-stack/markdown
  */
 
 import * as fs from 'fs';
