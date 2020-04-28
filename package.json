@@ -24,31 +24,28 @@
     "markup",
     "html"
   ],
-  "optionalDependencies": {
-    "typescript": "^3.7.4"
-  },
   "devDependencies": {
     "@types/highlight.js": "^9.12.2",
     "@types/jasmine": "^3.5.0",
     "@types/katex": "^0.11.0",
-    "@types/markdown-it": "^0.0.9",
+    "@types/markdown-it": "^10.0.1",
     "@types/node": "^13.1.6",
     "commonmark": "^0.29.1",
     "concurrently": "^5.0.2",
-    "highlight.js": "^9.12.0",
+    "highlight.js": "^10.0.1",
     "jasmine": "^3.5.0",
     "katex": "^0.11.1",
     "markdown": "^0.5.0",
     "markdown-it": "^10.0.0",
-    "marked": "^0.8.0",
-    "prettier": "^1.16.4",
+    "marked": "^1.0.0",
+    "prettier": "^2.0.5",
     "remarkable": "^2.0.0",
     "rimraf": "^3.0.0",
     "showdown": "^1.8.6",
-    "tslint": "^5.12.1",
+    "tslint": "^6.1.2",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^2.6.2"
+    "typescript": "^3.8.3"
   },
   "scripts": {
     "test": "rimraf dist-test/* && tsc --project test && node dist-test/index.js && jasmine",
