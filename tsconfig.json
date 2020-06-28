@@ -1,21 +1,14 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "module": "commonjs",
+    "module": "es2015",
     "outDir": "dist",
     "sourceMap": false,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
     "removeComments": false,
     "noImplicitAny": true,
-    "declaration": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2017",
-      "dom"
-    ]
+    "declaration": true
   },
   "exclude": [
     "dist",
