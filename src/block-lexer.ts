@@ -40,7 +40,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
   protected hasRulesGfm: boolean;
   protected hasRulesTables: boolean;
 
-  constructor(protected staticThis: typeof BlockLexer, options?: object) {
+  constructor(protected staticThis: T, options?: object) {
     this.options = options || Marked.options;
     this.setRules();
   }

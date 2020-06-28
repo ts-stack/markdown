@@ -2,7 +2,7 @@
   "name": "@ts-stack/markdown",
   "description": "A full-featured markdown parser and compiler, written in TypeScript",
   "author": "Костя Третяк <ktretiak.in.ua@gmail.com>",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "dist/index",
   "typings": "dist/index",
   "directories": {

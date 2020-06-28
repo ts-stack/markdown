@@ -18,7 +18,7 @@ const replacements: Replacements = {
   '>': '&gt;',
   '"': '&quot;',
   // tslint:disable-next-line:quotemark
-  "'": '&#39;'
+  "'": '&#39;',
 };
 
 const escapeTestNoEncode = /[<>"']|&(?!#?\w+;)/;
@@ -40,7 +40,7 @@ export function escape(html: string, encode?: boolean) {
 
 export function unescape(html: string) {
   // Explicitly match decimal, hex, and named HTML entities
-  return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi, function(_, n) {
+  return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi, function (_, n) {
     n = n.toLowerCase();
 
     if (n === 'colon') {
