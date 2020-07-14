@@ -62,7 +62,8 @@ console.log(Marked.parse('I am using __markdown__.'));
 ### Example usage with highlight.js
 
 ```bash
-npm install highlight.js @types/highlight.js --save
+npm install highlight.js --save
+npm install @types/highlight.js -D
 ```
 
 A function to highlight code blocks:
