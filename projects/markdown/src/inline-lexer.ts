@@ -17,7 +17,7 @@ import {
   RulesInlineBreaks,
   RulesInlineCallback,
   RulesInlineGfm,
-  RulesInlinePedantic
+  RulesInlinePedantic,
 } from './interfaces';
 import { Marked } from './marked';
 import { Renderer } from './renderer';
@@ -26,19 +26,19 @@ import { Renderer } from './renderer';
  * Inline Lexer & Compiler.
  */
 export class InlineLexer {
-  protected static rulesBase: RulesInlineBase;
+  protected static rulesBase: RulesInlineBase = null;
   /**
    * Pedantic Inline Grammar.
    */
-  protected static rulesPedantic: RulesInlinePedantic;
+  protected static rulesPedantic: RulesInlinePedantic = null;
   /**
    * GFM Inline Grammar
    */
-  protected static rulesGfm: RulesInlineGfm;
+  protected static rulesGfm: RulesInlineGfm = null;
   /**
    * GFM + Line Breaks Inline Grammar.
    */
-  protected static rulesBreaks: RulesInlineBreaks;
+  protected static rulesBreaks: RulesInlineBreaks = null;
   protected rules: RulesInlineBase | RulesInlinePedantic | RulesInlineGfm | RulesInlineBreaks;
   protected renderer: Renderer;
   protected inLink: boolean;
@@ -89,13 +89,10 @@ export class InlineLexer {
       br: /^ {2,}\n(?!\s*$)/,
       text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/,
       _inside: /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/,
-      _href: /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/
+      _href: /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/,
     };
 
-    base.link = new ExtendRegexp(base.link)
-      .setGroup('inside', base._inside)
-      .setGroup('href', base._href)
-      .getRegexp();
+    base.link = new ExtendRegexp(base.link).setGroup('inside', base._inside).setGroup('href', base._href).getRegexp();
 
     base.reflink = new ExtendRegexp(base.reflink).setGroup('inside', base._inside).getRegexp();
 
@@ -111,8 +108,8 @@ export class InlineLexer {
       ...this.getRulesBase(),
       ...{
         strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
-        em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
-      }
+        em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/,
+      },
     });
   }
 
@@ -125,10 +122,7 @@ export class InlineLexer {
 
     const escape = new ExtendRegexp(base.escape).setGroup('])', '~|])').getRegexp();
 
-    const text = new ExtendRegexp(base.text)
-      .setGroup(']|', '~]|')
-      .setGroup('|', '|https?://|')
-      .getRegexp();
+    const text = new ExtendRegexp(base.text).setGroup(']|', '~]|').setGroup('|', '|https?://|').getRegexp();
 
     return (this.rulesGfm = {
       ...base,
@@ -136,8 +130,8 @@ export class InlineLexer {
         escape,
         url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
         del: /^~~(?=\S)([\s\S]*?\S)~~/,
-        text
-      }
+        text,
+      },
     });
   }
 
@@ -153,8 +147,8 @@ export class InlineLexer {
       ...gfm,
       ...{
         br: new ExtendRegexp(inline.br).setGroup('{2,}', '*').getRegexp(),
-        text: new ExtendRegexp(gfm.text).setGroup('{2,}', '*').getRegexp()
-      }
+        text: new ExtendRegexp(gfm.text).setGroup('{2,}', '*').getRegexp(),
+      },
     });
   }
 
@@ -246,7 +240,7 @@ export class InlineLexer {
 
         out += this.outputLink(execArr, {
           href: execArr[2],
-          title: execArr[3]
+          title: execArr[3],
         });
 
         this.inLink = false;

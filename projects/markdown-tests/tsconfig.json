@@ -1,0 +1,22 @@
+{
+  "extends": "../tsconfig.settings.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "ES2015",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@ts-stack/markdown": [
+        "../markdown/dist/public-api"
+      ]
+    }
+  },
+  "include": [
+    "./**/*.ts"
+  ],
+  "files": [],
+  "references": [
+    { "path": "../markdown" },
+  ]
+}

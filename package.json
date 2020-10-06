@@ -1,30 +1,9 @@
 {
-  "name": "@ts-stack/markdown",
-  "description": "A full-featured markdown parser and compiler, written in TypeScript",
-  "author": "Костя Третяк <ktretiak.in.ua@gmail.com>",
-  "version": "1.2.0",
-  "main": "dist/index",
-  "types": "dist/index",
-  "directories": {
-    "lib": "src"
-  },
-  "repository": "git://github.com/ts-stack/markdown.git",
-  "homepage": "https://github.com/ts-stack/markdown",
-  "bugs": {
-    "url": "http://github.com/ts-stack/markdown/issues"
-  },
-  "license": "MIT",
-  "keywords": [
-    "markdown",
-    "markup",
-    "html"
-  ],
-  "tags": [
-    "markdown",
-    "markup",
-    "html"
-  ],
+  "private": true,
   "devDependencies": {
+    "@angular/compiler": "^10.1.4",
+    "@angular/compiler-cli": "^10.1.4",
+    "@angular/core": "^10.1.4",
     "@types/highlight.js": "^9.12.2",
     "@types/jasmine": "^3.5.0",
     "@types/katex": "^0.11.0",
@@ -38,20 +17,24 @@
     "markdown": "^0.5.0",
     "markdown-it": "^10.0.0",
     "marked": "^1.0.0",
+    "ng-packagr": "^10.1.2",
     "prettier": "^2.0.5",
     "remarkable": "^2.0.0",
     "rimraf": "^3.0.0",
     "showdown": "^1.8.6",
+    "tslib": "^2.0.2",
     "tslint": "^6.1.2",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.8.3"
+    "typescript": "^4.0.3",
+    "tsconfig-paths": "^3.9.0"
   },
   "scripts": {
-    "test": "rimraf dist-test/* && tsc --project test && node dist-test/index.js && jasmine",
+    "test": "rimraf dist-test/* && tsc --project projects/markdown-tests && node -r tsconfig-paths/register dist-test/index.js && jasmine",
     "compile": "rimraf dist/* && tsc && rimraf dist-test/* && tsc --project test",
     "compile-example": "rimraf dist/* && tsc && rimraf dist-example/* && tsc --project examples-usage",
     "bench": "node --expose-gc dist-test/benchmarks.js",
-    "watch": "npm run compile && concurrently 'tsc -w' 'tsc -w --project test' 'tsc -w --project examples-usage'"
+    "watch": "npm run compile && concurrently 'tsc -w' 'tsc -w --project test' 'tsc -w --project examples-usage'",
+    "build": "ng-packagr -p projects/markdown/ng-package.json"
   }
 }

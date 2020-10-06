@@ -1,4 +1,4 @@
-import { BlockLexer, Marked } from '../';
+import { BlockLexer, Marked } from '@ts-stack/markdown';
 
 describe('BlockLexer', () => {
   Marked.setBlockRule(/^1/, () => '11');

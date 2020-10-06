@@ -18,21 +18,21 @@ import {
   RulesBlockGfm,
   RulesBlockTables,
   Token,
-  TokenType
+  TokenType,
 } from './interfaces';
 import { Marked } from './marked';
 
 export class BlockLexer<T extends typeof BlockLexer> {
   static simpleRules: RegExp[] = [];
-  protected static rulesBase: RulesBlockBase;
+  protected static rulesBase: RulesBlockBase = null;
   /**
    * GFM Block Grammar.
    */
-  protected static rulesGfm: RulesBlockGfm;
+  protected static rulesGfm: RulesBlockGfm = null;
   /**
    * GFM + Tables Block Grammar.
    */
-  protected static rulesTables: RulesBlockTables;
+  protected static rulesTables: RulesBlockTables = null;
   protected rules: RulesBlockBase | RulesBlockGfm | RulesBlockTables;
   protected options: MarkedOptions;
   protected links: Links = {};
@@ -74,7 +74,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
       paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
       text: /^[^\n]+/,
       bullet: /(?:[*+-]|\d+\.)/,
-      item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/
+      item: /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/,
     };
 
     base.item = new ExtendRegexp(base.item, 'gm').setGroup(/bull/g, base.bullet).getRegexp();
@@ -122,8 +122,8 @@ export class BlockLexer<T extends typeof BlockLexer> {
       ...{
         fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
         paragraph: /^/,
-        heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
-      }
+        heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/,
+      },
     };
 
     const group1 = gfm.fences.source.replace('\\1', '\\2');
@@ -143,8 +143,8 @@ export class BlockLexer<T extends typeof BlockLexer> {
       ...this.getRulesGfm(),
       ...{
         nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
-        table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
-      }
+        table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/,
+      },
     });
   }
 
@@ -187,7 +187,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
 
         this.tokens.push({
           type: TokenType.code,
-          text: !this.options.pedantic ? code.replace(/\n+$/, '') : code
+          text: !this.options.pedantic ? code.replace(/\n+$/, '') : code,
         });
         continue;
       }
@@ -199,7 +199,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
         this.tokens.push({
           type: TokenType.code,
           lang: execArr[2],
-          text: execArr[3] || ''
+          text: execArr[3] || '',
         });
         continue;
       }
@@ -210,7 +210,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
         this.tokens.push({
           type: TokenType.heading,
           depth: execArr[1].length,
-          text: execArr[2]
+          text: execArr[2],
         });
         continue;
       }
@@ -223,7 +223,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
           type: TokenType.table,
           header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
           align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
-          cells: []
+          cells: [],
         };
 
         for (let i = 0; i < item.align.length; i++) {
@@ -255,7 +255,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
         this.tokens.push({
           type: TokenType.heading,
           depth: execArr[2] === '=' ? 1 : 2,
-          text: execArr[1]
+          text: execArr[1],
         });
         continue;
       }
@@ -356,7 +356,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
         this.tokens.push({
           type: this.options.sanitize ? TokenType.paragraph : TokenType.html,
           pre: !this.options.sanitizer && isPre,
-          text: execArr[0]
+          text: execArr[0],
         });
         continue;
       }
@@ -367,7 +367,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
 
         this.links[execArr[1].toLowerCase()] = {
           href: execArr[2],
-          title: execArr[3]
+          title: execArr[3],
         };
         continue;
       }
@@ -380,7 +380,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
           type: TokenType.table,
           header: execArr[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
           align: execArr[2].replace(/^ *|\| *$/g, '').split(/ *\| */) as Align[],
-          cells: []
+          cells: [],
         };
 
         for (let i = 0; i < item.align.length; i++) {
@@ -425,12 +425,12 @@ export class BlockLexer<T extends typeof BlockLexer> {
         if (execArr[1].slice(-1) === '\n') {
           this.tokens.push({
             type: TokenType.paragraph,
-            text: execArr[1].slice(0, -1)
+            text: execArr[1].slice(0, -1),
           });
         } else {
           this.tokens.push({
             type: this.tokens.length > 0 ? TokenType.paragraph : TokenType.text,
-            text: execArr[1]
+            text: execArr[1],
           });
         }
         continue;

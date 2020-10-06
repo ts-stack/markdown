@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Links, Marked, MarkedOptions, Replacements, Token } from '../';
+import { Links, Marked, MarkedOptions, Replacements, Token } from '@ts-stack/markdown';
 
 interface RunTestsOptions extends MarkedOptions {
   stop?: boolean;
@@ -41,7 +41,7 @@ function runTests(): void {
     // Getting options from filename.
     const flags = filename.split('.').slice(1);
     if (flags.length) {
-      flags.forEach(key => {
+      flags.forEach((key) => {
         let val = true;
 
         if (key.indexOf('no') === 0) {
@@ -107,7 +107,10 @@ function runTests(): void {
         console.log(
           `\nActual:\n--------> in ${relativePath}-actual.html:${erroredLine}:${indexChar + 1}\n\n'${actualRow}'\n`
         );
-        console.log(`\nExcerpt tokens:`, tokens.filter((token, index) => index >= indexFrom && index <= indexTo));
+        console.log(
+          `\nExcerpt tokens:`,
+          tokens.filter((token, index) => index >= indexFrom && index <= indexTo)
+        );
         console.log(`links:`, links);
 
         if (options.stop) {
@@ -194,7 +197,7 @@ function escapeAndShow(str: string) {
     '\r': '\\r',
     '\t': '\\t',
     '\f': '\\f',
-    '\v': '\\v'
+    '\v': '\\v',
   };
 
   return str.replace(/[\r\t\f\v]/g, (ch: string) => replacements[ch]);
@@ -208,16 +211,10 @@ function load() {
 
   const list = fs
     .readdirSync(testDir)
-    .filter(file => path.extname(file) == '.md')
+    .filter((file) => path.extname(file) == '.md')
     .sort((fileName1, fileName2) => {
-      const a = path
-        .basename(fileName1)
-        .toLowerCase()
-        .charCodeAt(0);
-      const b = path
-        .basename(fileName2)
-        .toLowerCase()
-        .charCodeAt(0);
+      const a = path.basename(fileName1).toLowerCase().charCodeAt(0);
+      const b = path.basename(fileName2).toLowerCase().charCodeAt(0);
       return a > b ? 1 : a < b ? -1 : 0;
     });
 
@@ -228,7 +225,7 @@ function load() {
 
     files[fineName] = {
       text: fs.readFileSync(file, 'utf8'),
-      html: fs.readFileSync(file.replace(/[^.]+$/, 'html'), 'utf8')
+      html: fs.readFileSync(file.replace(/[^.]+$/, 'html'), 'utf8'),
     };
   }
 
