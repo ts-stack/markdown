@@ -2,9 +2,9 @@
  * KaTeX is a fast, easy-to-use JavaScript library for TeX math rendering on the web.
  */
 import * as katex from 'katex';
-import { escape, Marked } from '../';
+import { escape, Marked } from '@ts-stack/markdown';
 
-Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function(execArr) {
+Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
   // Don't use arrow function for this callback
   // if you need Renderer's context, for example to `this.options`.
 

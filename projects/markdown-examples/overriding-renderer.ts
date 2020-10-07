@@ -1,4 +1,4 @@
-import { Marked, Renderer } from '../';
+import { Marked, Renderer } from '@ts-stack/markdown';
 
 class MyRenderer extends Renderer {
   // Overriding parent method.

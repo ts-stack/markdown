@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "compile": "rimraf dist/* && tsc -b -f",
+    "start": "yarn compile && node -r tsconfig-paths/register dist/minimal.js"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
+  }
+}

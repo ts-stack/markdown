@@ -1,5 +1,5 @@
 import { highlight } from 'highlight.js';
-import { Marked } from '../';
+import { Marked } from '@ts-stack/markdown';
 
 Marked.setOptions({ highlight: (code, lang) => highlight(lang, code).value });
 
