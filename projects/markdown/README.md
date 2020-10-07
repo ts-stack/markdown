@@ -364,7 +364,9 @@ node v8.9.x
 
 ``` bash
 git clone https://github.com/ts-stack/markdown.git
-cd @ts-stack/markdown
+cd markdown
+npm install
+cd projects/markdown-tests
 npm install
 npm run compile
 npm run bench
