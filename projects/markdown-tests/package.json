@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "yarn compile && node -r tsconfig-paths/register dist/index.js && jasmine -r tsconfig-paths/register",
+    "compile": "rimraf dist/* && tsc -b -f",
+    "bench": "node -r tsconfig-paths/register --expose-gc dist/benchmarks.js"
+  },
+  "devDependencies": {
+    "jasmine": "^3.6.1",
+    "rimraf": "^3.0.2"
+  }
+}

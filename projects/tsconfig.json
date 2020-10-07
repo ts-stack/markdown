@@ -3,5 +3,6 @@
   "references": [
     { "path": "markdown" },
     { "path": "markdown-tests" },
+    { "path": "markdown-examples" },
   ]
 }

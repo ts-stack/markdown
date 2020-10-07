@@ -18,7 +18,7 @@ interface RunTestsOptions extends MarkedOptions {
   stop?: boolean;
 }
 
-const testDir = path.normalize(__dirname + '/../test/tests');
+const testDir = path.normalize(__dirname + '/../tests');
 
 runTests();
 

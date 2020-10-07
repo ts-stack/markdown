@@ -127,10 +127,10 @@ function runBench() {
       parserClass: 'Parser',
       parserMethod: 'parse',
       compilerClass: 'HtmlRenderer',
-      compilerMethod: 'render'
+      compilerMethod: 'render',
     },
     { name: 'markdown-it', parserAndCompilerMethod: 'render' },
-    { name: 'showdown', parserClass: 'Converter', parserAndCompilerMethod: 'makeHtml' }
+    { name: 'showdown', parserClass: 'Converter', parserAndCompilerMethod: 'makeHtml' },
   ];
 
   options = options || {};
@@ -145,13 +145,8 @@ function runBench() {
     libs = [libs[options.single]];
   }
 
-  libs.forEach(lib => {
-    let loadFrom: string = lib.name;
-
-    if (lib.name == '@ts-stack/markdown') {
-      loadFrom = '../';
-    }
-
+  libs.forEach((lib) => {
+    const loadFrom: string = lib.name;
     try {
       const startLoadTime = Date.now();
       const fullLib = require(loadFrom);
@@ -168,7 +163,7 @@ function runBench() {
       } else {
         const parse = parserInstance[lib.parserMethod].bind(parserInstance);
         const compile = compilerInstance[lib.compilerMethod].bind(compilerInstance);
-        parseAndCompile = function(md: string): string {
+        parseAndCompile = function (md: string): string {
           return compile(parse(md));
         };
       }
@@ -222,12 +217,12 @@ function parseArg(): RunBenchOptions {
 }
 
 function load(): string[] {
-  const dir = path.normalize(__dirname + '/../test/tests');
+  const dir = path.normalize(__dirname + '/../tests');
   const files: string[] = [];
 
-  const list = fs.readdirSync(dir).filter(file => path.extname(file) == '.md');
+  const list = fs.readdirSync(dir).filter((file) => path.extname(file) == '.md');
 
-  list.forEach(path => {
+  list.forEach((path) => {
     files.push(fs.readFileSync(dir + '/' + path, 'utf8'));
   });
 

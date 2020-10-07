@@ -2,7 +2,7 @@
   "extends": "../tsconfig.settings.json",
   "compilerOptions": {
     "target": "ES2015",
-    "module": "ES2015",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "dist",
     "baseUrl": "."
