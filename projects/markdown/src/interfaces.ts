@@ -1,7 +1,7 @@
 /**
  * @license
  *
- * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
+ * Copyright (c) 2018-2020, Костя Третяк. (MIT Licensed)
  * https://github.com/ts-stack/markdown
  */
 

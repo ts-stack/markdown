@@ -2,7 +2,7 @@
 
 > A full-featured markdown parser and compiler, written in TypeScript.
 
-This is fork of popular library `marked` from [this commit](https://github.com/chjj/marked/tree/39fbc8aedb3e17e0b098cf753492402614bd6b3e)
+This is fork of popular library `marked` from [this commit](https://github.com/markedjs/marked/tree/39fbc8aed)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
 ## Table of contents
@@ -413,7 +413,7 @@ all code is your original work. `</legalese>`
 
 Copyright (c) 2011-2014, Christopher Jeffrey. (MIT License)
 
-Copyright (c) 2018, Костя Третяк. (MIT License)
+Copyright (c) 2018-2020, Костя Третяк. (MIT License)
 
 See LICENSE for more info.
 

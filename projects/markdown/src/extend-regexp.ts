@@ -4,7 +4,7 @@
  * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
  * https://github.com/chjj/marked
  *
- * Copyright (c) 2018, Костя Третяк. (MIT Licensed)
+ * Copyright (c) 2018-2020, Костя Третяк. (MIT Licensed)
  * https://github.com/ts-stack/markdown
  */
 
