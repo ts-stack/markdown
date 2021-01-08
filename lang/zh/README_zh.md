@@ -4,8 +4,8 @@
 这个项目是2017年12月1日从 `chjj/release-0.3.7`仓库提交记录合并请求 `#961`分支。
 
 ## lang
-- [chinese](./README.md)
-- [english](../../README.md)
+- [中文](https://github.com/habc0807/markdown/blob/master/lang/zh/README_zh.md)
+- [english](https://github.com/habc0807/markdown)
 
 ## 目录
 
