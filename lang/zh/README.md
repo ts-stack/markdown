@@ -5,7 +5,7 @@
 
 ## lang
 - [中文](./README.md)
-- [English](./../README.md)
+- [English](./../../README.md)
 
 ## 目录
 
