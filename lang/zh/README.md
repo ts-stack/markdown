@@ -1,49 +1,44 @@
-# @ts-stack/markdown
+#[@ts-stack/markdown](https://github.com/ts-stack/markdown)
 
-> A full-featured markdown parser and compiler, written in TypeScript.
+> 一个用TypeScript写的功能齐全的markdown解析器和编译器。
 
-This is fork of popular library `marked` from [this commit](https://github.com/markedjs/marked/tree/39fbc8aed)
-(Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
+这个项目从一次提交记录开始，那是2017年12月1日向流行库 [marked](https://github.com/markedjs/marked), [chjj](https://github.com/chjj)/release-0.3.7 提交了一次合并请求，PR记录是 [#961](https://github.com/markedjs/marked/pull/961)。
 
-## lang
-- [Chinese](./lang/zh/README.md)
+## 目录
 
-
-## Table of contents
-
-- [Install](#install)
-- [Usage](#usage)
-  - [Minimal usage](#minimal-usage)
-  - [Example usage with highlight.js](#example-usage-with-highlightjs)
-  - [Overriding renderer methods](#overriding-renderer-methods)
-  - [Example of setting a simple block rule](#example-of-setting-a-simple-block-rule)
+- [安装](#安装)
+- [使用](#使用)
+  - [简洁用法](#简洁用法)
+  - [使用highlight示例](#使用highlight示例)
+  - [renderer重要方法](#renderer重要方法)
+  - [设置一个简单规则示例](#设置一个简单规则示例)
 - [API](#api)
-  - [Methods of Marked class and necessary types](#methods-of-marked-class-and-necessary-types)
-  - [Renderer methods API](#renderer-methods-api)
-- [Benchmarks](#benchmarks)
-  - [Options for benchmarks](#options-for-benchmarks)
-    - [Example of usage bench options](#example-of-usage-bench-options)
-- [Contribution and License Agreement](#contribution-and-license-agreement)
-- [License](#license)
+  - [Marked的class和types的方法](#Marked的class和types的方法)
+  - [Renderer的API](#Renderer的API)
+- [基础环境和跑项目](#基础环境和跑项目)
+  - [bench命令传参设置](#bench命令传参设置)
+    - [bench命令传参的使用示例](#bench命令传参的使用示例)
+- [贡献和许可协议](#贡献和许可协议)
+- [许可证](#许可证)
 
-## Install
+## 安装
 
 ``` bash
 npm install @ts-stack/markdown --save
 ```
 
-## Usage
+## 使用
 
-### Minimal usage:
+### 简洁用法:
 
 ```js
 import { Marked } from '@ts-stack/markdown';
 
 console.log(Marked.parse('I am using __markdown__.'));
-// Outputs: I am using <strong>markdown</strong>.
+// 输出: I am using <strong>markdown</strong>.
 ```
 
-Example setting options with default values:
+实例使用：
 
 ```js
 import { Marked, Renderer } from '@ts-stack/markdown';
@@ -63,14 +58,14 @@ Marked.setOptions
 console.log(Marked.parse('I am using __markdown__.'));
 ```
 
-### Example usage with highlight.js
+### 使用highlight示例
 
 ```bash
 npm install highlight.js --save
 npm install @types/highlight.js -D
 ```
 
-A function to highlight code blocks:
+一个可使代码块高亮的函数：
 
 ```ts
 import { Marked } from '@ts-stack/markdown';
@@ -80,18 +75,16 @@ Marked.setOptions({ highlight: (code, lang) => highlight(lang, code).value });
 let md = '```js\n console.log("hello"); \n```';
 console.log(Marked.parse(md));
 ```
+### renderer重要方法
 
-### Overriding renderer methods
-
-The renderer option allows you to render tokens in a custom manner. Here is an
-example of overriding the default heading token rendering by adding custom head id:
+renderer的方法允许你自定义设置。这有一个例子，通过添加自定义id头覆盖默认的设置。
 
 ```ts
 import { Marked, Renderer } from '@ts-stack/markdown';
 
 class MyRenderer extends Renderer
 {
-  // Overriding parent method.
+  // 覆盖父方法.
   heading(text: string, level: number, raw: string)
   {
     const regexp = /\s*{([^}]+)}$/;
@@ -117,35 +110,32 @@ Marked.setOptions({renderer: new MyRenderer});
 console.log(Marked.parse('# heading {my-custom-hash}'));
 ```
 
-This code will output the following HTML:
+这段代码输出的HTML是：
 
 ```html
 <h1 id="my-custom-hash">heading</h1>
 ```
 
-See also [Renderer methods API](#renderer-methods-api).
+更多[渲染器的API](#渲染器的API)。
 
-### Example of setting a simple block rule
+### 设置一个简单规则示例
 
-If you do not need recursiveness or checks some conditions before execute a regular expression, you can use the
-`Marked.setBlockRule( regexp[, callback] )` method, which takes a regular expression as the first argument,
-and returns result `regexp.exec(string)` to `callback(execArr)`, which can be passed as a second argument.
+如何在执行正则表达式之前需要递归检查某些条件，你可以使用 `Marked.setBlockRule( regexp[, callback] )` 方法，将第一个参数设置为正则表达式，第二个参数是回调函数。经过 `regexp.exec(string)` 处理后，由 `callback(execArr)` 拿到结果，
 
-In regular expression very important adding symbol `^` from start. You should do this anyway.
+在正则表达式中开始符号使用 `^` 非常重要，无论如何你都应该这么做。
 
 ```ts
 import { Marked, escape } from '@ts-stack/markdown';
 
 /**
- * KaTeX is a fast, easy-to-use JavaScript library for TeX math rendering on the web.
+ * KaTeX 是一个简单易用的运行在web端的JavaScript库
  */
 import * as katex from 'katex';
 
 
 Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
 
-  // Don't use arrow function for this callback
-  // if you need Renderer's context, for example to `this.options`.
+  // 如果你需要 Renderer 的上下文，this.方法的话，这里建议不要使用箭头函数
 
   const channel = execArr[1];
   const content = execArr[2];
@@ -188,38 +178,37 @@ console.log(html);
 
 ## API
 
-### Methods of Marked class and necessary types
+### Marked的class和types的方法
 
 ```ts
 /**
- * Accepts Markdown text and returns text in HTML format.
+ * 接受Markdown文本以HTML格式返回文本
  * 
- * @param src String of markdown source to be compiled.
+ * @param src 需要编译的markdown源码字符串
  * 
- * @param options Hash of options. They replace, but do not merge with the default options.
- * If you want the merging, you can to do this via `Marked.setOptions()`.
+ * @param options 一些选项，他们可以被替换，但是不能与默认选项合并
+ * 如何你想合并，你可以通过 `Marked.setOptions()` 做，你也可以使用`Marked.setOptions`
  * 
- * Can also be set using the `Marked.setOptions` method as seen above.
  */
 static parse(src: string, options?: MarkedOptions): string;
 
 /**
- * Accepts Markdown text and returns object with text in HTML format,
- * tokens and links from `BlockLexer.parser()`.
+ * 允许Markdown文本可以返回格式化的HTML对象文本，通过 `BlockLexer.parser()` 来解析
  * 
- * @param src String of markdown source to be compiled.
- * @param options Hash of options. They replace, but do not merge with the default options.
- * If you want the merging, you can to do this via `Marked.setOptions()`.
+ * @param src 需要编译的markdown源码字符串
+ * @param options 一些选项，他们可以被替换，但是不能与默认选项合并
+ * 如何你想合并，你可以通过 `Marked.setOptions()` 做
  */
 static debug(src: string, options?: MarkedOptions): {result: string, tokens: Token[], links: Links};
 
 
 /**
- * Merges the default options with options that will be set.
+ * 将设置选项和默认选项合并
  * 
- * @param options Hash of options.
+ * @param options 散列选项.
  */
 static setOptions(options: MarkedOptions): this;
+
 
 interface Token
 {
@@ -235,7 +224,7 @@ interface Token
   escaped?: boolean;
   execArr?: RegExpExecArray;
   /**
-   * Used for debugging. Identifies the line number in the resulting HTML file.
+   * 用于调试，标识生成的HTML文件中的行号
    */
   line?: number;
 }
@@ -260,7 +249,8 @@ enum TokenType
   ,hr
 }
 
-// This class also using as an interface.
+
+// 这个class也可以用作接口.
 class MarkedOptions
 {
   gfm?: boolean = true;
@@ -272,35 +262,34 @@ class MarkedOptions
   mangle?: boolean = true;
   smartLists?: boolean = false;
   silent?: boolean = false;
+
   /**
-   * @param code The section of code to pass to the highlighter.
-   * @param lang The programming language specified in the code block.
+   * @param code 需要高亮的代码片段.
+   * @param lang 在代码块中指定的编码语言.
    */
   highlight?: (code: string, lang?: string) => string;
   langPrefix?: string = 'lang-';
   smartypants?: boolean = false;
   headerPrefix?: string = '';
   /**
-   * An object containing functions to render tokens to HTML. Default: `new Renderer()`
+   * 默认是实例化的渲染器即：`new Renderer()`
    */
   renderer?: Renderer;
   /**
-   * Self-close the tags for void elements (&lt;br/&gt;, &lt;img/&gt;, etc.)
+   * 自关闭无效标签按照XHML要求处理 (&lt;br/&gt;, &lt;img/&gt;, etc.)
    * with a "/" as required by XHTML.
    */
   xhtml?: boolean = false;
   /**
-   * The function that will be using to escape HTML entities.
-   * By default using inner helper.
+   * 用于转义HTML实体的函数，默认情况下使用内部 helper
    */
   escape?: (html: string, encode?: boolean) => string = escape;
   /**
-   * The function that will be using to unescape HTML entities.
-   * By default using inner helper.
+   * 用于返转义HTML实体的函数，默认情况下也使用内部 helper
    */
-  unescape?: (html: string) => string = unescape;
-  /**
-   * If set to `true`, an inline text will not be taken in paragraph.
+   unescape?: (html: string) => string = unescape;
+   /**
+   * 如果设置为 `false`，一行文本默认会生成一段
    * 
    * ```ts
    * // isNoP == false
@@ -312,13 +301,13 @@ class MarkedOptions
    * ```
    */
   isNoP?: boolean;
-}
+  }
 ```
 
-### Renderer methods API
+### Renderer的API
 
 ```ts
-//*** Block level renderer methods. ***
+//*** 块级渲染的方法 ***
 
 code(code: string, lang?: string, escaped?: boolean): string;
 
@@ -342,7 +331,7 @@ tablerow(content: string): string;
 
 tablecell(content: string, flags: {header?: boolean, align?: 'center' | 'left' | 'right'}): string;
 
-//*** Inline level renderer methods. ***
+//*** 内联级的渲染方法. ***
 
 strong(text: string): string;
 
@@ -362,9 +351,9 @@ text(text: string): string;
 
 ```
 
-## Benchmarks
+## 基础环境和跑项目
 
-node v8.9.x
+基于node的 `v8.9.x`以上版本
 
 ``` bash
 git clone https://github.com/ts-stack/markdown.git
@@ -376,8 +365,7 @@ npm run compile
 npm run bench
 ```
 
-By default, these benchmarks run the entire markdown test suite once. The test suite includes every markdown feature,
-it doesn't cater to specific aspects.
+默认情况下，只需要安装一次测试套件。测试套件包括所有的 markdown 特性。它不迎合特性的方便（你可以自行做些扩展）。
 
 | Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB
 | ------------------------|--------------|--------------|----------------|-----------|------------------
@@ -389,33 +377,27 @@ it doesn't cater to specific aspects.
 | markdown-it v10.0.0     | 24           | 3            | 176            | 203       | 17 190
 | showdown v1.8.6         | 4            | 7            | 408            | 419       | 57 767
 
-
-### Options for benchmarks
+### bench命令传参设置
 
 ```text
 -l, --length       Approximate string length in kilobytes. Default ~ 300 KB.
 -t, --times        Number of runs this bench. Default - 1 times.
 ```
+测试文件积累在一个文件中。例如你可以指定 -- 长度100kb,如果没有，它将被连接到下一个，并检查它的长度，以此类推。
 
-Test files are accumulated in one file. If you specify, for example, `--length 100`
-the first file will be taken, checked whether it is longer than 100 kilobytes,
-and if no - it will be attached to the next one and checked its length, and so on.
+#### bench命令传参的使用示例
 
-#### Example of usage bench options
-
-In order for npm passing the parameters, they need to be separated via ` -- `:
+为了让npm传递参数，需要通过指定 `-- `：
 
 ```text
 npm run bench -- -l 500 -t 1
 ```
 
-## Contribution and License Agreement
+## 贡献和许可协议
 
-If you contribute code to this project, you are implicitly allowing your code
-to be distributed under the MIT license. You are also implicitly verifying that
-all code is your original work. `</legalese>`
+如果你向该项目贡献代码，请保证你提交的所有代码都是你的原创作品。`</legalese>`
 
-## License
+## 许可证
 
 Copyright (c) 2011-2014, Christopher Jeffrey. (MIT License)
 
@@ -430,3 +412,5 @@ See LICENSE for more info.
 [badge]: http://badge.fury.io/js/marked
 [tables]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#wiki-tables
 [breaks]: https://help.github.com/articles/github-flavored-markdown#newlines
+
+> 欢迎提供修改意见。
