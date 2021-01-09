@@ -1,11 +1,8 @@
-@ts-stack/markdown
-> 一个用 TypeScript 写的功能齐全的 markdown 解析器和编译器 
+#[@ts-stack/markdown](https://github.com/ts-stack/markdown)
 
-这个项目是2017年12月1日从 `chjj/release-0.3.7`仓库提交记录合并请求 `#961`分支。
+> 一个用TypeScript写的功能齐全的markdown解析器和编译器。
 
-## lang
-- [中文](./README.md)
-- [English](./../../README.md)
+这个项目从一次提交记录开始，那是2017年12月1日向流行库 `[marked](https://github.com/markedjs/marked)`的 `[chjj](https://github.com/chjj)/release-0.3.7` 提交了一次合并请求，PR记录是 `[#961](https://github.com/markedjs/marked/pull/961)`。
 
 ## 目录
 
@@ -18,9 +15,9 @@
 - [API](#api)
   - [Marked的class和types的方法](#Marked的class和types的方法)
   - [Renderer的API](#Renderer的API)
-- [使用](#使用)
-  - [bench选项设置](#bench选项设置)
-    - [bench选项的使用示例](#ebench选项的使用示例)
+- [基础环境和跑项目](#基础环境和跑项目)
+  - [bench命令传参设置](#bench命令传参设置)
+    - [bench命令传参的使用示例](#bench命令传参的使用示例)
 - [贡献和许可协议](#贡献和许可协议)
 - [许可证](#许可证)
 
@@ -80,14 +77,14 @@ console.log(Marked.parse(md));
 ```
 ### renderer重要方法
 
-renderer的选项允许你自定义设置。这有一个例子，通过添加自定义id头覆盖默认的设置。
+renderer的方法允许你自定义设置。这有一个例子，通过添加自定义id头覆盖默认的设置。
 
 ```ts
 import { Marked, Renderer } from '@ts-stack/markdown';
 
 class MyRenderer extends Renderer
 {
-  // Overriding parent method.
+  // 覆盖父方法.
   heading(text: string, level: number, raw: string)
   {
     const regexp = /\s*{([^}]+)}$/;
@@ -123,7 +120,7 @@ console.log(Marked.parse('# heading {my-custom-hash}'));
 
 ### 设置一个简单规则示例
 
-如何在执行正则表达式之前需要递归检查某些条件，你可以使用 `Marked.setBlockRule( regexp[, callback] )` 方法，将第一个参数设置为正则表达式，第二个参数是回调函数。结果返回 `regexp.exec(string)` 到 `callback(execArr)`，
+如何在执行正则表达式之前需要递归检查某些条件，你可以使用 `Marked.setBlockRule( regexp[, callback] )` 方法，将第一个参数设置为正则表达式，第二个参数是回调函数。经过 `regexp.exec(string)` 处理后，由 `callback(execArr)` 拿到结果，
 
 在正则表达式中开始符号使用 `^` 非常重要，无论如何你都应该这么做。
 
@@ -138,7 +135,7 @@ import * as katex from 'katex';
 
 Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
 
-  // 如果你需要 Renderer 的上下文，this.选项的话，这里建议不要使用箭头函数
+  // 如果你需要 Renderer 的上下文，this.方法的话，这里建议不要使用箭头函数
 
   const channel = execArr[1];
   const content = execArr[2];
@@ -354,7 +351,7 @@ text(text: string): string;
 
 ```
 
-## 使用
+## 基础环境和跑项目
 
 基于node的 `v8.9.x`以上版本
 
@@ -380,7 +377,7 @@ npm run bench
 | markdown-it v10.0.0     | 24           | 3            | 176            | 203       | 17 190
 | showdown v1.8.6         | 4            | 7            | 408            | 419       | 57 767
 
-### bench选项设置
+### bench命令传参设置
 
 ```text
 -l, --length       Approximate string length in kilobytes. Default ~ 300 KB.
@@ -388,7 +385,7 @@ npm run bench
 ```
 测试文件积累在一个文件中。例如你可以指定 -- 长度100kb,如果没有，它将被连接到下一个，并检查它的长度，以此类推。
 
-#### bench选项的使用示例
+#### bench命令传参的使用示例
 
 为了让npm传递参数，需要通过指定 `-- `：
 
@@ -396,10 +393,9 @@ npm run bench
 npm run bench -- -l 500 -t 1
 ```
 
-
 ## 贡献和许可协议
 
-如果您向该项目贡献代码，则您将隐式地允许您的代码在麻省理工学院许可证下分发。你也含蓄地验证了这一点所有代码都是你的原创作品。`</legalese>`
+如果你向该项目贡献代码，请保证你提交的所有代码都是你的原创作品。`</legalese>`
 
 ## 许可证
 
@@ -417,3 +413,4 @@ See LICENSE for more info.
 [tables]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#wiki-tables
 [breaks]: https://help.github.com/articles/github-flavored-markdown#newlines
 
+> 欢迎提供修改意见。
