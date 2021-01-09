@@ -2,7 +2,7 @@
 
 > 一个用TypeScript写的功能齐全的markdown解析器和编译器。
 
-这个项目从一次提交记录开始，那是2017年12月1日向流行库 `[marked](https://github.com/markedjs/marked)`的 `[chjj](https://github.com/chjj)/release-0.3.7` 提交了一次合并请求，PR记录是 `[#961](https://github.com/markedjs/marked/pull/961)`。
+这个项目从一次提交记录开始，那是2017年12月1日向流行库 [marked](https://github.com/markedjs/marked)的 [chjj](https://github.com/chjj)/release-0.3.7 提交了一次合并请求，PR记录是 [#961](https://github.com/markedjs/marked/pull/961)。
 
 ## 目录
 
