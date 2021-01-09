@@ -7,7 +7,6 @@ This is fork of popular library `marked` from [this commit](https://github.com/m
 
 ## lang
 - [Chinese](./lang/zh/README.md)
-- [English](./README.md)
 
 
 ## Table of contents
