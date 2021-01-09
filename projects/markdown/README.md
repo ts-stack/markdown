@@ -6,8 +6,8 @@ This is fork of popular library `marked` from [this commit](https://github.com/m
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
 ## lang
-- [Chinese](https://github.com/habc0807/markdown/blob/master/lang/zh/README_zh.md)
-- [English](https://github.com/habc0807/markdown)
+- [Chinese](./lang/zh/README.md)
+- [English](./README.md)
 
 
 ## Table of contents
