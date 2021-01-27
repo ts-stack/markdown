@@ -1,4 +1,4 @@
-#[@ts-stack/markdown](https://github.com/ts-stack/markdown)
+# [@ts-stack/markdown](https://github.com/ts-stack/markdown)
 
 > 一个用TypeScript写的功能齐全的markdown解析器和编译器。
 
