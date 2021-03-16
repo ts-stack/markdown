@@ -25,3 +25,11 @@ How about a code block with only an empty line?
 ```js
 
 ```
+
+https://github.github.com/gfm/#example-113
+
+~~~~    ruby startline=3 $%@#$
+def foo(x)
+  return 3
+end
+~~~~

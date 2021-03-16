@@ -120,7 +120,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
     const gfm: RulesBlockGfm = {
       ...base,
       ...{
-        fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
+        fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *.*\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
         paragraph: /^/,
         heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/,
       },
