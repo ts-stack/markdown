@@ -74,6 +74,7 @@ export interface Token {
   type: number | string;
   text?: string;
   lang?: string;
+  info?: string;
   depth?: number;
   header?: string[];
   align?: Align[];

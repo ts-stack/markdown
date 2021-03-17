@@ -131,7 +131,7 @@ export class Parser {
         return this.renderer.listitem(body);
       }
       case TokenType.code: {
-        return this.renderer.code(this.token.text, this.token.lang, this.token.escaped);
+        return this.renderer.code(this.token.text, this.token.lang, this.token.escaped, this.token.info);
       }
       case TokenType.table: {
         let header = '';

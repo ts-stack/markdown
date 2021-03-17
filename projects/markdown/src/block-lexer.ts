@@ -120,7 +120,7 @@ export class BlockLexer<T extends typeof BlockLexer> {
     const gfm: RulesBlockGfm = {
       ...base,
       ...{
-        fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *.*\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
+        fences: /^ *(`{3,}|~{3,})[ \.]*((\S+)? *.*)\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
         paragraph: /^/,
         heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/,
       },
@@ -198,8 +198,9 @@ export class BlockLexer<T extends typeof BlockLexer> {
 
         this.tokens.push({
           type: TokenType.code,
-          lang: execArr[2],
-          text: execArr[3] || '',
+          lang: execArr[3],
+          text: execArr[4] || '',
+          info: execArr[2]
         });
         continue;
       }
