@@ -13,3 +13,4 @@ dist-test
 dist-examples
 examples-usage
 src
+.tsbuildinfo
