@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "markdown-examples",
   "scripts": {
     "compile": "rimraf dist/* && tsc -b -f",
     "start": "yarn compile && node -r tsconfig-paths/register dist/minimal.js"

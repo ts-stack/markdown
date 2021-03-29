@@ -217,7 +217,7 @@ function parseArg(): RunBenchOptions {
 }
 
 function load(): string[] {
-  const dir = path.normalize(__dirname + '/../tests');
+  const dir = path.normalize(__dirname + '/../src/tests');
   const files: string[] = [];
 
   const list = fs.readdirSync(dir).filter((file) => path.extname(file) == '.md');

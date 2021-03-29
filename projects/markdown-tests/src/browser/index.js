@@ -24,8 +24,8 @@ app.use(function(req, res, next) {
 var dir = __dirname + '/../tests'
   , files = {};
 
-app.get('/test.js', function(req, res, next) {
-  var test = fs.readFileSync(__dirname + '/test.js', 'utf8')
+app.get('/test1.js', function(req, res, next) {
+  var test = fs.readFileSync(__dirname + '/test1.js', 'utf8')
     , files = load();
 
   test = test.replace('__TESTS__', JSON.stringify(files));
