@@ -370,24 +370,23 @@ node v8.9.x
 git clone https://github.com/ts-stack/markdown.git
 cd markdown
 npm install
-cd projects/markdown-tests
-npm install
-npm run compile
+npx lerna bootstrap
+npm run build:bench
 npm run bench
 ```
 
 By default, these benchmarks run the entire markdown test suite once. The test suite includes every markdown feature,
 it doesn't cater to specific aspects.
 
-| Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB
-| ------------------------|--------------|--------------|----------------|-----------|------------------
-| @ts-stack/markdown v1.0.0-beta.4 | 5            | 4            | 84             | 93        | 5 706
-| marked v0.8.0           | 5            | 7            | 86             | 98        | 7 489
-| markdown v0.5.0         | 2            | 2            | 128            | 132       | 19 220
-| remarkable v2.0.0       | 5            | 2            | 136            | 143       | 12 408
-| commonmark v0.29.1      | 19           | 3            | 148            | 170       | 22 571
-| markdown-it v10.0.0     | 24           | 3            | 176            | 203       | 17 190
-| showdown v1.8.6         | 4            | 7            | 408            | 419       | 57 767
+| Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms 
+| ------------------------|--------------|--------------|----------------|-----------
+| @ts-stack/markdown v1.0.0-beta.4 | 5            | 4            | 84             | 93 
+| marked v0.8.0           | 5            | 7            | 86             | 98
+| markdown v0.5.0         | 2            | 2            | 128            | 132
+| remarkable v2.0.0       | 5            | 2            | 136            | 143
+| commonmark v0.29.1      | 19           | 3            | 148            | 170
+| markdown-it v10.0.0     | 24           | 3            | 176            | 203
+| showdown v1.8.6         | 4            | 7            | 408            | 419
 
 
 ### Options for benchmarks
@@ -419,7 +418,7 @@ all code is your original work. `</legalese>`
 
 Copyright (c) 2011-2014, Christopher Jeffrey. (MIT License)
 
-Copyright (c) 2018-2020, Костя Третяк. (MIT License)
+Copyright (c) 2018-2021, Костя Третяк. (MIT License)
 
 See LICENSE for more info.
 

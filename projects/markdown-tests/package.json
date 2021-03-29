@@ -1,12 +1,15 @@
 {
   "private": true,
+  "version": "0.0.1",
+  "name": "markdown-tests",
   "scripts": {
-    "test": "yarn compile && node -r tsconfig-paths/register dist/index.js && jasmine -r tsconfig-paths/register",
-    "compile": "rimraf dist/* && tsc -b -f",
-    "bench": "node -r tsconfig-paths/register --expose-gc dist/benchmarks.js"
+    "test": "ts-node -r tsconfig-paths/register src/index.ts && jest",
+    "build": "rimraf dist/* && tsc -b -f",
+    "bench": "node -r tsconfig-paths/register dist/benchmarks.js"
   },
   "devDependencies": {
     "jasmine": "^3.6.1",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "ts-node": "^9.1.1"
   }
 }

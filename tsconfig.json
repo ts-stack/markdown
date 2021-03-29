@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": false,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "moduleResolution": "node",
+    "paths": {
+      "@ts-stack/markdown": [
+        "./projects/markdown/src"
+      ]
+    }
+  },
+  "exclude": ["**/node_modules/*"]
+}
