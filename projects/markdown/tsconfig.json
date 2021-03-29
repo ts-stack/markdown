@@ -4,7 +4,6 @@
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": "./",
-    "target": "es2015",
   },
   "include": ["src"]
 }

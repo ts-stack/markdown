@@ -38,6 +38,8 @@
     "test": "ts-node -r tsconfig-paths/register projects/markdown-tests/src/index.ts && jest projects/markdown-tests",
     "build": "ng-packagr -p projects/markdown/ng-package.json",
     "clean": "rimraf projects/**/dist* projects/**/out-tsc* projects/**/*.tsbuildinfo",
-    "pub": "yarn build && cd dist && npm publish"
+    "pub": "yarn build && cd dist && npm publish",
+    "build:bench": "rimraf projects/markdown-tests/dist/* && tsc -b -f projects/markdown-tests",
+    "bench": "node -r tsconfig-paths/register projects/markdown-tests/dist/benchmarks.js"
   }
 }

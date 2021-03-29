@@ -5,7 +5,7 @@
   "scripts": {
     "test": "ts-node -r tsconfig-paths/register src/index.ts && jest",
     "build": "rimraf dist/* && tsc -b -f",
-    "bench": "node -r tsconfig-paths/register --expose-gc dist/benchmarks.js"
+    "bench": "node -r tsconfig-paths/register dist/benchmarks.js"
   },
   "devDependencies": {
     "jasmine": "^3.6.1",

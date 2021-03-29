@@ -19,7 +19,7 @@ interface RunBenchOptions {
   length?: number;
 }
 
-const widthTable = 100;
+const widthTable = 80;
 
 runBench();
 
@@ -44,7 +44,7 @@ function initBench(benchStrLen: number = 300, times: number = 1): string {
   console.log('='.repeat(widthTable));
 
   const marginFromName = ' '.repeat(16);
-  console.log(`Lib ${marginFromName} | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB`);
+  console.log(`Lib ${marginFromName} | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms`);
 
   console.log('='.repeat(widthTable));
   return accumulatedMarkdown;
@@ -62,15 +62,12 @@ function bench(
   loadTime: number = 0,
   initTime: number = 0
 ): void {
-  // Forcing Garbage Collection (for memory usage purpose).
-  global.gc();
   const startBench = Date.now();
 
   while (times--) {
     parseAndCompile(accumulatedMarkdown);
   }
 
-  const heapUsed = Math.round(process.memoryUsage().heapUsed / 1024);
   const benchTime = Date.now() - startBench;
   const total = loadTime + initTime + benchTime;
   const marginFromName = ' '.repeat(20 - name.length);
@@ -93,9 +90,7 @@ function bench(
     marginFromBench +
     ' | ' +
     total +
-    marginFromTotal +
-    ' | ' +
-    heapUsed;
+    marginFromTotal;
 
   console.log(output);
   console.log('-'.repeat(widthTable));
