@@ -320,7 +320,7 @@ class MarkedOptions
 ```ts
 //*** Block level renderer methods. ***
 
-code(code: string, lang?: string, escaped?: boolean): string;
+code(code: string, lang?: string, escaped?: boolean, meta?: string): string;
 
 blockquote(quote: string): string;
 
