@@ -418,7 +418,7 @@ all code is your original work. `</legalese>`
 
 Copyright (c) 2011-2014, Christopher Jeffrey. (MIT License)
 
-Copyright (c) 2018-2020, Костя Третяк. (MIT License)
+Copyright (c) 2018-2021, Костя Третяк. (MIT License)
 
 See LICENSE for more info.
 

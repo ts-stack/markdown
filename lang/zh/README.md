@@ -401,7 +401,7 @@ npm run bench -- -l 500 -t 1
 
 Copyright (c) 2011-2014, Christopher Jeffrey. (MIT License)
 
-Copyright (c) 2018-2020, Костя Третяк. (MIT License)
+Copyright (c) 2018-2021, Костя Третяк. (MIT License)
 
 See LICENSE for more info.
 

@@ -6,7 +6,7 @@
  * https://github.com/chjj/marked
  *
  * @ts-stack/markdown tests
- * Copyright (c) 2018-2020, Третяк Костя. (MIT Licensed)
+ * Copyright (c) 2018-2021, Третяк Костя. (MIT Licensed)
  * https://github.com/ts-stack/markdown
  */
 
