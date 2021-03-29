@@ -74,6 +74,10 @@ export interface Token {
   type: number | string;
   text?: string;
   lang?: string;
+  /**
+   * Metadata of gfm code.
+   */
+  meta?: string;
   depth?: number;
   header?: string[];
   align?: Align[];

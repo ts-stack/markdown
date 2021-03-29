@@ -5,6 +5,6 @@ npm-debug.log
 *.tgz
 .vscode
 test/tmp.ts
-test/tests/*-actual.html
+projects/markdown-tests/src/tests/*-actual.html
 yarn-error.log
 *.tsbuildinfo*
