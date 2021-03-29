@@ -18,7 +18,7 @@ export class Renderer {
     this.options = options || Marked.options;
   }
 
-  code(code: string, lang?: string, escaped?: boolean, info?: string): string {
+  code(code: string, lang?: string, escaped?: boolean, meta?: string): string {
     if (this.options.highlight) {
       const out = this.options.highlight(code, lang);
 
