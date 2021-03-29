@@ -1,11 +1,6 @@
 {
   "program": {
     "fileInfos": {
-      "../../node_modules/typescript/lib/lib.es6.d.ts": {
-        "version": "721cec59c3fef87aaf480047d821fb758b3ec9482c4129a54631e6e25e432a31",
-        "signature": "721cec59c3fef87aaf480047d821fb758b3ec9482c4129a54631e6e25e432a31",
-        "affectsGlobalScope": false
-      },
       "../../node_modules/typescript/lib/lib.es5.d.ts": {
         "version": "9622e8bd7cc72a7dab819a8011ecbf81d443638082e5cb99ecf2e75ff56ffc9d",
         "signature": "9622e8bd7cc72a7dab819a8011ecbf81d443638082e5cb99ecf2e75ff56ffc9d",
@@ -29,6 +24,16 @@
       "../../node_modules/typescript/lib/lib.es2018.d.ts": {
         "version": "5f4e733ced4e129482ae2186aae29fde948ab7182844c3a5a51dd346182c7b06",
         "signature": "5f4e733ced4e129482ae2186aae29fde948ab7182844c3a5a51dd346182c7b06",
+        "affectsGlobalScope": false
+      },
+      "../../node_modules/typescript/lib/lib.es2019.d.ts": {
+        "version": "e6b724280c694a9f588847f754198fb96c43d805f065c3a5b28bbc9594541c84",
+        "signature": "e6b724280c694a9f588847f754198fb96c43d805f065c3a5b28bbc9594541c84",
+        "affectsGlobalScope": false
+      },
+      "../../node_modules/typescript/lib/lib.es2020.d.ts": {
+        "version": "e21c071ca3e1b4a815d5f04a7475adcaeea5d64367e840dd0154096d705c3940",
+        "signature": "e21c071ca3e1b4a815d5f04a7475adcaeea5d64367e840dd0154096d705c3940",
         "affectsGlobalScope": false
       },
       "../../node_modules/typescript/lib/lib.dom.d.ts": {
@@ -151,9 +156,54 @@
         "signature": "c80df75850fea5caa2afe43b9949338ce4e2de086f91713e9af1a06f973872b8",
         "affectsGlobalScope": true
       },
+      "../../node_modules/typescript/lib/lib.es2019.array.d.ts": {
+        "version": "9d57b2b5d15838ed094aa9ff1299eecef40b190722eb619bac4616657a05f951",
+        "signature": "9d57b2b5d15838ed094aa9ff1299eecef40b190722eb619bac4616657a05f951",
+        "affectsGlobalScope": true
+      },
+      "../../node_modules/typescript/lib/lib.es2019.object.d.ts": {
+        "version": "6c51b5dd26a2c31dbf37f00cfc32b2aa6a92e19c995aefb5b97a3a64f1ac99de",
+        "signature": "6c51b5dd26a2c31dbf37f00cfc32b2aa6a92e19c995aefb5b97a3a64f1ac99de",
+        "affectsGlobalScope": true
+      },
+      "../../node_modules/typescript/lib/lib.es2019.string.d.ts": {
+        "version": "93544ca2f26a48716c1b6c5091842cad63129daac422dfa4bc52460465f22bb1",
+        "signature": "93544ca2f26a48716c1b6c5091842cad63129daac422dfa4bc52460465f22bb1",
+        "affectsGlobalScope": true
+      },
+      "../../node_modules/typescript/lib/lib.es2019.symbol.d.ts": {
+        "version": "2ad234885a4240522efccd77de6c7d99eecf9b4de0914adb9a35c0c22433f993",
+        "signature": "2ad234885a4240522efccd77de6c7d99eecf9b4de0914adb9a35c0c22433f993",
+        "affectsGlobalScope": true
+      },
       "../../node_modules/typescript/lib/lib.es2020.bigint.d.ts": {
         "version": "7b5a10e3c897fabece5a51aa85b4111727d7adb53c2734b5d37230ff96802a09",
         "signature": "7b5a10e3c897fabece5a51aa85b4111727d7adb53c2734b5d37230ff96802a09",
+        "affectsGlobalScope": true
+      },
+      "../../node_modules/typescript/lib/lib.es2020.promise.d.ts": {
+        "version": "7435b75fdf3509622e79622dbe5091cf4b09688410ee2034e4fc17d0c99d0862",
+        "signature": "7435b75fdf3509622e79622dbe5091cf4b09688410ee2034e4fc17d0c99d0862",
+        "affectsGlobalScope": true
+      },
+      "../../node_modules/typescript/lib/lib.es2020.sharedmemory.d.ts": {
+        "version": "e7e8e1d368290e9295ef18ca23f405cf40d5456fa9f20db6373a61ca45f75f40",
+        "signature": "e7e8e1d368290e9295ef18ca23f405cf40d5456fa9f20db6373a61ca45f75f40",
+        "affectsGlobalScope": true
+      },
+      "../../node_modules/typescript/lib/lib.es2020.string.d.ts": {
+        "version": "faf0221ae0465363c842ce6aa8a0cbda5d9296940a8e26c86e04cc4081eea21e",
+        "signature": "faf0221ae0465363c842ce6aa8a0cbda5d9296940a8e26c86e04cc4081eea21e",
+        "affectsGlobalScope": true
+      },
+      "../../node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts": {
+        "version": "936d7d2e8851af9ccfa5333b15e877a824417d352b1d7fd06388639dc69ef80a",
+        "signature": "936d7d2e8851af9ccfa5333b15e877a824417d352b1d7fd06388639dc69ef80a",
+        "affectsGlobalScope": true
+      },
+      "../../node_modules/typescript/lib/lib.es2020.intl.d.ts": {
+        "version": "31e8df2398e328077079c17ea4f1664bad0a34adf8b0608837e504e310e329a1",
+        "signature": "31e8df2398e328077079c17ea4f1664bad0a34adf8b0608837e504e310e329a1",
         "affectsGlobalScope": true
       },
       "../../node_modules/typescript/lib/lib.esnext.intl.d.ts": {
@@ -161,49 +211,99 @@
         "signature": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "affectsGlobalScope": true
       },
-      "./src/extend-regexp.ts": {
-        "version": "f0d116dbd684456ed8b8d0357ce9789960538e92985d60478478b33d22f5f60f",
-        "signature": "95674c7cdbebe4e7cb6bfb1a1431f910a79d69df94d9c810180c3061b3c387d6",
+      "../../node_modules/typescript/lib/lib.es2020.full.d.ts": {
+        "version": "f58c6d0669d1ee04b2fcb0e87fb949b6828602f3f29c7bf6c76a214f16fd50d5",
+        "signature": "f58c6d0669d1ee04b2fcb0e87fb949b6828602f3f29c7bf6c76a214f16fd50d5",
         "affectsGlobalScope": false
       },
-      "./src/helpers.ts": {
-        "version": "5e96b19cb0b04887064516083632c5277f532c8bd051222798deda1be1ad855e",
-        "signature": "3d155fea875e473975a535293017d3a0ebd19574e12b669e39744406721a77e4",
-        "affectsGlobalScope": false
+      "../../node_modules/highlight.js/types/index.d.ts": {
+        "version": "dbd92a5af4cb2d3d69e105e7ab9393ecee685d0767b0317c2ff21419de5dae6b",
+        "signature": "dbd92a5af4cb2d3d69e105e7ab9393ecee685d0767b0317c2ff21419de5dae6b",
+        "affectsGlobalScope": true
       },
-      "./src/inline-lexer.ts": {
-        "version": "9234c93f9658a9bda481b0fda9ced2c6ee89c7e1813deaa2543e9a66b5574120",
-        "signature": "d5b586b67ecf55232801f6004240adfc4521c1e2d864bfa7b0448f8ab4bd2cba",
-        "affectsGlobalScope": false
-      },
-      "./src/parser.ts": {
-        "version": "acbbf2faa7f2076ff613f5f19d2acab4302991d4f2229cf6b0b704f3b3e28950",
-        "signature": "052dc24f55c4268c4ce0b3cb094f0b43d403184932f7d0304d996c0ee8f1fbdc",
-        "affectsGlobalScope": false
-      },
-      "./src/marked.ts": {
-        "version": "9887249e369159e527dc2f78bbefdfaf2f7ec870e44e5d275ffe9e68acff111c",
-        "signature": "ea1485cb7d6181a9bc86afd8a09dc27e87edfcb0eea5bc65fa6b69d7fc33b9d4",
-        "affectsGlobalScope": false
-      },
-      "./src/renderer.ts": {
-        "version": "c6cddbba9a45eae383be64dddc346fc18c8c0826b8451bbc8c1d928053838d19",
+      "../markdown/dist/renderer.d.ts": {
+        "version": "d44e3fcbc7866d3534252466faaac6d3cb0f8d926e203f7b1337619599d6ed45",
         "signature": "d44e3fcbc7866d3534252466faaac6d3cb0f8d926e203f7b1337619599d6ed45",
         "affectsGlobalScope": false
       },
-      "./src/interfaces.ts": {
-        "version": "571ed8c0b68e5906c5cf804bff4293e4b8a2e3ceb45f5702068c4c68de4708d5",
+      "../markdown/dist/interfaces.d.ts": {
+        "version": "b6af18ac9b2f01c501b95ce748740dc0ede2bec37f4d45e5024176f7bd9a9ceb",
         "signature": "b6af18ac9b2f01c501b95ce748740dc0ede2bec37f4d45e5024176f7bd9a9ceb",
         "affectsGlobalScope": false
       },
-      "./src/block-lexer.ts": {
-        "version": "575df4ecd9c841c6ee9d46aea00873860d774f0d46e11cb11ecb9c098a05a36c",
+      "../markdown/dist/block-lexer.d.ts": {
+        "version": "4e13ab2038b053527defe6d10e89b9d630affbcb723a10f81d3f55b402de63a2",
         "signature": "4e13ab2038b053527defe6d10e89b9d630affbcb723a10f81d3f55b402de63a2",
         "affectsGlobalScope": false
       },
-      "./src/index.ts": {
-        "version": "4083c6d9d363d1c8097adaf93fbed5ee6f23d439055350a129d47eaaa80c3a30",
+      "../markdown/dist/helpers.d.ts": {
+        "version": "3d155fea875e473975a535293017d3a0ebd19574e12b669e39744406721a77e4",
+        "signature": "3d155fea875e473975a535293017d3a0ebd19574e12b669e39744406721a77e4",
+        "affectsGlobalScope": false
+      },
+      "../markdown/dist/inline-lexer.d.ts": {
+        "version": "d5b586b67ecf55232801f6004240adfc4521c1e2d864bfa7b0448f8ab4bd2cba",
+        "signature": "d5b586b67ecf55232801f6004240adfc4521c1e2d864bfa7b0448f8ab4bd2cba",
+        "affectsGlobalScope": false
+      },
+      "../markdown/dist/marked.d.ts": {
+        "version": "ea1485cb7d6181a9bc86afd8a09dc27e87edfcb0eea5bc65fa6b69d7fc33b9d4",
+        "signature": "ea1485cb7d6181a9bc86afd8a09dc27e87edfcb0eea5bc65fa6b69d7fc33b9d4",
+        "affectsGlobalScope": false
+      },
+      "../markdown/dist/parser.d.ts": {
+        "version": "052dc24f55c4268c4ce0b3cb094f0b43d403184932f7d0304d996c0ee8f1fbdc",
+        "signature": "052dc24f55c4268c4ce0b3cb094f0b43d403184932f7d0304d996c0ee8f1fbdc",
+        "affectsGlobalScope": false
+      },
+      "../markdown/dist/extend-regexp.d.ts": {
+        "version": "95674c7cdbebe4e7cb6bfb1a1431f910a79d69df94d9c810180c3061b3c387d6",
+        "signature": "95674c7cdbebe4e7cb6bfb1a1431f910a79d69df94d9c810180c3061b3c387d6",
+        "affectsGlobalScope": false
+      },
+      "../markdown/dist/index.d.ts": {
+        "version": "4e4d35f708e57b18ec49d3a650e363b25039aed033e8da0c3f9e18ff2d15b882",
         "signature": "4e4d35f708e57b18ec49d3a650e363b25039aed033e8da0c3f9e18ff2d15b882",
+        "affectsGlobalScope": false
+      },
+      "./src/highlight-usage.ts": {
+        "version": "81b134382ac6bcca4436aea79edac2319a17314555e620a75ff0e8e03612a134",
+        "signature": "4baa156eae28f07c1618785bef0808ef813e9003820608b7f85d08f340ac5d56",
+        "affectsGlobalScope": false
+      },
+      "./src/minimal.ts": {
+        "version": "8be0ac0ecd070752ecdf92bd2327be1204348b96a7994b1a6282f25f6e1aed74",
+        "signature": "f430658b415d3164b08e7cad78264d3b29e97ea175b1a33c5faac92bc0d38dea",
+        "affectsGlobalScope": false
+      },
+      "./src/overriding-renderer.ts": {
+        "version": "50f932ec1704521325715459cb6e76c4cae708274e19d8211edd8cf5175a06c8",
+        "signature": "c30f9e92152c8633625dd9c6bee075081db6133c2c224afb695f7e2dccb0c48c",
+        "affectsGlobalScope": false
+      },
+      "../../node_modules/@types/katex/contrib/auto-render.d.ts": {
+        "version": "a93bbe06d20763f821db7b671ba9efbf4b602fb4cd612ae9d40f01a30f62966c",
+        "signature": "a93bbe06d20763f821db7b671ba9efbf4b602fb4cd612ae9d40f01a30f62966c",
+        "affectsGlobalScope": false
+      },
+      "../../node_modules/@types/katex/contrib/katex2tex.d.ts": {
+        "version": "1ced83d3606cfe4a0d2d98c24873b4147ac4c1b9beacb1d1dd0d8bacd3a00220",
+        "signature": "1ced83d3606cfe4a0d2d98c24873b4147ac4c1b9beacb1d1dd0d8bacd3a00220",
+        "affectsGlobalScope": false
+      },
+      "../../node_modules/@types/katex/contrib/index.d.ts": {
+        "version": "42c7f325d2075cf80f65ef6225692605b6516602209175d29281c7a53838d28f",
+        "signature": "42c7f325d2075cf80f65ef6225692605b6516602209175d29281c7a53838d28f",
+        "affectsGlobalScope": false
+      },
+      "../../node_modules/@types/katex/index.d.ts": {
+        "version": "451a3f75d74f7b130a0e28dc77f21b7d79b99381ebae3f0d849905c5ab33872e",
+        "signature": "451a3f75d74f7b130a0e28dc77f21b7d79b99381ebae3f0d849905c5ab33872e",
+        "affectsGlobalScope": false
+      },
+      "./src/simple-block-rule.ts": {
+        "version": "bd67767377482d13833202f74b2806f4d10a56f7fb1a059d02624b46cb808d0e",
+        "signature": "3905085f6173d4353226f3ded7c93ce51767048c8933be48ef1b28ba87f47694",
         "affectsGlobalScope": false
       },
       "../../node_modules/@babel/types/lib/index.d.ts": {
@@ -541,26 +641,6 @@
         "signature": "96d14f21b7652903852eef49379d04dbda28c16ed36468f8c9fa08f7c14c9538",
         "affectsGlobalScope": false
       },
-      "../../node_modules/@types/katex/contrib/auto-render.d.ts": {
-        "version": "a93bbe06d20763f821db7b671ba9efbf4b602fb4cd612ae9d40f01a30f62966c",
-        "signature": "a93bbe06d20763f821db7b671ba9efbf4b602fb4cd612ae9d40f01a30f62966c",
-        "affectsGlobalScope": false
-      },
-      "../../node_modules/@types/katex/contrib/katex2tex.d.ts": {
-        "version": "1ced83d3606cfe4a0d2d98c24873b4147ac4c1b9beacb1d1dd0d8bacd3a00220",
-        "signature": "1ced83d3606cfe4a0d2d98c24873b4147ac4c1b9beacb1d1dd0d8bacd3a00220",
-        "affectsGlobalScope": false
-      },
-      "../../node_modules/@types/katex/contrib/index.d.ts": {
-        "version": "42c7f325d2075cf80f65ef6225692605b6516602209175d29281c7a53838d28f",
-        "signature": "42c7f325d2075cf80f65ef6225692605b6516602209175d29281c7a53838d28f",
-        "affectsGlobalScope": false
-      },
-      "../../node_modules/@types/katex/index.d.ts": {
-        "version": "451a3f75d74f7b130a0e28dc77f21b7d79b99381ebae3f0d849905c5ab33872e",
-        "signature": "451a3f75d74f7b130a0e28dc77f21b7d79b99381ebae3f0d849905c5ab33872e",
-        "affectsGlobalScope": false
-      },
       "../../node_modules/@types/linkify-it/index.d.ts": {
         "version": "7e986e9d6572eff36d7ece9a9c735b2b74b447bed0ba00c2918d19e03267219e",
         "signature": "7e986e9d6572eff36d7ece9a9c735b2b74b447bed0ba00c2918d19e03267219e",
@@ -727,7 +807,7 @@
       "declarationMap": true,
       "sourceMap": true,
       "composite": true,
-      "target": 2,
+      "target": 7,
       "module": 1,
       "strict": false,
       "strictPropertyInitialization": false,
@@ -738,10 +818,10 @@
       "moduleResolution": 2,
       "paths": {
         "@ts-stack/markdown": [
-          "./projects/markdown/src"
+          "../markdown/src"
         ]
       },
-      "pathsBasePath": "/srv/git/ts-stack/markdown",
+      "pathsBasePath": "/srv/git/ts-stack/markdown/projects/markdown-examples",
       "outDir": "./dist",
       "rootDir": "./src",
       "baseUrl": "./",
@@ -1122,48 +1202,50 @@
       "../../node_modules/pretty-format/build/index.d.ts": [
         "../../node_modules/pretty-format/build/types.d.ts"
       ],
-      "./src/block-lexer.ts": [
-        "./src/extend-regexp.ts",
-        "./src/interfaces.ts",
-        "./src/marked.ts"
+      "./src/highlight-usage.ts": [
+        "../../node_modules/highlight.js/types/index.d.ts",
+        "../markdown/dist/index.d.ts"
       ],
-      "./src/helpers.ts": [
-        "./src/interfaces.ts"
+      "./src/minimal.ts": [
+        "../markdown/dist/index.d.ts"
       ],
-      "./src/index.ts": [
-        "./src/block-lexer.ts",
-        "./src/extend-regexp.ts",
-        "./src/helpers.ts",
-        "./src/inline-lexer.ts",
-        "./src/interfaces.ts",
-        "./src/marked.ts",
-        "./src/parser.ts",
-        "./src/renderer.ts"
+      "./src/overriding-renderer.ts": [
+        "../markdown/dist/index.d.ts"
       ],
-      "./src/inline-lexer.ts": [
-        "./src/extend-regexp.ts",
-        "./src/interfaces.ts",
-        "./src/marked.ts",
-        "./src/renderer.ts"
+      "./src/simple-block-rule.ts": [
+        "../../node_modules/@types/katex/index.d.ts",
+        "../markdown/dist/index.d.ts"
       ],
-      "./src/interfaces.ts": [
-        "./src/helpers.ts",
-        "./src/renderer.ts"
+      "../markdown/dist/block-lexer.d.ts": [
+        "../markdown/dist/interfaces.d.ts"
       ],
-      "./src/marked.ts": [
-        "./src/block-lexer.ts",
-        "./src/interfaces.ts",
-        "./src/parser.ts"
+      "../markdown/dist/index.d.ts": [
+        "../markdown/dist/block-lexer.d.ts",
+        "../markdown/dist/extend-regexp.d.ts",
+        "../markdown/dist/helpers.d.ts",
+        "../markdown/dist/inline-lexer.d.ts",
+        "../markdown/dist/interfaces.d.ts",
+        "../markdown/dist/marked.d.ts",
+        "../markdown/dist/parser.d.ts",
+        "../markdown/dist/renderer.d.ts"
       ],
-      "./src/parser.ts": [
-        "./src/inline-lexer.ts",
-        "./src/interfaces.ts",
-        "./src/marked.ts",
-        "./src/renderer.ts"
+      "../markdown/dist/inline-lexer.d.ts": [
+        "../markdown/dist/interfaces.d.ts",
+        "../markdown/dist/renderer.d.ts"
       ],
-      "./src/renderer.ts": [
-        "./src/interfaces.ts",
-        "./src/marked.ts"
+      "../markdown/dist/interfaces.d.ts": [
+        "../markdown/dist/renderer.d.ts"
+      ],
+      "../markdown/dist/marked.d.ts": [
+        "../markdown/dist/interfaces.d.ts"
+      ],
+      "../markdown/dist/parser.d.ts": [
+        "../markdown/dist/inline-lexer.d.ts",
+        "../markdown/dist/interfaces.d.ts",
+        "../markdown/dist/renderer.d.ts"
+      ],
+      "../markdown/dist/renderer.d.ts": [
+        "../markdown/dist/interfaces.d.ts"
       ]
     },
     "exportedModulesMap": {
@@ -1541,36 +1623,36 @@
       "../../node_modules/pretty-format/build/index.d.ts": [
         "../../node_modules/pretty-format/build/types.d.ts"
       ],
-      "./src/block-lexer.ts": [
-        "./src/interfaces.ts"
+      "../markdown/dist/block-lexer.d.ts": [
+        "../markdown/dist/interfaces.d.ts"
       ],
-      "./src/index.ts": [
-        "./src/block-lexer.ts",
-        "./src/extend-regexp.ts",
-        "./src/helpers.ts",
-        "./src/inline-lexer.ts",
-        "./src/interfaces.ts",
-        "./src/marked.ts",
-        "./src/parser.ts",
-        "./src/renderer.ts"
+      "../markdown/dist/index.d.ts": [
+        "../markdown/dist/block-lexer.d.ts",
+        "../markdown/dist/extend-regexp.d.ts",
+        "../markdown/dist/helpers.d.ts",
+        "../markdown/dist/inline-lexer.d.ts",
+        "../markdown/dist/interfaces.d.ts",
+        "../markdown/dist/marked.d.ts",
+        "../markdown/dist/parser.d.ts",
+        "../markdown/dist/renderer.d.ts"
       ],
-      "./src/inline-lexer.ts": [
-        "./src/interfaces.ts",
-        "./src/renderer.ts"
+      "../markdown/dist/inline-lexer.d.ts": [
+        "../markdown/dist/interfaces.d.ts",
+        "../markdown/dist/renderer.d.ts"
       ],
-      "./src/interfaces.ts": [
-        "./src/renderer.ts"
+      "../markdown/dist/interfaces.d.ts": [
+        "../markdown/dist/renderer.d.ts"
       ],
-      "./src/marked.ts": [
-        "./src/interfaces.ts"
+      "../markdown/dist/marked.d.ts": [
+        "../markdown/dist/interfaces.d.ts"
       ],
-      "./src/parser.ts": [
-        "./src/inline-lexer.ts",
-        "./src/interfaces.ts",
-        "./src/renderer.ts"
+      "../markdown/dist/parser.d.ts": [
+        "../markdown/dist/inline-lexer.d.ts",
+        "../markdown/dist/interfaces.d.ts",
+        "../markdown/dist/renderer.d.ts"
       ],
-      "./src/renderer.ts": [
-        "./src/interfaces.ts"
+      "../markdown/dist/renderer.d.ts": [
+        "../markdown/dist/interfaces.d.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
@@ -1670,6 +1752,7 @@
       "../../node_modules/@types/stack-utils/index.d.ts",
       "../../node_modules/@types/yargs-parser/index.d.ts",
       "../../node_modules/@types/yargs/index.d.ts",
+      "../../node_modules/highlight.js/types/index.d.ts",
       "../../node_modules/jest-diff/build/cleanupSemantic.d.ts",
       "../../node_modules/jest-diff/build/diffLines.d.ts",
       "../../node_modules/jest-diff/build/index.d.ts",
@@ -1703,21 +1786,36 @@
       "../../node_modules/typescript/lib/lib.es2018.intl.d.ts",
       "../../node_modules/typescript/lib/lib.es2018.promise.d.ts",
       "../../node_modules/typescript/lib/lib.es2018.regexp.d.ts",
+      "../../node_modules/typescript/lib/lib.es2019.array.d.ts",
+      "../../node_modules/typescript/lib/lib.es2019.d.ts",
+      "../../node_modules/typescript/lib/lib.es2019.object.d.ts",
+      "../../node_modules/typescript/lib/lib.es2019.string.d.ts",
+      "../../node_modules/typescript/lib/lib.es2019.symbol.d.ts",
       "../../node_modules/typescript/lib/lib.es2020.bigint.d.ts",
+      "../../node_modules/typescript/lib/lib.es2020.d.ts",
+      "../../node_modules/typescript/lib/lib.es2020.full.d.ts",
+      "../../node_modules/typescript/lib/lib.es2020.intl.d.ts",
+      "../../node_modules/typescript/lib/lib.es2020.promise.d.ts",
+      "../../node_modules/typescript/lib/lib.es2020.sharedmemory.d.ts",
+      "../../node_modules/typescript/lib/lib.es2020.string.d.ts",
+      "../../node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts",
       "../../node_modules/typescript/lib/lib.es5.d.ts",
-      "../../node_modules/typescript/lib/lib.es6.d.ts",
       "../../node_modules/typescript/lib/lib.esnext.intl.d.ts",
       "../../node_modules/typescript/lib/lib.scripthost.d.ts",
       "../../node_modules/typescript/lib/lib.webworker.importscripts.d.ts",
-      "./src/block-lexer.ts",
-      "./src/extend-regexp.ts",
-      "./src/helpers.ts",
-      "./src/index.ts",
-      "./src/inline-lexer.ts",
-      "./src/interfaces.ts",
-      "./src/marked.ts",
-      "./src/parser.ts",
-      "./src/renderer.ts"
+      "./src/highlight-usage.ts",
+      "./src/minimal.ts",
+      "./src/overriding-renderer.ts",
+      "./src/simple-block-rule.ts",
+      "../markdown/dist/block-lexer.d.ts",
+      "../markdown/dist/extend-regexp.d.ts",
+      "../markdown/dist/helpers.d.ts",
+      "../markdown/dist/index.d.ts",
+      "../markdown/dist/inline-lexer.d.ts",
+      "../markdown/dist/interfaces.d.ts",
+      "../markdown/dist/marked.d.ts",
+      "../markdown/dist/parser.d.ts",
+      "../markdown/dist/renderer.d.ts"
     ]
   },
   "version": "4.1.5"

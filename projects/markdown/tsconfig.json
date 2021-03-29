@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "target": "es2015",
   },
   "include": ["src"]
 }

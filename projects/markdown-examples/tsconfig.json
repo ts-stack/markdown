@@ -1,22 +1,13 @@
 {
-  "extends": "../tsconfig.settings.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2015",
-    "module": "CommonJS",
-    "moduleResolution": "node",
     "outDir": "dist",
-    "baseUrl": ".",
+    "rootDir": "src",
+    "baseUrl": "./",
     "paths": {
-      "@ts-stack/markdown": [
-        "../markdown/dist/public-api"
-      ]
+      "@ts-stack/markdown": ["../markdown/src"]
     }
   },
-  "include": [
-    "./**/*.ts"
-  ],
-  "files": [],
-  "references": [
-    { "path": "../markdown" },
-  ]
+  "include": ["src"],
+  "references": [{ "path": "../markdown" }]
 }
