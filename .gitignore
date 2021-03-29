@@ -6,3 +6,4 @@ npm-debug.log
 .vscode
 test/tmp.ts
 test/tests/*-actual.html
+yarn-error.log
