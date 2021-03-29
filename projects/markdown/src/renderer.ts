@@ -28,22 +28,18 @@ export class Renderer {
       }
     }
 
+    const escapedCode = (escaped ? code : this.options.escape(code, true));
+
     if (!lang) {
-      return '\n<pre><code>' + (escaped ? code : this.options.escape(code, true)) + '\n</code></pre>\n';
+      return `\n<pre><code>${escapedCode}\n</code></pre>\n`;
     }
 
-    return (
-      '\n<pre><code class="' +
-      this.options.langPrefix +
-      this.options.escape(lang, true) +
-      '">' +
-      (escaped ? code : this.options.escape(code, true)) +
-      '\n</code></pre>\n'
-    );
+    const className = this.options.langPrefix + this.options.escape(lang, true);
+    return `\n<pre><code class="${className}">${escapedCode}\n</code></pre>\n`;
   }
 
   blockquote(quote: string): string {
-    return '<blockquote>\n' + quote + '</blockquote>\n';
+    return `<blockquote>\n${quote}</blockquote>\n`;
   }
 
   html(html: string): string {
