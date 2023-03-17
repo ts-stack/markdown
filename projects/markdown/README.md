@@ -5,6 +5,11 @@
 This is fork of popular library `marked` from [this commit](https://github.com/markedjs/marked/tree/39fbc8aed)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
+If you enjoy working with TypeScript, we also recommend other libraries by the same author:
+
+[Ditsmod](https://ditsmod.github.io/en/) - a web framework for Node.js to build modular applications;
+[@ts-stack/openapi-spec](https://github.com/ts-stack/openapi-spec) - TypeScript models for writing OpenAPI documentation.
+
 ## lang
 - [Chinese](./lang/zh/README.md)
 
