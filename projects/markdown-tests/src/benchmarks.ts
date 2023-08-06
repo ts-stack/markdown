@@ -144,6 +144,7 @@ function runBench() {
     const loadFrom: string = lib.name;
     try {
       const startLoadTime = Date.now();
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const fullLib = require(loadFrom);
       const loadTime = Date.now() - startLoadTime;
 
@@ -180,6 +181,7 @@ function parseArg(): RunBenchOptions {
   const options: RunBenchOptions = { single: -1 };
 
   for (let i = 0; i < argv.length; i++) {
+    // eslint-disable-next-line prefer-const
     let [key, value] = argv[i].split('=');
 
     // In `argv` we have next parameter or value of current parameter.

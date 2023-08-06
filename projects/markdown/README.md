@@ -53,8 +53,7 @@ Example setting options with default values:
 ```js
 import { Marked, Renderer } from '@ts-stack/markdown';
 
-Marked.setOptions
-({
+Marked.setOptions ({
   renderer: new Renderer,
   gfm: true,
   tables: true,
@@ -72,16 +71,15 @@ console.log(Marked.parse('I am using __markdown__.'));
 
 ```bash
 npm install highlight.js --save
-npm install @types/highlight.js -D
 ```
 
 A function to highlight code blocks:
 
 ```ts
 import { Marked } from '@ts-stack/markdown';
-import { highlight } from 'highlight.js';
+import hljs from 'highlight.js';
 
-Marked.setOptions({ highlight: (code, lang) => highlight(lang, code).value });
+Marked.setOptions({ highlight: (code, lang) => hljs.highlight(lang, code).value });
 let md = '```js\n console.log("hello"); \n```';
 console.log(Marked.parse(md));
 ```
@@ -94,22 +92,17 @@ example of overriding the default heading token rendering by adding custom head 
 ```ts
 import { Marked, Renderer } from '@ts-stack/markdown';
 
-class MyRenderer extends Renderer
-{
+class MyRenderer extends Renderer {
   // Overriding parent method.
-  heading(text: string, level: number, raw: string)
-  {
+  heading(text: string, level: number, raw: string) {
     const regexp = /\s*{([^}]+)}$/;
     const execArr = regexp.exec(text);
     let id: string;
     
-    if(execArr)
-    {
+    if(execArr) {
       text = text.replace(regexp, '');
       id = execArr[1];
-    }
-    else
-    {
+    } else {
       id = text.toLocaleLowerCase().replace(/[^\wа-яіїє]+/gi, '-');
     }
 
@@ -155,19 +148,15 @@ Marked.setBlockRule(/^@@@ *(\w+)\n([\s\S]+?)\n@@@/, function (execArr) {
   const channel = execArr[1];
   const content = execArr[2];
 
-  switch(channel)
-  {
-    case 'youtube':
-    {
+  switch(channel) {
+    case 'youtube': {
       const id = escape(content);
       return `\n<iframe width="420" height="315" src="https://www.youtube.com/embed/${id}"></iframe>\n`;
     }
-    case 'katex':
-    {
+    case 'katex': {
       return katex.renderToString(escape(content));
     }
-    default:
-    {
+    default: {
       const msg = `[Error: a channel "${channel}" for an embedded code is not recognized]`;
       return '<div style="color: red">' + msg + '</div>';
     }
@@ -226,8 +215,7 @@ static debug(src: string, options?: MarkedOptions): {result: string, tokens: Tok
  */
 static setOptions(options: MarkedOptions): this;
 
-interface Token
-{
+interface Token {
   type: number | string;
   text?: string;
   lang?: string;
@@ -245,29 +233,27 @@ interface Token
   line?: number;
 }
 
-enum TokenType
-{
-  space = 1
-  ,text
-  ,paragraph
-  ,heading
-  ,listStart
-  ,listEnd
-  ,looseItemStart
-  ,looseItemEnd
-  ,listItemStart
-  ,listItemEnd
-  ,blockquoteStart
-  ,blockquoteEnd
-  ,code
-  ,table
-  ,html
-  ,hr
+enum TokenType {
+  space = 1,
+  text,
+  paragraph,
+  heading,
+  listStart,
+  listEnd,
+  looseItemStart,
+  looseItemEnd,
+  listItemStart,
+  listItemEnd,
+  blockquoteStart,
+  blockquoteEnd,
+  code,
+  table,
+  html,
+  hr,
 }
 
 // This class also using as an interface.
-class MarkedOptions
-{
+class MarkedOptions {
   gfm?: boolean = true;
   tables?: boolean = true;
   breaks?: boolean = false;
