@@ -22,9 +22,6 @@ If you enjoy working with TypeScript, we also recommend other libraries by the s
   - [Example usage with highlight.js](#example-usage-with-highlightjs)
   - [Overriding renderer methods](#overriding-renderer-methods)
   - [Example of setting a simple block rule](#example-of-setting-a-simple-block-rule)
-- [API](#api)
-  - [Methods of Marked class and necessary types](#methods-of-marked-class-and-necessary-types)
-  - [Renderer methods API](#renderer-methods-api)
 - [Benchmarks](#benchmarks)
   - [Options for benchmarks](#options-for-benchmarks)
     - [Example of usage bench options](#example-of-usage-bench-options)
@@ -110,7 +107,7 @@ class MyRenderer extends Renderer {
   }
 }
 
-Marked.setOptions({renderer: new MyRenderer});
+Marked.setOptions({ renderer: new MyRenderer });
 
 console.log(Marked.parse('# heading {my-custom-hash}'));
 ```
@@ -120,8 +117,6 @@ This code will output the following HTML:
 ```html
 <h1 id="my-custom-hash">heading</h1>
 ```
-
-See also [Renderer methods API](#renderer-methods-api).
 
 ### Example of setting a simple block rule
 
@@ -178,179 +173,6 @@ JgwnkM5WwWE
 const html = Marked.parse(blockStr);
 
 console.log(html);
-```
-
-## API
-
-### Methods of Marked class and necessary types
-
-```ts
-/**
- * Accepts Markdown text and returns text in HTML format.
- * 
- * @param src String of markdown source to be compiled.
- * 
- * @param options Hash of options. They replace, but do not merge with the default options.
- * If you want the merging, you can to do this via `Marked.setOptions()`.
- * 
- * Can also be set using the `Marked.setOptions` method as seen above.
- */
-static parse(src: string, options?: MarkedOptions): string;
-
-/**
- * Accepts Markdown text and returns object with text in HTML format,
- * tokens and links from `BlockLexer.parser()`.
- * 
- * @param src String of markdown source to be compiled.
- * @param options Hash of options. They replace, but do not merge with the default options.
- * If you want the merging, you can to do this via `Marked.setOptions()`.
- */
-static debug(src: string, options?: MarkedOptions): {result: string, tokens: Token[], links: Links};
-
-
-/**
- * Merges the default options with options that will be set.
- * 
- * @param options Hash of options.
- */
-static setOptions(options: MarkedOptions): this;
-
-interface Token {
-  type: number | string;
-  text?: string;
-  lang?: string;
-  depth?: number;
-  header?: string[];
-  align?: ('center' | 'left' | 'right')[];
-  cells?: string[][];
-  ordered?: boolean;
-  pre?: boolean;
-  escaped?: boolean;
-  execArr?: RegExpExecArray;
-  /**
-   * Used for debugging. Identifies the line number in the resulting HTML file.
-   */
-  line?: number;
-}
-
-enum TokenType {
-  space = 1,
-  text,
-  paragraph,
-  heading,
-  listStart,
-  listEnd,
-  looseItemStart,
-  looseItemEnd,
-  listItemStart,
-  listItemEnd,
-  blockquoteStart,
-  blockquoteEnd,
-  code,
-  table,
-  html,
-  hr,
-}
-
-// This class also using as an interface.
-class MarkedOptions {
-  gfm?: boolean = true;
-  tables?: boolean = true;
-  breaks?: boolean = false;
-  pedantic?: boolean = false;
-  sanitize?: boolean = false;
-  sanitizer?: (text: string) => string;
-  mangle?: boolean = true;
-  smartLists?: boolean = false;
-  silent?: boolean = false;
-  /**
-   * @param code The section of code to pass to the highlighter.
-   * @param lang The programming language specified in the code block.
-   */
-  highlight?: (code: string, lang?: string) => string;
-  langPrefix?: string = 'lang-';
-  smartypants?: boolean = false;
-  headerPrefix?: string = '';
-  /**
-   * An object containing functions to render tokens to HTML. Default: `new Renderer()`
-   */
-  renderer?: Renderer;
-  /**
-   * Self-close the tags for void elements (&lt;br/&gt;, &lt;img/&gt;, etc.)
-   * with a "/" as required by XHTML.
-   */
-  xhtml?: boolean = false;
-  /**
-   * The function that will be using to escape HTML entities.
-   * By default using inner helper.
-   */
-  escape?: (html: string, encode?: boolean) => string = escape;
-  /**
-   * The function that will be using to unescape HTML entities.
-   * By default using inner helper.
-   */
-  unescape?: (html: string) => string = unescape;
-  /**
-   * If set to `true`, an inline text will not be taken in paragraph.
-   * 
-   * ```ts
-   * // isNoP == false
-   * Marked.parse('some text'); // returns '<p>some text</p>'
-   * 
-   * Marked.setOptions({isNoP: true});
-   * 
-   * Marked.parse('some text'); // returns 'some text'
-   * ```
-   */
-  isNoP?: boolean;
-}
-```
-
-### Renderer methods API
-
-```ts
-//*** Block level renderer methods. ***
-
-code(code: string, lang?: string, escaped?: boolean, meta?: string): string;
-
-blockquote(quote: string): string;
-
-html(html: string): string;
-
-heading(text: string, level: number, raw: string): string;
-
-hr(): string;
-
-list(body: string, ordered?: boolean): string;
-
-listitem(text: string): string;
-
-paragraph(text: string): string;
-
-table(header: string, body: string): string;
-
-tablerow(content: string): string;
-
-tablecell(content: string, flags: {header?: boolean, align?: 'center' | 'left' | 'right'}): string;
-
-//*** Inline level renderer methods. ***
-
-strong(text: string): string;
-
-em(text: string): string;
-
-codespan(text: string): string;
-
-br(): string;
-
-del(text: string): string;
-
-link(href: string, title: string, text: string): string;
-
-image(href: string, title: string, text: string): string;
-
-text(text: string): string;
-
 ```
 
 ## Benchmarks

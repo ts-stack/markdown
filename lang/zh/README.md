@@ -12,9 +12,6 @@
   - [使用highlight示例](#使用highlight示例)
   - [renderer重要方法](#renderer重要方法)
   - [设置一个简单规则示例](#设置一个简单规则示例)
-- [API](#api)
-  - [Marked的class和types的方法](#Marked的class和types的方法)
-  - [Renderer的API](#Renderer的API)
 - [基础环境和跑项目](#基础环境和跑项目)
   - [bench命令传参设置](#bench命令传参设置)
     - [bench命令传参的使用示例](#bench命令传参的使用示例)
@@ -98,7 +95,7 @@ class MyRenderer extends Renderer {
   }
 }
 
-Marked.setOptions({renderer: new MyRenderer});
+Marked.setOptions({ renderer: new MyRenderer });
 
 console.log(Marked.parse('# heading {my-custom-hash}'));
 ```
@@ -108,8 +105,6 @@ console.log(Marked.parse('# heading {my-custom-hash}'));
 ```html
 <h1 id="my-custom-hash">heading</h1>
 ```
-
-更多[渲染器的API](#渲染器的API)。
 
 ### 设置一个简单规则示例
 
@@ -163,178 +158,6 @@ JgwnkM5WwWE
 const html = Marked.parse(blockStr);
 
 console.log(html);
-```
-
-## API
-
-### Marked的class和types的方法
-
-```ts
-/**
- * 接受Markdown文本以HTML格式返回文本
- * 
- * @param src 需要编译的markdown源码字符串
- * 
- * @param options 一些选项，他们可以被替换，但是不能与默认选项合并
- * 如何你想合并，你可以通过 `Marked.setOptions()` 做，你也可以使用`Marked.setOptions`
- * 
- */
-static parse(src: string, options?: MarkedOptions): string;
-
-/**
- * 允许Markdown文本可以返回格式化的HTML对象文本，通过 `BlockLexer.parser()` 来解析
- * 
- * @param src 需要编译的markdown源码字符串
- * @param options 一些选项，他们可以被替换，但是不能与默认选项合并
- * 如何你想合并，你可以通过 `Marked.setOptions()` 做
- */
-static debug(src: string, options?: MarkedOptions): {result: string, tokens: Token[], links: Links};
-
-
-/**
- * 将设置选项和默认选项合并
- * 
- * @param options 散列选项.
- */
-static setOptions(options: MarkedOptions): this;
-
-
-interface Token {
-  type: number | string;
-  text?: string;
-  lang?: string;
-  depth?: number;
-  header?: string[];
-  align?: ('center' | 'left' | 'right')[];
-  cells?: string[][];
-  ordered?: boolean;
-  pre?: boolean;
-  escaped?: boolean;
-  execArr?: RegExpExecArray;
-  /**
-   * 用于调试，标识生成的HTML文件中的行号
-   */
-  line?: number;
-}
-
-enum TokenType {
-  space = 1,
-  text,
-  paragraph,
-  heading,
-  listStart,
-  listEnd,
-  looseItemStart,
-  looseItemEnd,
-  listItemStart,
-  listItemEnd,
-  blockquoteStart,
-  blockquoteEnd,
-  code,
-  table,
-  html,
-  hr,
-}
-
-
-// 这个class也可以用作接口.
-class MarkedOptions {
-  gfm?: boolean = true;
-  tables?: boolean = true;
-  breaks?: boolean = false;
-  pedantic?: boolean = false;
-  sanitize?: boolean = false;
-  sanitizer?: (text: string) => string;
-  mangle?: boolean = true;
-  smartLists?: boolean = false;
-  silent?: boolean = false;
-
-  /**
-   * @param code 需要高亮的代码片段.
-   * @param lang 在代码块中指定的编码语言.
-   */
-  highlight?: (code: string, lang?: string) => string;
-  langPrefix?: string = 'lang-';
-  smartypants?: boolean = false;
-  headerPrefix?: string = '';
-  /**
-   * 默认是实例化的渲染器即：`new Renderer()`
-   */
-  renderer?: Renderer;
-  /**
-   * 自关闭无效标签按照XHML要求处理 (&lt;br/&gt;, &lt;img/&gt;, etc.)
-   * with a "/" as required by XHTML.
-   */
-  xhtml?: boolean = false;
-  /**
-   * 用于转义HTML实体的函数，默认情况下使用内部 helper
-   */
-  escape?: (html: string, encode?: boolean) => string = escape;
-  /**
-   * 用于返转义HTML实体的函数，默认情况下也使用内部 helper
-   */
-   unescape?: (html: string) => string = unescape;
-   /**
-   * 如果设置为 `false`，一行文本默认会生成一段
-   * 
-   * ```ts
-   * // isNoP == false
-   * Marked.parse('some text'); // returns '<p>some text</p>'
-   * 
-   * Marked.setOptions({isNoP: true});
-   * 
-   * Marked.parse('some text'); // returns 'some text'
-   * ```
-   */
-  isNoP?: boolean;
-}
-```
-
-### Renderer的API
-
-```ts
-//*** 块级渲染的方法 ***
-
-code(code: string, lang?: string, escaped?: boolean): string;
-
-blockquote(quote: string): string;
-
-html(html: string): string;
-
-heading(text: string, level: number, raw: string): string;
-
-hr(): string;
-
-list(body: string, ordered?: boolean): string;
-
-listitem(text: string): string;
-
-paragraph(text: string): string;
-
-table(header: string, body: string): string;
-
-tablerow(content: string): string;
-
-tablecell(content: string, flags: {header?: boolean, align?: 'center' | 'left' | 'right'}): string;
-
-//*** 内联级的渲染方法. ***
-
-strong(text: string): string;
-
-em(text: string): string;
-
-codespan(text: string): string;
-
-br(): string;
-
-del(text: string): string;
-
-link(href: string, title: string, text: string): string;
-
-image(href: string, title: string, text: string): string;
-
-text(text: string): string;
-
 ```
 
 ## 基础环境和跑项目
