@@ -8,8 +8,7 @@
     "bench": "node -r tsconfig-paths/register dist/benchmarks.js"
   },
   "devDependencies": {
-    "jasmine": "^3.6.1",
-    "rimraf": "^3.0.2",
-    "ts-node": "^9.1.1"
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1"
   }
 }
