@@ -79,7 +79,7 @@ import { Marked, Renderer } from '@ts-stack/markdown';
 
 class MyRenderer extends Renderer {
   // 覆盖父方法.
-  heading(text: string, level: number, raw: string) {
+  override heading(text: string, level: number, raw: string) {
     const regexp = /\s*{([^}]+)}$/;
     const execArr = regexp.exec(text);
     let id: string;
