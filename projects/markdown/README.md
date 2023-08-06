@@ -5,14 +5,8 @@
 This is fork of popular library `marked` from [this commit](https://github.com/markedjs/marked/tree/39fbc8aed)
 (Merge pull request #961 from chjj/release-0.3.7, Dec 1, 2017).
 
-If you enjoy working with TypeScript, we also recommend other libraries by the same author:
-
-- [Ditsmod](https://ditsmod.github.io/en/) - a web framework for Node.js to build modular applications;
-- [@ts-stack/openapi-spec](https://github.com/ts-stack/openapi-spec) - TypeScript models for writing OpenAPI documentation.
-
 ## lang
 - [Chinese](./lang/zh/README.md)
-
 
 ## Table of contents
 
@@ -227,18 +221,9 @@ If you contribute code to this project, you are implicitly allowing your code
 to be distributed under the MIT license. You are also implicitly verifying that
 all code is your original work. `</legalese>`
 
-## License
+## Other libs from the author
 
-Copyright (c) 2011-2014, Christopher Jeffrey. (MIT License)
+If you enjoy working with TypeScript, we also recommend other libraries by the same author:
 
-Copyright (c) 2018-2021, Костя Третяк. (MIT License)
-
-See LICENSE for more info.
-
-[gfm]: https://help.github.com/articles/github-flavored-markdown
-[gfmf]: http://github.github.com/github-flavored-markdown/
-[pygmentize]: https://github.com/rvagg/node-pygmentize-bundled
-[highlight]: https://github.com/isagalaev/highlight.js
-[badge]: http://badge.fury.io/js/marked
-[tables]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#wiki-tables
-[breaks]: https://help.github.com/articles/github-flavored-markdown#newlines
+- [Ditsmod](https://ditsmod.github.io/en/) - a web framework for Node.js to build modular applications;
+- [@ts-stack/openapi-spec](https://github.com/ts-stack/openapi-spec) - TypeScript models for writing OpenAPI documentation.
