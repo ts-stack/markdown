@@ -5,12 +5,16 @@
   "version": "1.4.0",
   "repository": "git://github.com/ts-stack/markdown.git",
   "homepage": "https://github.com/ts-stack/markdown",
-  "main": "dist/index",
+  "main": "dist/src/index",
+  "types": "dist/src/index",
   "bugs": {
     "url": "http://github.com/ts-stack/markdown/issues"
   },
   "scripts": {
-    "build": "ng-packagr -p ng-package.json"
+    "test": "npm run build && yest dist",
+    "build": "tsc -b",
+    "pack": "ng-packagr -p ng-package.json",
+    "clean": "rimraf dist/*"
   },
   "license": "MIT",
   "keywords": [

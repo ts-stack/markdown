@@ -49,12 +49,12 @@ export class InlineLexer {
     protected staticThis: typeof InlineLexer,
     protected links: Links,
     protected options: MarkedOptions = Marked.options,
-    renderer?: Renderer
+    renderer?: Renderer,
   ) {
     this.renderer = renderer || this.options.renderer || new Renderer(this.options);
 
     if (!this.links) {
-      throw new Error(`InlineLexer requires 'links' parameter.`);
+      throw new Error("InlineLexer requires 'links' parameter.");
     }
 
     this.setRules();
@@ -172,7 +172,6 @@ export class InlineLexer {
    * Lexing/Compiling.
    */
   output(nextPart: string): string {
-    nextPart = nextPart;
     let execArr: RegExpExecArray;
     let out = '';
 
@@ -192,7 +191,7 @@ export class InlineLexer {
 
         if (execArr[2] === '@') {
           text = this.options.escape(
-            execArr[1].charAt(6) === ':' ? this.mangle(execArr[1].substring(7)) : this.mangle(execArr[1])
+            execArr[1].charAt(6) === ':' ? this.mangle(execArr[1].substring(7)) : this.mangle(execArr[1]),
           );
           href = this.mangle('mailto:') + text;
         } else {
@@ -206,11 +205,9 @@ export class InlineLexer {
 
       // url (gfm)
       if (!this.inLink && this.hasRulesGfm && (execArr = (this.rules as RulesInlineGfm).url.exec(nextPart))) {
-        let text: string;
-        let href: string;
         nextPart = nextPart.substring(execArr[0].length);
-        text = this.options.escape(execArr[1]);
-        href = text;
+        const text = this.options.escape(execArr[1]);
+        const href = text;
         out += this.renderer.link(href, null, text);
         continue;
       }
@@ -342,11 +339,11 @@ export class InlineLexer {
         // en-dashes
         .replace(/--/g, '\u2013')
         // opening singles
-        .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
+        .replace(/(^|[-\u2014/([{"\s])'/g, '$1\u2018')
         // closing singles & apostrophes
         .replace(/'/g, '\u2019')
         // opening doubles
-        .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
+        .replace(/(^|[-\u2014/([{\u2018\s])"/g, '$1\u201c')
         // closing doubles
         .replace(/"/g, '\u201d')
         // ellipses

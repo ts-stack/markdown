@@ -1,7 +1,6 @@
 {
   "version": "independent",
-  "npmClient": "yarn",
-  "useWorkspaces": true,
+  "npmClient": "npm",
   "packages": ["projects/*"],
   "command": {
     "publish": {
@@ -10,5 +9,6 @@
     "bootstrap": {
       "npmClientArgs": ["--no-package-lock"]
     }
-  }
+  },
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }

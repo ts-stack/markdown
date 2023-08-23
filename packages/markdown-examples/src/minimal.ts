@@ -1,4 +1,4 @@
-import { Marked, Renderer } from '@ts-stack/markdown';
+import { Marked, Renderer } from '../../markdown/src';
 
 Marked.setOptions({
   renderer: new Renderer(),
@@ -11,4 +11,4 @@ Marked.setOptions({
   smartypants: false,
 });
 
-console.log(Marked.parse('I am using __markdown__.'));
+console.log(Marked.parse('I am using __markdown__.', { sanitize: true }));

@@ -4,7 +4,6 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-
     "target": "es2020",
     "module": "commonjs",
     "strict": false,
@@ -13,12 +12,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
-    "moduleResolution": "node",
-    "paths": {
-      "@ts-stack/markdown": [
-        "./projects/markdown/src"
-      ]
-    }
+    "moduleResolution": "node"
   },
   "exclude": ["**/node_modules/*"]
 }

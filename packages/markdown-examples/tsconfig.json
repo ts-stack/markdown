@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
     "baseUrl": "./",
+    "tsBuildInfoFile": "dist/build.tsbuildinfo",
     "paths": {
       "@ts-stack/markdown": ["../markdown/src"]
     }

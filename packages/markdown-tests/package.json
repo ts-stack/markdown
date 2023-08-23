@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "version": "0.0.1",
+  "name": "markdown-tests",
+  "scripts": {
+    "test": "npm run build && node -r tsconfig-paths/register dist/src/index && jest",
+    "build": "tsc -b",
+    "bench": "node -r tsconfig-paths/register dist/src/benchmarks.js",
+    "clean": "rimraf dist/*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1"
+  }
+}

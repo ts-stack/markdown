@@ -2,7 +2,7 @@
   "private": true,
   "name": "monorepo",
   "workspaces": [
-    "projects/*"
+    "packages/*"
   ],
   "devDependencies": {
     "@angular/compiler": "^16.1.8",
@@ -21,7 +21,7 @@
     "highlight.js": "^11.8.0",
     "jest": "^29.6.2",
     "katex": "^0.16.8",
-    "lerna": "^7.1.4",
+    "lerna": "^7.1.5",
     "markdown": "^0.5.0",
     "markdown-it": "^13.0.1",
     "marked": "^6.0.0",
@@ -30,18 +30,18 @@
     "remarkable": "^2.0.0",
     "rimraf": "^5.0.1",
     "showdown": "^2.1.0",
-    "ts-jest": "^29.1.1",
     "tsconfig-paths": "^4.2.0",
     "tslib": "^2.6.1",
     "typescript": "^5.1.6"
   },
   "scripts": {
-    "test": "ts-node -r tsconfig-paths/register projects/markdown-tests/src/index.ts && jest projects/markdown-tests",
-    "build": "ng-packagr -p projects/markdown/ng-package.json",
-    "clean": "rimraf projects/**/dist* projects/**/out-tsc* projects/**/*.tsbuildinfo",
-    "pub": "yarn build && cd dist && npm publish",
-    "build:bench": "rimraf projects/markdown-tests/dist/* && tsc -b -f projects/markdown-tests",
-    "bench": "node -r tsconfig-paths/register projects/markdown-tests/dist/benchmarks.js",
+    "build": "tsc -b packages",
+    "test": "npm run build && jest",
+    "pack": "ng-packagr -p packages/markdown/ng-package.json",
+    "clean": "rimraf packages/**/dist*",
+    "pub": "npm run build && cd dist && npm publish",
+    "build:bench": "rimraf packages/markdown-tests/dist/* && tsc -b -f packages/markdown-tests",
+    "bench": "node -r tsconfig-paths/register packages/markdown-tests/dist/benchmarks.js",
     "lint": "eslint . --ext .ts"
   }
 }
