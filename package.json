@@ -36,7 +36,7 @@
   },
   "scripts": {
     "build": "tsc -b packages",
-    "test": "npm run build && jest",
+    "test": "npm run build && node -r tsconfig-paths/register packages/markdown-tests/dist/src/index && jest",
     "pack": "ng-packagr -p packages/markdown/ng-package.json",
     "clean": "rimraf packages/**/dist*",
     "pub": "npm run build && cd dist && npm publish",
