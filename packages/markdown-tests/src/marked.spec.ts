@@ -12,4 +12,12 @@ describe('BlockLexer', () => {
     const result = Marked.parse('one\n\n1, two\n\n2, three\n\n3');
     expect(result).toEqual('<p>one</p>\n11<p>, two</p>\n12<p>, three</p>\n<p>3</p>\n');
   });
+
+  it('Marked.parse should merge options', () => {
+    const md = '<script></script>I am using __markdown__.';
+    expect(() => Marked.parse(md, { sanitize: true })).not.toThrow();
+    expect(Marked.parse(md, { sanitize: false })).toBe('<p><script></script>I am using <strong>markdown</strong>.</p>\n');
+    expect(Marked.parse(md, { sanitize: true })).toBe('<p>&lt;script&gt;&lt;/script&gt;I am using <strong>markdown</strong>.</p>\n');
+    expect(Marked.options.sanitize).toBe(false);
+  });
 });
