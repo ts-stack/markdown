@@ -39,7 +39,7 @@
     "test": "npm run build && node -r tsconfig-paths/register packages/markdown-tests/dist/src/index && jest",
     "ng-build": "npm run clean && npm run build && ng-packagr -p packages/markdown/ng-package.json",
     "clean": "rimraf dist packages/**/dist*",
-    "pub": "npm run build && cd dist && npm publish",
+    "pub": "npm run ng-build && cd dist && npm publish",
     "bench": "node -r tsconfig-paths/register packages/markdown-tests/dist/src/benchmarks.js",
     "lint": "eslint . --ext .ts"
   }
