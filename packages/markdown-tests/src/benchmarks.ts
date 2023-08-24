@@ -19,6 +19,16 @@ interface RunBenchOptions {
   length?: number;
 }
 
+interface BenchOptions {
+  name: string;
+  accumulatedMarkdown: string;
+  parseAndCompile: (...args: any[]) => any;
+  times: number;
+  loadTime: number;
+  initTime: number;
+  options: { [key: string | number]: any };
+}
+
 const widthTable = 80;
 
 runBench();
@@ -54,18 +64,14 @@ function initBench(benchStrLen: number = 300, times: number = 1): string {
  * @param name Name of engine.
  * @param parseAndCompile Function to be used for testing.
  */
-function bench(
-  name: string,
-  accumulatedMarkdown: string,
-  parseAndCompile: (...args: any[]) => any,
-  times: number = 1,
-  loadTime: number = 0,
-  initTime: number = 0
-): void {
-  const startBench = Date.now();
+function bench(benchOptions: BenchOptions): void {
+  const { name, accumulatedMarkdown, parseAndCompile, loadTime = 0, initTime = 0, options } = benchOptions;
 
-  while (times--) {
-    parseAndCompile(accumulatedMarkdown);
+  const startBench = Date.now();
+  benchOptions.times = benchOptions.times || 1;
+
+  while (benchOptions.times--) {
+    parseAndCompile(accumulatedMarkdown, options);
   }
 
   const benchTime = Date.now() - startBench;
@@ -110,11 +116,17 @@ function runBench() {
     parserMethod?: string;
     compilerMethod?: string;
     isParserStatic?: boolean;
+    options?: { [key: string | number]: any };
   }
 
   let libs: Lib[] = [
     { name: '@ts-stack/markdown', parserClass: 'Marked', parserAndCompilerMethod: 'parse', isParserStatic: true },
-    { name: 'marked', parserAndCompilerMethod: 'parse', isParserStatic: true },
+    {
+      name: 'marked',
+      parserAndCompilerMethod: 'parse',
+      isParserStatic: true,
+      options: { mangle: false, headerIds: false },
+    },
     { name: 'markdown', parserAndCompilerMethod: 'parse', isParserStatic: true },
     { name: 'remarkable', parserClass: 'Remarkable', parserAndCompilerMethod: 'render' },
     {
@@ -152,7 +164,7 @@ function runBench() {
       const CompilerClass = lib.compilerClass ? fullLib[lib.compilerClass] : null;
       const parserInstance = lib.isParserStatic ? ParserClass : new ParserClass();
       const compilerInstance = CompilerClass ? new CompilerClass() : null;
-      let parseAndCompile: (md: string) => string;
+      let parseAndCompile: (md: string, options?: any) => string;
 
       if (lib.parserAndCompilerMethod) {
         parseAndCompile = parserInstance[lib.parserAndCompilerMethod].bind(parserInstance);
@@ -165,10 +177,10 @@ function runBench() {
       }
 
       const startInit = Date.now();
-      parseAndCompile('1');
+      parseAndCompile('1', lib.options);
       const initTime = Date.now() - startInit;
 
-      bench(lib.name, accumulatedMarkdown, parseAndCompile, times, loadTime, initTime);
+      bench({ name: lib.name, accumulatedMarkdown, parseAndCompile, times, loadTime, initTime, options: lib.options });
     } catch (e) {
       console.log(`Could not bench '${lib.name}'.`);
       console.log(e.stack);
@@ -214,7 +226,7 @@ function parseArg(): RunBenchOptions {
 }
 
 function load(): string[] {
-  const dir = path.normalize(__dirname + '/../src/tests');
+  const dir = path.normalize(__dirname + '/../../src/tests');
   const files: string[] = [];
 
   const list = fs.readdirSync(dir).filter((file) => path.extname(file) == '.md');

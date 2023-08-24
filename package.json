@@ -40,8 +40,7 @@
     "pack": "ng-packagr -p packages/markdown/ng-package.json",
     "clean": "rimraf packages/**/dist*",
     "pub": "npm run build && cd dist && npm publish",
-    "build:bench": "rimraf packages/markdown-tests/dist/* && tsc -b -f packages/markdown-tests",
-    "bench": "node -r tsconfig-paths/register packages/markdown-tests/dist/benchmarks.js",
+    "bench": "node -r tsconfig-paths/register packages/markdown-tests/dist/src/benchmarks.js",
     "lint": "eslint . --ext .ts"
   }
 }
