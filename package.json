@@ -37,7 +37,8 @@
   "scripts": {
     "build": "tsc -b packages",
     "test": "npm run build && node -r tsconfig-paths/register packages/markdown-tests/dist/src/index && jest",
-    "ng-build": "npm run clean && npm run build && ng-packagr -p packages/markdown/ng-package.json",
+    "ng-build": "npm run clean && npm run build && ng-packagr -p packages/markdown/ng-package.json && npm run copy-readme",
+    "copy-readme": "cp README.md dist",
     "clean": "rimraf dist packages/**/dist*",
     "pub": "npm run ng-build && cd dist && npm publish",
     "bench": "node -r tsconfig-paths/register packages/markdown-tests/dist/src/benchmarks.js",
