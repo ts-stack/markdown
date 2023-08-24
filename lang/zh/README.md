@@ -170,21 +170,21 @@ cd markdown
 npm install
 cd projects/markdown-tests
 npm install
-npm run compile
+npm run build
 npm run bench
 ```
 
 默认情况下，只需要安装一次测试套件。测试套件包括所有的 markdown 特性。它不迎合特性的方便（你可以自行做些扩展）。
 
-| Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms | Memory usage, KB
-| ------------------------|--------------|--------------|----------------|-----------|------------------
-| @ts-stack/markdown v1.0.0-beta.4 | 5            | 4            | 84             | 93        | 5 706
-| marked v0.8.0           | 5            | 7            | 86             | 98        | 7 489
-| markdown v0.5.0         | 2            | 2            | 128            | 132       | 19 220
-| remarkable v2.0.0       | 5            | 2            | 136            | 143       | 12 408
-| commonmark v0.29.1      | 19           | 3            | 148            | 170       | 22 571
-| markdown-it v10.0.0     | 24           | 3            | 176            | 203       | 17 190
-| showdown v1.8.6         | 4            | 7            | 408            | 419       | 57 767
+| Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms 
+| ------------------------|--------------|--------------|----------------|-----------
+| @ts-stack/markdown v1.5.0 | 5            | 4            | 84             | 93 
+| marked v0.8.0           | 5            | 7            | 86             | 98
+| markdown v0.5.0         | 2            | 2            | 128            | 132
+| remarkable v2.0.0       | 5            | 2            | 136            | 143
+| commonmark v0.29.1      | 19           | 3            | 148            | 170
+| markdown-it v10.0.0     | 24           | 3            | 176            | 203
+| showdown v1.8.6         | 4            | 7            | 408            | 419
 
 ### bench命令传参设置
 
