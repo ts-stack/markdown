@@ -2,18 +2,16 @@
   "name": "@ts-stack/markdown",
   "description": "A full-featured markdown parser and compiler, written in TypeScript",
   "author": "Костя Третяк <ktretiak.in.ua@gmail.com>",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "repository": "git://github.com/ts-stack/markdown.git",
   "homepage": "https://github.com/ts-stack/markdown",
-  "main": "dist/src/index",
-  "types": "dist/src/index",
   "bugs": {
     "url": "http://github.com/ts-stack/markdown/issues"
   },
   "scripts": {
     "test": "npm run build && yest dist",
     "build": "tsc -b",
-    "pack": "ng-packagr -p ng-package.json",
+    "ng-build": "ng-packagr -p ng-package.json",
     "clean": "rimraf dist/*"
   },
   "license": "MIT",
