@@ -170,7 +170,6 @@ cd markdown
 npm install
 cd projects/markdown-tests
 npm install
-npm run build
 npm run bench
 ```
 
@@ -178,13 +177,13 @@ npm run bench
 
 | Lib                     | Lib load, ms | Lib init, ms | Bench work, ms | Total, ms 
 | ------------------------|--------------|--------------|----------------|-----------
-| @ts-stack/markdown v1.5.0 | 5            | 4            | 84             | 93 
-| marked v0.8.0           | 5            | 7            | 86             | 98
-| markdown v0.5.0         | 2            | 2            | 128            | 132
-| remarkable v2.0.0       | 5            | 2            | 136            | 143
-| commonmark v0.29.1      | 19           | 3            | 148            | 170
-| markdown-it v10.0.0     | 24           | 3            | 176            | 203
-| showdown v1.8.6         | 4            | 7            | 408            | 419
+| @ts-stack/markdown v1.5.0 | 9          | 5            | 67             | 81 
+| marked v7.0.4           | 30           | 22           | 128            | 180
+| markdown v0.5.0         | 10           | 8            | 180            | 198
+| remarkable v2.0.1       | 22           | 9            | 126            | 157
+| commonmark v0.30.0      | 51           | 2            | 120            | 173
+| markdown-it v13.0.1     | 56           | 3            | 171            | 230
+| showdown v2.1.0         | 18           | 38           | 545            | 601
 
 ### bench命令传参设置
 

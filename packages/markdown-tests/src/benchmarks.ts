@@ -6,7 +6,7 @@
  * https://github.com/chjj/marked
  *
  * @ts-stack/markdown tests
- * Copyright (c) 2018-2021, Третяк Костя. (MIT Licensed)
+ * Copyright (c) 2018-2023, Третяк Костя. (MIT Licensed)
  * https://github.com/ts-stack/markdown
  */
 
@@ -100,12 +100,15 @@ function bench(benchOptions: BenchOptions): void {
 
   console.log(output);
   console.log('-'.repeat(widthTable));
+
+  // Forcing Garbage Collection to avoid doing this when benchmarking other libraries.
+  global.gc();
 }
 
 /**
  * Benchmark all engines
  */
-function runBench() {
+async function runBench() {
   let options: RunBenchOptions = parseArg();
 
   interface Lib {
@@ -152,7 +155,8 @@ function runBench() {
     libs = [libs[options.single]];
   }
 
-  libs.forEach((lib) => {
+  for (let i = 0; i < libs.length; i++) {
+    const lib = libs[i];
     const loadFrom: string = lib.name;
     try {
       const startLoadTime = Date.now();
@@ -181,11 +185,16 @@ function runBench() {
       const initTime = Date.now() - startInit;
 
       bench({ name: lib.name, accumulatedMarkdown, parseAndCompile, times, loadTime, initTime, options: lib.options });
+
+      if (i + 1 < libs.length) {
+        // Wait one second to mitigate the impact on subsequent benchmarks
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     } catch (e) {
       console.log(`Could not bench '${lib.name}'.`);
       console.log(e.stack);
     }
-  });
+  }
 }
 
 function parseArg(): RunBenchOptions {

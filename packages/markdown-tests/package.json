@@ -5,7 +5,7 @@
   "scripts": {
     "test": "npm run build && node -r tsconfig-paths/register dist/src/index && jest",
     "build": "tsc -b",
-    "bench": "node -r tsconfig-paths/register dist/src/benchmarks.js",
+    "bench": "npm run build && node -r tsconfig-paths/register --expose-gc dist/src/benchmarks.js",
     "clean": "rimraf dist/*"
   },
   "devDependencies": {
