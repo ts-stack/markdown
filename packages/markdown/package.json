@@ -9,8 +9,8 @@
     "url": "http://github.com/ts-stack/markdown/issues"
   },
   "scripts": {
-    "test": "npm run build && yest",
-    "build": "tsc -b",
+    "test": "npm run build && node -r tsconfig-paths/register dist-test/index.js && jest",
+    "build": "tsc -b ../tsconfig.json",
     "ng-build": "ng-packagr -p ng-package.json",
     "clean": "rimraf dist/* dist-test/*"
   },
