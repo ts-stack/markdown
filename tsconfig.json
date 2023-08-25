@@ -14,7 +14,7 @@
     "removeComments": false,
     "moduleResolution": "node",
     "paths": {
-      "@ts-stack/markdown": ["./packages/markdown/dist/src"]
+      "@ts-stack/markdown": ["./packages/markdown/dist"]
     }
   },
   "exclude": ["**/node_modules/*"]

@@ -35,13 +35,13 @@
   },
   "scripts": {
     "build": "tsc -b packages",
-    "test": "npm run build && node -r tsconfig-paths/register packages/markdown-tests/dist/src/index && jest",
+    "test": "npm run build && node -r tsconfig-paths/register packages/markdown/dist-test/index.js && jest",
     "test1": "jest -c jest.config1.ts",
     "ng-build": "npm run clean && npm run build && ng-packagr -p packages/markdown/ng-package.json && npm run copy-readme",
     "copy-readme": "cp README.md dist",
     "clean": "rimraf dist packages/**/dist*",
     "pub": "npm run ng-build && cd dist && npm publish",
-    "bench": "npm run build && node -r tsconfig-paths/register --expose-gc packages/markdown-tests/dist/src/benchmarks.js",
+    "bench": "npm run build && node -r tsconfig-paths/register --expose-gc packages/markdown/dist-test/benchmarks.ts",
     "lint": "eslint . --ext .ts"
   }
 }

@@ -1,8 +1,8 @@
 {
   "files": [],
   "references": [
-    { "path": "markdown" },
-    { "path": "markdown-tests" },
+    { "path": "markdown/tsconfig.build.json" },
+    { "path": "markdown/tsconfig.test.json" },
     { "path": "markdown-examples" },
   ]
 }

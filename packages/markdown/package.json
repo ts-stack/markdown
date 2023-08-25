@@ -9,10 +9,10 @@
     "url": "http://github.com/ts-stack/markdown/issues"
   },
   "scripts": {
-    "test": "npm run build && yest dist",
+    "test": "npm run build && yest",
     "build": "tsc -b",
     "ng-build": "ng-packagr -p ng-package.json",
-    "clean": "rimraf dist/*"
+    "clean": "rimraf dist/* dist-test/*"
   },
   "license": "MIT",
   "keywords": [

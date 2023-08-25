@@ -5,5 +5,5 @@ npm-debug.log
 *.tgz
 .vscode
 test/tmp.ts
-projects/markdown-tests/src/tests/*-actual.html
+packages/markdown/test/expect-actual/*-actual.html
 *.tsbuildinfo*

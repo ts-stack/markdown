@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist-test",
+    "rootDir": "test",
+    "baseUrl": "./",
+    "tsBuildInfoFile": "dist-test/test.tsbuildinfo",
+    "paths": {
+      "@ts-stack/markdown": ["./src"]
+    }
+  },
+  "include": ["test"],
+  "references": [{ "path": "./tsconfig.build.json" }]
+}
