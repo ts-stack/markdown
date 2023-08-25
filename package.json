@@ -29,12 +29,14 @@
     "remarkable": "^2.0.1",
     "rimraf": "^5.0.1",
     "showdown": "^2.1.0",
+    "ts-jest": "^29.1.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.6"
   },
   "scripts": {
     "build": "tsc -b packages",
     "test": "npm run build && node -r tsconfig-paths/register packages/markdown-tests/dist/src/index && jest",
+    "test1": "jest -c jest.config1.ts",
     "ng-build": "npm run clean && npm run build && ng-packagr -p packages/markdown/ng-package.json && npm run copy-readme",
     "copy-readme": "cp README.md dist",
     "clean": "rimraf dist packages/**/dist*",
