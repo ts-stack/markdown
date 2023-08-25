@@ -168,8 +168,6 @@ console.log(html);
 git clone https://github.com/ts-stack/markdown.git
 cd markdown
 npm install
-cd projects/markdown-tests
-npm install
 npm run bench
 ```
 
