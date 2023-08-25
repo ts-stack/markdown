@@ -41,7 +41,7 @@
     "copy-readme": "cp README.md dist",
     "clean": "rimraf dist packages/**/dist*",
     "pub": "npm run ng-build && cd dist && npm publish",
-    "bench": "npm run build && node -r tsconfig-paths/register --expose-gc packages/markdown/dist-test/benchmarks.ts",
+    "bench": "npm run build && node -r tsconfig-paths/register --expose-gc packages/markdown/dist-test/benchmarks.js",
     "lint": "eslint . --ext .ts"
   }
 }
