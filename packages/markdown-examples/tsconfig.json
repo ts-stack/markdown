@@ -3,11 +3,11 @@
   "compilerOptions": {
     "outDir": "dist",
     "baseUrl": "./",
-    "tsBuildInfoFile": "dist/build.tsbuildinfo",
+    "tsBuildInfoFile": "dist/examples.tsbuildinfo",
     "paths": {
       "@ts-stack/markdown": ["../markdown/src"]
     }
   },
   "include": ["src"],
-  "references": [{ "path": "../markdown" }]
+  "references": [{ "path": "../markdown/tsconfig.build.json" }]
 }
