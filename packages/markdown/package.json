@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "npm run build && node -r tsconfig-paths/register dist-test/index.js && jest",
-    "build": "tsc -b ../tsconfig.json",
+    "build": "tsc -b tsconfig.test.json",
     "ng-build": "ng-packagr -p ng-package.json",
     "clean": "rimraf dist/* dist-test/*"
   },
