@@ -223,5 +223,5 @@ all code is your original work. `</legalese>`
 
 If you enjoy working with TypeScript, we also recommend other libraries by the same author:
 
-- [Ditsmod](https://ditsmod.github.io/en/) - a web framework for Node.js to build modular applications;
+- [Holu](https://holujs.github.io/en/) - a web framework for Node.js to build modular applications;
 - [@ts-stack/openapi-spec](https://github.com/ts-stack/openapi-spec) - TypeScript models for writing OpenAPI documentation.
